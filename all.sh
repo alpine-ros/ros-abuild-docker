@@ -21,14 +21,16 @@ do
     grep $version $pkg/ENABLE_ON > /dev/null || continue
   fi
   echo $pkg
-done > building
+done > /tmp/building
 
+echo "----------------"
 echo "building:"
-cat building
+cat /tmp/building
+echo "----------------"
 
 sudo apk update
 
-cat building | while read pkg
+cat /tmp/building | while read pkg
 do
   (cd $pkg \
     && abuild checksum \
