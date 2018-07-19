@@ -5,6 +5,7 @@ set -e
 [ $# -lt 1 ] \
   && (echo "usage: $0 repository-name"; false)
 
+arch=x86_64
 version=`grep -e "alpine/.*/main" /etc/apk/repositories | sed -r "s/^.*\/alpine\/([^\
 /]*)\/main$/\1/"`
 echo "Running on Alpine $version"
@@ -32,6 +33,24 @@ sudo apk update
 
 cat /tmp/building | while read pkg
 do
+  echo "----------------"
+  exist=true
+  (cd $pkg && abuild listpkg > /tmp/$pkg-deps)
+  while read apkname
+  do
+    echo "Checking $apkname"
+    if [ ! -f /packages/$1/$arch/$apkname ]
+    then
+      echo "  - not exist"
+      exist=false
+    fi
+  done < /tmp/$pkg-deps
+  if [ $exist == "true" ]
+  then
+    echo "$pkg is up-to-date"
+    continue
+  fi
+
   (cd $pkg \
     && abuild checksum \
     && abuild -r) || echo "====== Failed to build $pkg ====="
