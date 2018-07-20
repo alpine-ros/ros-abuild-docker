@@ -8,6 +8,7 @@ set -e
 arch=x86_64
 version=`grep -e "alpine/.*/main" /etc/apk/repositories | sed -r "s/^.*\/alpine\/([^\
 /]*)\/main$/\1/"`
+REPODEST=$REPODEST/$version
 echo "Running on Alpine $version"
 echo
 
@@ -101,9 +102,9 @@ do
   while read apkname
   do
     echo "Checking $apkname"
-    if [ ! -f /packages/$1/$arch/$apkname ]
+    if [ ! -f $REPODEST/$1/$arch/$apkname ]
     then
-      echo "  - not exist"
+      echo "  - $REPODEST/$1/$arch/$apkname does not exist"
       exist=false
     fi
   done < /tmp/$pkg-deps
