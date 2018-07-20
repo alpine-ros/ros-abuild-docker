@@ -17,4 +17,4 @@ COPY entrypoint.sh /
 COPY all.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/all.sh"]
+CMD ["/bin/sh"]

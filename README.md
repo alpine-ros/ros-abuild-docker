@@ -18,5 +18,5 @@ docker run \
   -v "`pwd`/test.rsa:/home/builder/.abuild/builder@alpine-ros-experimental.rsa:ro" \
   -v "`pwd`/test.rsa.pub:/etc/apk/keys/builder@alpine-ros-experimental.rsa.pub:ro" \
   -v "`pwd`/packages:/packages" \
-  --rm -it abuild-docker backports
+  --rm -it abuild-docker /all.sh backports
 ```
