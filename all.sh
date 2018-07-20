@@ -118,3 +118,10 @@ do
     && abuild checksum \
     && abuild -r) || echo "====== Failed to build $pkg ====="
 done
+
+echo "----------------"
+echo "regenerating index:"
+
+rm $REPODEST/$1/$arch/APKINDEX.tar.gz
+apk index -o $REPODEST/$1/$arch/APKINDEX.tar.gz `find $REPODEST/$1/$arch -name '*.apk'`
+abuild-sign -k /home/builder/.abuild/*.rsa $REPODEST/$1/$arch/APKINDEX.tar.gz
