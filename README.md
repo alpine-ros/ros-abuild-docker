@@ -1,4 +1,6 @@
-# abuild-docker
+# ros-abuild-docker
+
+Spike implementation of Alpine Linux package builder for ROS (Robot Operating System)
 
 ## generate rsa key
 
