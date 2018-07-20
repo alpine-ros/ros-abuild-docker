@@ -13,7 +13,7 @@ echo "Running on Alpine $version"
 echo
 
 cd /tmp
-git clone --depth=1 -q https://github.com/at-wat/aports-ros-experimental
+git clone --depth=1 -q https://github.com/seqsense/aports-ros-experimental
 cd aports-ros-experimental/$1
 
 ls -1 | while read pkg
