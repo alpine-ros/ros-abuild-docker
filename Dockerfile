@@ -10,9 +10,11 @@ RUN apk add --no-cache alpine-sdk sudo \
 WORKDIR /abuilds
 USER builder
 
-ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder.rsa"
+ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder@alpine-ros-experimental.rsa"
 ENV REPODEST=/packages
 
 COPY entrypoint.sh /
+COPY all.sh /
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/sh"]
