@@ -54,6 +54,10 @@ do
   do
     apk info $dep > /dev/null || echo $dep >> /tmp/deps/$pkg
   done
+  (source $pkg/APKBUILD && echo $depends) | xargs -r -n1 echo | while read dep
+  do
+    apk info $dep > /dev/null || echo $dep >> /tmp/deps/$pkg
+  done
   (source $pkg/APKBUILD && echo $subpackages) | xargs -r -n1 echo | while read sub
   do
     echo $sub >> /tmp/subs/$pkg
@@ -129,7 +133,7 @@ do
 
   (cd $pkg \
     && abuild checksum \
-    && abuild -r) || echo "====== Failed to build $pkg ====="
+    && abuild -r) || (echo "====== Failed to build $pkg ====="; false)
 done
 
 echo "----------------"
