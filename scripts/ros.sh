@@ -8,14 +8,14 @@ set -e
 arch=x86_64
 version=`grep -e "alpine/.*/main" /etc/apk/repositories | sed -r "s/^.*\/alpine\/([^\
 /]*)\/main$/\1/"`
-REPODEST=$REPODEST/$version
+REPODEST=$REPODEST/$version/ros
 echo "Running on Alpine $version"
 echo
 
 rosdep update
 
-mkdir -p /tmp/ros-packages
-cd /tmp/ros-packages
+mkdir -p /tmp/ros/$1
+cd /tmp/ros/$1
 while read line
 do
   pkg=`echo $line | cut -f1 -d' '`
@@ -85,10 +85,14 @@ do
       echo $pkg >> /tmp/building2
       newresolve=true
       rm /tmp/deps/$pkg
+      rospkg=ros-$1-`echo $pkg | sed 's/_/-/g'`
       (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$pkg$/d" -i
+      (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$rospkg$/d" -i
       while read sub
       do
+        rossub=ros-$1-`echo $sub | sed 's/_/-/g'`
         (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$sub$/d" -i
+        (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$rossub$/d" -i
       done < /tmp/subs/$pkg
       sed -e "/^$pkg$/d" -i /tmp/building
     fi
@@ -131,6 +135,6 @@ done
 echo "----------------"
 echo "regenerating index:"
 
-rm $REPODEST/$1/$arch/APKINDEX.tar.gz
+rm -f $REPODEST/$1/$arch/APKINDEX.tar.gz
 apk index -o $REPODEST/$1/$arch/APKINDEX.tar.gz `find $REPODEST/$1/$arch -name '*.apk'`
 abuild-sign -k /home/builder/.abuild/*.rsa $REPODEST/$1/$arch/APKINDEX.tar.gz

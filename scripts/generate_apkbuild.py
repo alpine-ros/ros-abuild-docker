@@ -77,13 +77,14 @@ def package_to_apkbuild(ros_distro, uri):
     response = urlopen(uri)
     pkg_xml = response.read()
     pkg = parse_package_string(pkg_xml)
-    install_space = '/'.join(['/usr/lib/ros', ros_distro])
+    install_space = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
 
     ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
     ret.append(''.join(['pkgver=', pkg.version]))
     ret.append(''.join(['pkgrel=', '1']))
-    ret.append(''.join(['pkgdesc=', '"', pkg.description, '"']))
-    ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
+    ret.append(''.join(['pkgdesc=', '"', pkg.description.replace('\n', ' '), '"']))
+    if len(pkg.urls) > 0:
+        ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
     ret.append(''.join(['arch=', '"all"']))
     ret.append(''.join(['license=', '"', pkg.licenses[0], '"']))
     depends = []
@@ -118,7 +119,7 @@ def package_to_apkbuild(ros_distro, uri):
     if makedepends_keys == None:
         sys.exit(1)
     ret.append(''.join(['makedepends=', '"', ' '.join(makedepends_keys), '"']))
-    ret.append(''.join(['subpackages=', '"$pkgname-dev"']))
+    ret.append(''.join(['subpackages=', '""']))
     ret.append(''.join(['source=', '""']))
     ret.append(''.join(['builddir=', '"$srcdir"']))
 
@@ -130,12 +131,13 @@ def package_to_apkbuild(ros_distro, uri):
         '>', 'pkg.rosinstall']))
     ret.append('  wstool init src pkg.rosinstall')
     if catkin:
+        ret.append(''.join(['  source /lib/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
             '  catkin_make_isolated --install-space', install_space]))
     if cmake:
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
-        ret.append(' '.join([
+        ret.append(''.join([
             '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space]))
         ret.append('  make')
     ret.append('}')
@@ -143,17 +145,22 @@ def package_to_apkbuild(ros_distro, uri):
     ret.append('check() {')
     ret.append('  cd "$builddir"')
     if catkin:
+        ret.append(''.join(['  source /lib/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
             '  catkin_make_isolated --install-space', install_space, '--cmake-args run_tests']))
         ret.append('  catkin_test_results')
     if cmake:
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
-        ret.append('  make test')
+        if pkg.name != 'catkin':
+            # not work correctly for catkin
+            ret.append('  make test')
     ret.append('}')
 
     ret.append('package() {')
+    ret.append('  mkdir -p "$pkgdir"')
     ret.append('  cd "$builddir"')
     if catkin:
+        ret.append(''.join(['  source /lib/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
             '  catkin_make_isolated --install --install-space', install_space]))
     if cmake:
