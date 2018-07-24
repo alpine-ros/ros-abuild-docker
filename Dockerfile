@@ -28,6 +28,9 @@ ewIDAQAB\n\
 RUN rosdep init \
   && sed -i -e 's/ros\/rosdistro\/master/at-wat\/rosdistro\/alpine-custom-apk/' /etc/ros/rosdep/sources.list.d/20-default.list
 
+RUN mkdir -p /var/cache/apk \
+  && ln -s /var/cache/apk /etc/apk/cache
+
 WORKDIR /abuilds
 USER builder
 RUN rosdep update
