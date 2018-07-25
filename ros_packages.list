@@ -28,41 +28,41 @@ rosbag_storage https://raw.githubusercontent.com/ros-gbp/ros_comm-release/releas
 rosbash https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosbash/1.14.4-0/package.xml
 rosboost_cfg https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosboost_cfg/1.14.4-0/package.xml
 rosbuild https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosbuild/1.14.4-0/package.xml
-rosclean https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosclean/1.14.4-0/package.xml
+rosclean https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosclean/1.14.4-0/package.xml nocheck
 rosconsole https://raw.githubusercontent.com/ros-gbp/rosconsole-release/release/melodic/rosconsole/1.13.7-0/package.xml
 rosconsole_bridge https://raw.githubusercontent.com/ros-gbp/rosconsole_bridge-release/release/melodic/rosconsole_bridge/0.5.1-0/package.xml
 roscpp https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roscpp/1.14.2-0/package.xml
 roscpp_core https://raw.githubusercontent.com/ros-gbp/roscpp_core-release/release/melodic/roscpp_core/0.6.11-0/package.xml
 roscpp_serialization https://raw.githubusercontent.com/ros-gbp/roscpp_core-release/release/melodic/roscpp_serialization/0.6.11-0/package.xml
 roscpp_traits https://raw.githubusercontent.com/ros-gbp/roscpp_core-release/release/melodic/roscpp_traits/0.6.11-0/package.xml
-roscreate https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/roscreate/1.14.4-0/package.xml
-rosgraph https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosgraph/1.14.2-0/package.xml
+roscreate https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/roscreate/1.14.4-0/package.xml nocheck
+rosgraph https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosgraph/1.14.2-0/package.xml nocheck
 rosgraph_msgs https://raw.githubusercontent.com/ros-gbp/ros_comm_msgs-release/release/melodic/rosgraph_msgs/1.11.2-0/package.xml
 roslang https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/roslang/1.14.4-0/package.xml
-roslaunch https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roslaunch/1.14.2-0/package.xml
-roslib https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/roslib/1.14.4-0/package.xml
+roslaunch https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roslaunch/1.14.2-0/package.xml nocheck
+roslib https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/roslib/1.14.4-0/package.xml nocheck
 roslisp https://raw.githubusercontent.com/ros-gbp/roslisp-release/release/melodic/roslisp/1.9.21-0/package.xml
 roslz4 https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roslz4/1.14.2-0/package.xml
 rosmake https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosmake/1.14.4-0/package.xml
 rosmaster https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosmaster/1.14.2-0/package.xml
-rosmsg https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosmsg/1.14.2-0/package.xml
-rosnode https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosnode/1.14.2-0/package.xml
+rosmsg https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosmsg/1.14.2-0/package.xml nocheck
+rosnode https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosnode/1.14.2-0/package.xml nocheck
 rosout https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosout/1.14.2-0/package.xml
 rospack https://raw.githubusercontent.com/ros-gbp/rospack-release/release/melodic/rospack/2.5.1-0/package.xml
 rosparam https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosparam/1.14.2-0/package.xml
 rospy https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rospy/1.14.2-0/package.xml
 rosservice https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rosservice/1.14.2-0/package.xml
-rostest https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rostest/1.14.2-0/package.xml
+rostest https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rostest/1.14.2-0/package.xml nocheck
 rostime https://raw.githubusercontent.com/ros-gbp/roscpp_core-release/release/melodic/rostime/0.6.11-0/package.xml
-rostopic https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rostopic/1.14.2-0/package.xml
+rostopic https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/rostopic/1.14.2-0/package.xml nocheck
 rosunit https://raw.githubusercontent.com/ros-gbp/ros-release/release/melodic/rosunit/1.14.4-0/package.xml
-roswtf https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roswtf/1.14.2-0/package.xml
+roswtf https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/roswtf/1.14.2-0/package.xml nocheck
 sensor_msgs https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/melodic/sensor_msgs/1.12.6-0/package.xml
 shape_msgs https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/melodic/shape_msgs/1.12.6-0/package.xml
 std_msgs https://raw.githubusercontent.com/ros-gbp/std_msgs-release/release/melodic/std_msgs/0.5.11-0/package.xml
 std_srvs https://raw.githubusercontent.com/ros-gbp/ros_comm_msgs-release/release/melodic/std_srvs/1.11.2-0/package.xml
 stereo_msgs https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/melodic/stereo_msgs/1.12.6-0/package.xml
-topic_tools https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/topic_tools/1.14.2-0/package.xml
+topic_tools https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/topic_tools/1.14.2-0/package.xml nocheck
 trajectory_msgs https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/melodic/trajectory_msgs/1.12.6-0/package.xml
 visualization_msgs https://raw.githubusercontent.com/ros-gbp/common_msgs-release/release/melodic/visualization_msgs/1.12.6-0/package.xml
 xmlrpcpp https://raw.githubusercontent.com/ros-gbp/ros_comm-release/release/melodic/xmlrpcpp/1.14.2-0/package.xml
