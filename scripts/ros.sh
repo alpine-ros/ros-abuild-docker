@@ -12,6 +12,8 @@ REPODEST=$REPODEST/$version/ros
 echo "Running on Alpine $version"
 echo
 
+ROS_DISTRO=$1
+
 rosdep update
 
 mkdir -p /tmp/ros/$1
@@ -20,8 +22,9 @@ while read line
 do
   pkg=`echo $line | cut -f1 -d' '`
   uri=`echo $line | cut -f2 -d' '`
+  options=`echo $line | cut -f3- -d' '`
   mkdir -p $pkg
-  /scripts/generate_apkbuild.py $1 $uri > $pkg/APKBUILD
+  /scripts/generate_apkbuild.py $1 $uri "$options" > $pkg/APKBUILD
 done < /ros_packages.list 
 
 ls -1 | while read pkg
@@ -39,6 +42,7 @@ cat /tmp/building | sed "s/^/- /"
 echo "----------------"
 
 sudo apk update
+sudo apk add py-rosdep py-rospkg python2-dev python3-dev
 
 echo "----------------"
 echo "checking deps:"

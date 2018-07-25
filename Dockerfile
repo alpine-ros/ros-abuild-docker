@@ -7,7 +7,7 @@ RUN apk add --no-cache alpine-sdk sudo \
   && mkdir -p /abuilds \
   && chown builder:abuild /packages /abuilds
 
-RUN apk add --no-cache python2 py2-pip \
+RUN apk add --no-cache python2 py2-pip py2-yaml \
   && pip install \
     git+https://github.com/at-wat/rospkg.git@fix-alpine-detect \
     git+https://github.com/at-wat/rosdep.git@alpine-installer \

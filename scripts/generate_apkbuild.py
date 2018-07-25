@@ -72,7 +72,7 @@ def resolve(ros_distro, names):
         return None
     return keys
 
-def package_to_apkbuild(ros_distro, uri):
+def package_to_apkbuild(ros_distro, uri, check=True):
     ret = []
     response = urlopen(uri)
     pkg_xml = response.read()
@@ -90,6 +90,9 @@ def package_to_apkbuild(ros_distro, uri):
         ret.append(''.join(['url=', '"http://wiki.ros.org/', pkg.name, '"']))
     ret.append(''.join(['arch=', '"all"']))
     ret.append(''.join(['license=', '"', pkg.licenses[0], '"']))
+    if not check:
+        ret.append(''.join(['options=', '"!check"']))
+
     depends = []
     for dep in pkg.exec_depends:
         depends.append(dep.name)
@@ -144,19 +147,20 @@ def package_to_apkbuild(ros_distro, uri):
         ret.append('  make')
     ret.append('}')
 
-    ret.append('check() {')
-    ret.append('  cd "$builddir"')
-    if catkin:
-        ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(''.join(['  source devel_isolated/setup.sh']))
-        ret.append('  catkin_make_isolated --catkin-make-args run_tests')
-        ret.append('  catkin_test_results')
-    if cmake:
-        ret.append(''.join(['  cd src/', pkg.name, '/build']))
-        if pkg.name != 'catkin':
-            # not work correctly for catkin
-            ret.append('  make test')
-    ret.append('}')
+    if check:
+        ret.append('check() {')
+        ret.append('  cd "$builddir"')
+        if catkin:
+            ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
+            ret.append(''.join(['  source devel_isolated/setup.sh']))
+            ret.append('  catkin_make_isolated --catkin-make-args run_tests')
+            ret.append('  catkin_test_results')
+        if cmake:
+            ret.append(''.join(['  cd src/', pkg.name, '/build']))
+            if pkg.name != 'catkin':
+                # not work correctly for catkin
+                ret.append('  make test')
+        ret.append('}')
 
     ret.append('package() {')
     ret.append('  mkdir -p "$pkgdir"')
@@ -188,4 +192,10 @@ if __name__ == '__main__':
         sys.stderr.write(
             ''.join(['usage: ', argv[0], ' ROS_DISTRO MANIFEST_URI', '\n']))
         sys.exit(1)
-    print(package_to_apkbuild(argv[1], argv[2]))
+    if len(argv) == 3:
+        print(package_to_apkbuild(argv[1], argv[2]))
+    else:
+        if argv[3] == 'nocheck':
+            print(package_to_apkbuild(argv[1], argv[2], check=False))
+        else:
+            print(package_to_apkbuild(argv[1], argv[2]))
