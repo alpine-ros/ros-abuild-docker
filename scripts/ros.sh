@@ -42,7 +42,7 @@ cat /tmp/building | sed "s/^/- /"
 echo "----------------"
 
 sudo apk update
-sudo apk add py-rosdep py-rospkg python2-dev python3-dev
+sudo apk add py-rosdep py-rospkg py-wstool py-vcstools py-rosinstall-generator python2-dev python3-dev
 
 echo "----------------"
 echo "checking deps:"
