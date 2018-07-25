@@ -109,7 +109,11 @@ do
   if [ $newresolve == "false" ]
   then
     echo "Failed to resolve dependency tree for:"
-    cat /tmp/building | sed "s/^/- /"
+    cat /tmp/building | while read pkg
+    do
+      echo $pkg | sed "s/^/- /"
+      cat /tmp/deps/$pkg | sed "s/^/  - /"
+    done
     exit 1
   fi
 done
