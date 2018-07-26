@@ -12,8 +12,15 @@ REPODEST=$REPODEST/$version
 echo "Running on Alpine $version"
 echo
 
+branch_option=
+if [ ! -z $APORTS_BRANCH ]
+then
+  branch_option="-b $APORTS_BRANCH"
+  echo "Using $APORTS_BRANCH branch of seqsense/aports-ros-experimental"
+fi
+
 cd /tmp
-git clone --depth=1 -q -b add-python-pkgs https://github.com/seqsense/aports-ros-experimental
+git clone --depth=1 -q $branch_option https://github.com/seqsense/aports-ros-experimental
 cd aports-ros-experimental/$1
 
 ls -1 | while read pkg
