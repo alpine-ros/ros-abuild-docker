@@ -120,7 +120,7 @@ do
 
   (cd $pkg \
     && abuild checksum \
-    && abuild -r) || echo "====== Failed to build $pkg ====="
+    && abuild -r) || (echo "====== Failed to build $pkg ====="; false)
 done
 
 echo "----------------"

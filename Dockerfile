@@ -1,4 +1,5 @@
 FROM alpine:3.8
+ARG ALPINE_VERSION=v3.8
 
 RUN apk add --no-cache alpine-sdk sudo \
   && adduser -G abuild -D builder \
@@ -14,7 +15,7 @@ RUN apk add --no-cache python2 py2-pip py2-yaml \
     rosinstall_generator \
     wstool
 
-RUN echo "http://alpine-ros-experimental.dev-sq.work/v3.8/backports" >> /etc/apk/repositories \
+RUN echo "http://alpine-ros-experimental.dev-sq.work/${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
   && echo $'-----BEGIN PUBLIC KEY-----\n\
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSO+a+rIaTorOowj3c8e\n\
 5St89puiGJ54QmOW9faDsTcIWhycl4bM5lftp8IdcpKadcnaihwLtMLeaHNJvMIP\n\
@@ -41,7 +42,7 @@ ENV REPODEST=/packages
 COPY entrypoint.sh /
 COPY all.sh /
 COPY scripts /scripts
-COPY ros_packages.list /
+COPY ros_nocheck.list /abuilds/
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/sh"]

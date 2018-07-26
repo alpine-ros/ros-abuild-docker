@@ -2,8 +2,8 @@
 
 set -e
 
-[ $# -lt 1 ] \
-  && (echo "usage: $0 distro-name"; false)
+[ $# -lt 2 ] \
+  && (echo "usage: $0 distro-name package-name"; false)
 
 arch=x86_64
 version=`grep -e "alpine/.*/main" /etc/apk/repositories | sed -r "s/^.*\/alpine\/([^\
@@ -16,6 +16,8 @@ ROS_DISTRO=$1
 
 rosdep update
 
+/scripts/generate_ros_package_list.sh $1 $2 | tee /tmp/ros_packages.list
+
 mkdir -p /tmp/ros/$1
 cd /tmp/ros/$1
 while read line
@@ -25,7 +27,7 @@ do
   options=`echo $line | cut -f3- -d' '`
   mkdir -p $pkg
   /scripts/generate_apkbuild.py $1 $uri "$options" > $pkg/APKBUILD
-done < /ros_packages.list 
+done < /tmp/ros_packages.list
 
 ls -1 | while read pkg
 do
