@@ -157,9 +157,7 @@ def package_to_apkbuild(ros_distro, uri, check=True):
             ret.append('  catkin_test_results')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
-            if pkg.name != 'catkin':
-                # not work correctly for catkin
-                ret.append('  make test')
+            ret.append('  [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ] && make test || true')
         ret.append('}')
 
     ret.append('package() {')
