@@ -66,10 +66,19 @@ do
   done
   (source $pkg/APKBUILD && echo $subpackages) | xargs -r -n1 echo | while read sub
   do
-    echo $sub >> /tmp/subs/$pkg
+    echo $sub | cut -f1 -d":" >> /tmp/subs/$pkg
   done
   echo "  $pkg requires:"
   cat /tmp/deps/$pkg | sed "s/^/  - /"
+done
+echo "----------------"
+
+echo "----------------"
+echo "subpackages:"
+cat /tmp/building | while read pkg
+do
+  echo "  $pkg contains:"
+  cat /tmp/subs/$pkg | sed "s/^/  - /"
 done
 echo "----------------"
 
