@@ -133,7 +133,7 @@ def package_to_apkbuild(ros_distro, uri, check=True):
     ret.append('  cd "$builddir"')
     ret.append('  mkdir -p src')
     ret.append(' '.join([
-        '  rosinstall_generator', '--rosdistro', ros_distro, '--tar', pkg.name,
+        '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', '--tar', pkg.name,
         '|', 'tee', 'pkg.rosinstall']))
     ret.append('  wstool init src pkg.rosinstall')
     if catkin:
