@@ -9,3 +9,7 @@ rostest
 rostopic
 roswtf
 topic_tools
+tf2
+tf2_eigen
+actionlib
+pcl_ros
