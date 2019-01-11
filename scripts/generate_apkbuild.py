@@ -133,7 +133,7 @@ def package_to_apkbuild(ros_distro, uri, check=True):
     ret.append('  cd "$builddir"')
     ret.append('  mkdir -p src')
     ret.append(' '.join([
-        '  rosinstall_generator', '--rosdistro', ros_distro, '--tar', pkg.name,
+        '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', '--tar', pkg.name,
         '|', 'tee', 'pkg.rosinstall']))
     ret.append('  wstool init src pkg.rosinstall')
     if catkin:
@@ -157,9 +157,7 @@ def package_to_apkbuild(ros_distro, uri, check=True):
             ret.append('  catkin_test_results')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
-            if pkg.name != 'catkin':
-                # not work correctly for catkin
-                ret.append('  make test')
+            ret.append('  [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ] && make test || true')
         ret.append('}')
 
     ret.append('package() {')
