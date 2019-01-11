@@ -26,7 +26,7 @@ do
   uri=`echo $line | cut -f2 -d' '`
   options=`echo $line | cut -f3- -d' '`
   mkdir -p $pkg
-  /scripts/generate_apkbuild.py $1 $uri "$options" > $pkg/APKBUILD
+  /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD
 done < /tmp/ros_packages.list
 
 ls -1 | while read pkg

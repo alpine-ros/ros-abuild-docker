@@ -19,6 +19,6 @@ do
 
   echo $line | grep -e "^- git:" > /dev/null \
     && ( nocheck=; \
-         grep -e "^$name$" ros_nocheck.list > /dev/null && nocheck=nocheck; \
+         grep -e "^$name$" ros_nocheck.list > /dev/null && nocheck=--nocheck; \
          echo $name $uri/$version/package.xml $nocheck )
 done < /tmp/rosinstall
