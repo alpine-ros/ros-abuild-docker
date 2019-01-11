@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+import argparse
 import sys
 
 from urllib2 import urlopen
@@ -72,7 +73,7 @@ def resolve(ros_distro, names):
         return None
     return keys
 
-def package_to_apkbuild(ros_distro, uri, check=True):
+def package_to_apkbuild(ros_distro, uri, check=True, upstream=False):
     ret = []
     response = urlopen(uri)
     pkg_xml = response.read()
@@ -185,15 +186,18 @@ def package_to_apkbuild(ros_distro, uri, check=True):
     return '\n'.join(ret)
 
 if __name__ == '__main__':
-    argv = sys.argv
-    if len(argv) < 3:
-        sys.stderr.write(
-            ''.join(['usage: ', argv[0], ' ROS_DISTRO MANIFEST_URI', '\n']))
-        sys.exit(1)
-    if len(argv) == 3:
-        print(package_to_apkbuild(argv[1], argv[2]))
-    else:
-        if argv[3] == 'nocheck':
-            print(package_to_apkbuild(argv[1], argv[2], check=False))
-        else:
-            print(package_to_apkbuild(argv[1], argv[2]))
+    parser = argparse.ArgumentParser(description='Generate APKBUILD of ROS package')
+    parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
+                        help='name of the ROS distribution')
+    parser.add_argument('manifest_uri', metavar='MANIFEST_URI', nargs=1,
+                        help='URI of the package manifest')
+    parser.add_argument('--nocheck', dest='check', action='store_const',
+                        const=False, default=True,
+                        help='disable test (default: enabled)')
+    parser.add_argument('--upstream', action='store_const',
+                        const=True, default=False,
+                        help='use upstream repository (default: False)')
+    args = parser.parse_args()
+
+    print(package_to_apkbuild(args.ros_distro[0], args.manifest_uri[0],
+                              check=args.check, upstream=args.upstream))
