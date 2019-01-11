@@ -35,7 +35,6 @@ RUN mkdir -p /var/cache/apk \
 
 WORKDIR /abuilds
 USER builder
-RUN rosdep update
 
 ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder@alpine-ros-experimental.rsa"
 ENV REPODEST=/packages
