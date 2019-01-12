@@ -44,6 +44,8 @@ COPY entrypoint.sh /
 COPY all.sh /
 COPY scripts /scripts
 COPY ros_nocheck.list /abuilds/
+COPY local_index /local_index
+RUN sudo chmod og+rw /local_index
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/sh"]

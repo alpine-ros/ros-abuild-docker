@@ -1,0 +1,19 @@
+%YAML 1.1
+# ROS index file
+# see REP 143: http://ros.org/reps/rep-0143.html
+---
+distributions:
+  indigo:
+    distribution: [indigo/distribution.yaml]
+    distribution_cache: indigo-cache.yaml
+  kinetic:
+    distribution: [kinetic/distribution.yaml]
+    distribution_cache: kinetic-cache.yaml
+  lunar:
+    distribution: [lunar/distribution.yaml]
+    distribution_cache: lunar-cache.yaml
+  melodic:
+    distribution: [melodic/distribution.yaml]
+    distribution_cache: melodic-cache.yaml
+type: index
+version: 3
