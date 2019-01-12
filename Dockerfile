@@ -13,6 +13,7 @@ RUN apk add --no-cache python2 py2-pip py2-yaml \
   && pip install \
     git+https://github.com/at-wat/rospkg.git@fix-alpine-detect \
     git+https://github.com/at-wat/rosdep.git@alpine-installer \
+    requests \
     rosinstall_generator \
     wstool
 

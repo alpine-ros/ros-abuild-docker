@@ -26,8 +26,15 @@ do
   uri=`echo $line | cut -f2 -d' '`
   options=`echo $line | cut -f3- -d' '`
   mkdir -p $pkg
-  /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD
+  echo "  - $pkg"
+  if [ -z ${PACKAGE_FROM_URI} ]
+  then
+    /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD
+  else
+    /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD
+  fi
 done < /tmp/ros_packages.list
+echo "----------------"
 
 ls -1 | while read pkg
 do

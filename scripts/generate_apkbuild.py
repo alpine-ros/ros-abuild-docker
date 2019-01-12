@@ -28,6 +28,7 @@
 
 from __future__ import print_function
 import argparse
+import requests
 import sys
 
 from catkin_pkg.package import parse_package_string
@@ -79,8 +80,13 @@ def resolve(ros_distro, names):
 
 def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     ret = []
-    distro = get_distro(ros_distro)
-    pkg_xml = distro.get_release_package_xml(package_name)
+    pkg_xml = ''
+    if package_name.startswith('http://') or package_name.startswith('https://'):
+        res = requests.get(package_name)
+        pkg_xml = res.text
+    else:
+        distro = get_distro(ros_distro)
+        pkg_xml = distro.get_release_package_xml(package_name)
     pkg = parse_package_string(pkg_xml)
     install_space = ''.join(['/usr/ros/', ros_distro])
     install_space_fakeroot = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
@@ -194,7 +200,7 @@ if __name__ == '__main__':
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
     parser.add_argument('package', metavar='PACKAGE', nargs=1,
-                        help='package name')
+                        help='package name or URL of package.xml')
     parser.add_argument('--nocheck', dest='check', action='store_const',
                         const=False, default=True,
                         help='disable test (default: enabled)')
