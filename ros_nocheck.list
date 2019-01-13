@@ -15,3 +15,7 @@ actionlib
 pcl_ros
 tf_conversions
 safety_limiter
+camera_calibration_parsers
+cv_bridge
+image_geometry
+camera_calibration
