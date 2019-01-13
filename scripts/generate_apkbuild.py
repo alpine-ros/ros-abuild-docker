@@ -154,7 +154,8 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
         ret.append(''.join([
-            '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space]))
+            '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space,
+            ' -DCMAKE_INSTALL_LIBDIR=lib']))
         ret.append('  make')
     ret.append('}')
 
