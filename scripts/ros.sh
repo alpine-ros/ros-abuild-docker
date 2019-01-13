@@ -8,16 +8,27 @@ set -e
 arch=x86_64
 version=`grep -e "alpine/.*/main" /etc/apk/repositories | sed -r "s/^.*\/alpine\/([^\
 /]*)\/main$/\1/"`
-REPODEST=$REPODEST/$version/ros
+REPODEST=$REPODEST/$version/${REPOSITORY_NAME:-ros}
 echo "Running on Alpine $version"
 echo
 
 ROS_DISTRO=$1
 
+if [ -z ${PACKAGE_FROM_URI} ]
+then
+  if [ -z ${ROSDISTRO_INDEX_URL} ]
+  then
+    (cd /local_index; ./load.sh)
+    export ROSDISTRO_INDEX_URL=file:///local_index/index.yaml
+  fi
+fi
+
 rosdep update
 
 /scripts/generate_ros_package_list.sh $1 $2 | tee /tmp/ros_packages.list
 
+echo "----------------"
+echo "generating APKBUILD:"
 mkdir -p /tmp/ros/$1
 cd /tmp/ros/$1
 while read line
@@ -26,8 +37,15 @@ do
   uri=`echo $line | cut -f2 -d' '`
   options=`echo $line | cut -f3- -d' '`
   mkdir -p $pkg
-  /scripts/generate_apkbuild.py $1 $uri "$options" > $pkg/APKBUILD
+  echo "  - $pkg"
+  if [ -z ${PACKAGE_FROM_URI} ]
+  then
+    /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD
+  else
+    /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD
+  fi
 done < /tmp/ros_packages.list
+echo "----------------"
 
 ls -1 | while read pkg
 do

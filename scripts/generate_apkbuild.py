@@ -27,12 +27,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+import argparse
+import requests
 import sys
-
-from urllib2 import urlopen
 
 from catkin_pkg.package import parse_package_string
 import rosdep2
+from rosdistro import get_cached_distribution, get_index, get_index_url
+from rosdistro.manifest_provider import get_release_tag
+
+def get_distro(distro_name):
+    index = get_index(get_index_url())
+    return get_cached_distribution(index, distro_name)
 
 def ros_pkgname_to_pkgname(ros_distro, pkgname):
     return '-'.join(['ros', ros_distro, pkgname.replace('_', '-')])
@@ -72,10 +78,15 @@ def resolve(ros_distro, names):
         return None
     return keys
 
-def package_to_apkbuild(ros_distro, uri, check=True):
+def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     ret = []
-    response = urlopen(uri)
-    pkg_xml = response.read()
+    pkg_xml = ''
+    if package_name.startswith('http://') or package_name.startswith('https://'):
+        res = requests.get(package_name)
+        pkg_xml = res.text
+    else:
+        distro = get_distro(ros_distro)
+        pkg_xml = distro.get_release_package_xml(package_name)
     pkg = parse_package_string(pkg_xml)
     install_space = ''.join(['/usr/ros/', ros_distro])
     install_space_fakeroot = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
@@ -133,12 +144,12 @@ def package_to_apkbuild(ros_distro, uri, check=True):
     ret.append('  cd "$builddir"')
     ret.append('  mkdir -p src')
     ret.append(' '.join([
-        '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', '--tar', pkg.name,
+        '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', pkg.name,
         '|', 'tee', 'pkg.rosinstall']))
-    ret.append('  wstool init src pkg.rosinstall')
+    ret.append('  wstool init --shallow src pkg.rosinstall')
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append('  catkin_make_isolated')
+        ret.append(''.join(['  catkin_make_isolated']))
     if cmake:
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -153,7 +164,7 @@ def package_to_apkbuild(ros_distro, uri, check=True):
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
             ret.append(''.join(['  source devel_isolated/setup.sh']))
-            ret.append('  catkin_make_isolated --catkin-make-args run_tests')
+            ret.append(''.join(['  catkin_make_isolated --catkin-make-args run_tests']))
             ret.append('  catkin_test_results')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -185,15 +196,18 @@ def package_to_apkbuild(ros_distro, uri, check=True):
     return '\n'.join(ret)
 
 if __name__ == '__main__':
-    argv = sys.argv
-    if len(argv) < 3:
-        sys.stderr.write(
-            ''.join(['usage: ', argv[0], ' ROS_DISTRO MANIFEST_URI', '\n']))
-        sys.exit(1)
-    if len(argv) == 3:
-        print(package_to_apkbuild(argv[1], argv[2]))
-    else:
-        if argv[3] == 'nocheck':
-            print(package_to_apkbuild(argv[1], argv[2], check=False))
-        else:
-            print(package_to_apkbuild(argv[1], argv[2]))
+    parser = argparse.ArgumentParser(description='Generate APKBUILD of ROS package')
+    parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
+                        help='name of the ROS distribution')
+    parser.add_argument('package', metavar='PACKAGE', nargs=1,
+                        help='package name or URL of package.xml')
+    parser.add_argument('--nocheck', dest='check', action='store_const',
+                        const=False, default=True,
+                        help='disable test (default: enabled)')
+    parser.add_argument('--upstream', action='store_const',
+                        const=True, default=False,
+                        help='use upstream repository (default: False)')
+    args = parser.parse_args()
+
+    print(package_to_apkbuild(args.ros_distro[0], args.package[0],
+                              check=args.check, upstream=args.upstream))

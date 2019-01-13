@@ -13,6 +13,7 @@ RUN apk add --no-cache python2 py2-pip py2-yaml \
   && pip install \
     git+https://github.com/at-wat/rospkg.git@fix-alpine-detect \
     git+https://github.com/at-wat/rosdep.git@alpine-installer \
+    requests \
     rosinstall_generator \
     wstool
 
@@ -35,7 +36,6 @@ RUN mkdir -p /var/cache/apk \
 
 WORKDIR /abuilds
 USER builder
-RUN rosdep update
 
 ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder@alpine-ros-experimental.rsa"
 ENV REPODEST=/packages
@@ -44,6 +44,8 @@ COPY entrypoint.sh /
 COPY all.sh /
 COPY scripts /scripts
 COPY ros_nocheck.list /abuilds/
+COPY local_index /local_index
+RUN sudo chmod og+rw /local_index
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/sh"]

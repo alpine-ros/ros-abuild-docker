@@ -124,6 +124,10 @@ do
   echo "----------------"
   exist=true
   (cd $pkg && abuild listpkg > /tmp/$pkg-deps)
+  if [ `source $pkg/APKBUILD && echo $arch` == "noarch" ]
+  then
+    sed -e 's/arch="noarch"/arch="all"/' -i $pkg/APKBUILD
+  fi
   while read apkname
   do
     echo "Checking $apkname"
