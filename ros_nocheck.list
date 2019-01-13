@@ -1,3 +1,9 @@
+actionlib
+camera_calibration
+camera_calibration_parsers
+cv_bridge
+image_geometry
+pcl_ros
 rosclean
 roscreate
 rosgraph
@@ -8,14 +14,8 @@ rosnode
 rostest
 rostopic
 roswtf
-topic_tools
+safety_limiter
 tf2
 tf2_eigen
-actionlib
-pcl_ros
 tf_conversions
-safety_limiter
-camera_calibration_parsers
-cv_bridge
-image_geometry
-camera_calibration
+topic_tools
