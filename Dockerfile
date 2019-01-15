@@ -9,9 +9,9 @@ RUN apk add --no-cache alpine-sdk sudo \
   && mkdir -p /abuilds \
   && chown builder:abuild /packages /abuilds
 
-RUN apk add --no-cache python2 py2-pip py2-yaml \
-  && pip install \
-    git+https://github.com/at-wat/rospkg.git@fix-alpine-detect \
+RUN apk add --no-cache python3 py3-pip py3-yaml \
+  && pip3 install \
+    rospkg \
     git+https://github.com/at-wat/rosdep.git@alpine-installer \
     requests \
     rosinstall_generator \
