@@ -66,7 +66,11 @@ def resolve(ros_distro, names):
         except KeyError as e:
             keys.append(ros_pkgname_to_pkgname(ros_distro, rosdep_name))
             continue
-        rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
+        try:
+            rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
+        except rosdep2.lookup.ResolutionError as e:
+            not_provided.append(rosdep_name)
+            continue
         if type(rule) == dict:
             not_provided.append(rosdep_name)
         installer = installer_context.get_installer(rule_installer)
@@ -112,9 +116,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     for dep in pkg.build_export_depends:
         depends.append(dep.name)
     depends_keys = resolve(ros_distro, depends)
-    if depends_keys == None:
-        sys.exit(1)
-    ret.append(''.join(['depends=', '"', ' '.join(depends_keys), '"']))
+
     makedepends = []
     catkin = False
     cmake = False
@@ -133,8 +135,10 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     for dep in pkg.test_depends:
         makedepends.append(dep.name)
     makedepends_keys = resolve(ros_distro, makedepends)
-    if makedepends_keys == None:
+
+    if depends_keys == None or makedepends_keys == None:
         sys.exit(1)
+    ret.append(''.join(['depends=', '"', ' '.join(depends_keys), '"']))
     ret.append(''.join(['makedepends=', '"', ' '.join(makedepends_keys), '"']))
     ret.append(''.join(['subpackages=', '""']))
     ret.append(''.join(['source=', '""']))

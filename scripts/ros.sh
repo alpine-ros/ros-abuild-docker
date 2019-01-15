@@ -31,6 +31,7 @@ echo "----------------"
 echo "generating APKBUILD:"
 mkdir -p /tmp/ros/$1
 cd /tmp/ros/$1
+rm -f /tmp/gen-apkbuild-failure
 while read line
 do
   pkg=`echo $line | cut -f1 -d' '`
@@ -40,11 +41,19 @@ do
   echo "  - $pkg"
   if [ -z ${PACKAGE_FROM_URI} ]
   then
-    /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD
+    python3 /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD \
+      || echo $pkg >> /tmp/gen-apkbuild-failure
   else
-    /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD
+    python3 /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD \
+      || echo $pkg >> /tmp/gen-apkbuild-failure
   fi
 done < /tmp/ros_packages.list
+if [ -f /tmp/gen-apkbuild-failure ]
+then
+  echo "Failed to generate APKBUILD for:"
+  cat /tmp/gen-apkbuild-failure | sed "s/^/- /"
+  exit 1
+fi
 echo "----------------"
 
 ls -1 | while read pkg
