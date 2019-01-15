@@ -41,10 +41,10 @@ do
   echo "  - $pkg"
   if [ -z ${PACKAGE_FROM_URI} ]
   then
-    python3 /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD \
+    /scripts/generate_apkbuild.py $ROS_DISTRO $pkg $options > $pkg/APKBUILD \
       || echo $pkg >> /tmp/gen-apkbuild-failure
   else
-    python3 /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD \
+    /scripts/generate_apkbuild.py $ROS_DISTRO $uri $options > $pkg/APKBUILD \
       || echo $pkg >> /tmp/gen-apkbuild-failure
   fi
 done < /tmp/ros_packages.list
