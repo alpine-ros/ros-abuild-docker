@@ -111,11 +111,15 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     depends = []
     for dep in pkg.exec_depends:
         depends.append(dep.name)
+    depends_keys_raw = resolve(ros_distro, depends)
+    depends_keys = [k for k in depends_keys_raw if not k.endswith('-dev')]
+
+    depends_export = []
     for dep in pkg.buildtool_export_depends:
-        depends.append(dep.name)
+        depends_export.append(dep.name)
     for dep in pkg.build_export_depends:
-        depends.append(dep.name)
-    depends_keys = resolve(ros_distro, depends)
+        depends_export.append(dep.name)
+    depends_export_keys = resolve(ros_distro, depends_export)
 
     makedepends = []
     catkin = False
@@ -136,9 +140,12 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
         makedepends.append(dep.name)
     makedepends_keys = resolve(ros_distro, makedepends)
 
-    if depends_keys == None or makedepends_keys == None:
+    if depends_keys == None or depends_export_keys == None or makedepends_keys == None:
         sys.exit(1)
-    ret.append(''.join(['depends=', '"', ' '.join(depends_keys), '"']))
+    ret.append(''.join(['depends=', '"',
+                        ' '.join(depends_keys),
+                        ' '.join(depends_export_keys),
+                        '"']))
     ret.append(''.join(['makedepends=', '"py-setuptools ', ' '.join(makedepends_keys), '"']))
     ret.append(''.join(['subpackages=', '""']))
     ret.append(''.join(['source=', '""']))
