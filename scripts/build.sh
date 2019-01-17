@@ -51,11 +51,15 @@ do
   touch /tmp/subs/$pkg
   (source $pkg/APKBUILD && echo $makedepends) | xargs -r -n1 echo | while read dep
   do
-    apk info $dep > /dev/null || echo $dep >> /tmp/deps/$pkg
+    apk info $dep > /dev/null \
+      && (grep $dep /tmp/building > /dev/null && echo $dep >> /tmp/deps/$pkg || true) \
+      || (echo $dep >> /tmp/deps/$pkg)
   done
-  (source $pkg/APKBUILD && echo $depends) | xargs -r -n1 echo | while read dep
+  (source $pkg/APKBUILD && echo $depends_dev) | xargs -r -n1 echo | while read dep
   do
-    apk info $dep > /dev/null || echo $dep >> /tmp/deps/$pkg
+    apk info $dep > /dev/null \
+      && (grep $dep /tmp/building > /dev/null && echo $dep >> /tmp/deps/$pkg || true) \
+      || (echo $dep >> /tmp/deps/$pkg)
   done
   (source $pkg/APKBUILD && echo $subpackages) | xargs -r -n1 echo | while read sub
   do
@@ -97,10 +101,10 @@ do
       echo $pkg >> /tmp/building2
       newresolve=true
       rm /tmp/deps/$pkg
-      (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$pkg$/d" -i
+      (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$pkg\([><=]\{1,2\}[0-9.]*\)\{0,1\}$/d" -i
       while read sub
       do
-        (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$sub$/d" -i
+        (ls -1 /tmp/deps/* 2> /dev/null || true) | xargs -r -n1 sed -e "/^$sub\([><=]\{1,2\}[0-9.]*\)\{0,1\}$/d" -i
       done < /tmp/subs/$pkg
       sed -e "/^$pkg$/d" -i /tmp/building
     fi
