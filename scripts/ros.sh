@@ -25,7 +25,7 @@ fi
 
 rosdep update
 
-/scripts/generate_ros_package_list.sh $1 $2 | tee /tmp/ros_packages.list
+/scripts/generate_ros_package_list.sh $1 ${@:2} | tee /tmp/ros_packages.list
 
 echo "----------------"
 echo "generating APKBUILD:"
