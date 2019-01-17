@@ -143,7 +143,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     if depends_keys == None or depends_export_keys == None or makedepends_keys == None:
         sys.exit(1)
     ret.append(''.join(['depends=', '"',
-                        ' '.join(depends_keys),
+                        ' '.join(depends_keys), ' ',
                         ' '.join(depends_export_keys),
                         '"']))
     ret.append(''.join(['makedepends=', '"py-setuptools ', ' '.join(makedepends_keys), '"']))
