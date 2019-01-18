@@ -111,8 +111,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     depends = []
     for dep in pkg.exec_depends:
         depends.append(dep.name)
-    depends_keys_raw = resolve(ros_distro, depends)
-    depends_keys = [k for k in depends_keys_raw if not k.endswith('-dev')]
+    depends_keys = resolve(ros_distro, depends)
 
     depends_export = []
     for dep in pkg.buildtool_export_depends:
