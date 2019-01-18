@@ -5,7 +5,7 @@ set -e
 [ $# -lt 2 ] \
   && (echo "usage: $0 distro-name package-name"; false)
 
-rosinstall_generator --flat --deps --rosdistro $1 $2 | sed '1d' > /tmp/rosinstall
+rosinstall_generator --flat --deps --rosdistro $1 ${@:2} | sed '1d' > /tmp/rosinstall
 echo "- git:" >> /tmp/rosinstall
 
 while read line

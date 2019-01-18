@@ -111,11 +111,14 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     depends = []
     for dep in pkg.exec_depends:
         depends.append(dep.name)
-    for dep in pkg.buildtool_export_depends:
-        depends.append(dep.name)
-    for dep in pkg.build_export_depends:
-        depends.append(dep.name)
     depends_keys = resolve(ros_distro, depends)
+
+    depends_export = []
+    for dep in pkg.buildtool_export_depends:
+        depends_export.append(dep.name)
+    for dep in pkg.build_export_depends:
+        depends_export.append(dep.name)
+    depends_export_keys = resolve(ros_distro, depends_export)
 
     makedepends = []
     catkin = False
@@ -136,9 +139,12 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
         makedepends.append(dep.name)
     makedepends_keys = resolve(ros_distro, makedepends)
 
-    if depends_keys == None or makedepends_keys == None:
+    if depends_keys == None or depends_export_keys == None or makedepends_keys == None:
         sys.exit(1)
-    ret.append(''.join(['depends=', '"', ' '.join(depends_keys), '"']))
+    ret.append(''.join(['depends=', '"',
+                        ' '.join(depends_keys), ' ',
+                        ' '.join(depends_export_keys),
+                        '"']))
     ret.append(''.join(['makedepends=', '"py-setuptools ', ' '.join(makedepends_keys), '"']))
     ret.append(''.join(['subpackages=', '""']))
     ret.append(''.join(['source=', '""']))
@@ -153,7 +159,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     ret.append('  wstool init --shallow src pkg.rosinstall')
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(''.join(['  catkin_make_isolated']))
+        ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release']))
     if cmake:
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -169,7 +175,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
             ret.append(''.join(['  source devel_isolated/setup.sh']))
-            ret.append(''.join(['  catkin_make_isolated --catkin-make-args run_tests']))
+            ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --catkin-make-args run_tests']))
             ret.append('  catkin_test_results')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -183,9 +189,9 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
-            '  catkin_make_isolated --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install-space', install_space]))
         ret.append(' '.join([
-            '  catkin_make_isolated --install --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install --install-space', install_space]))
         ret.append(''.join([
             '  rm ',
             install_space_fakeroot, '/setup.* ',
