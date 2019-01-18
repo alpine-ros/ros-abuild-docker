@@ -51,12 +51,14 @@ do
   touch /tmp/subs/$pkg
   (source $pkg/APKBUILD && echo $makedepends) | xargs -r -n1 echo | while read dep
   do
+    dep=`echo $dep | sed -e "s/[><=]\{1,2\}[0-9.]*$//"`
     apk info $dep > /dev/null \
       && (grep $dep /tmp/building > /dev/null && echo $dep >> /tmp/deps/$pkg || true) \
       || (echo $dep >> /tmp/deps/$pkg)
   done
   (source $pkg/APKBUILD && echo $depends_dev) | xargs -r -n1 echo | while read dep
   do
+    dep=`echo $dep | sed -e "s/[><=]\{1,2\}[0-9.]*$//"`
     apk info $dep > /dev/null \
       && (grep $dep /tmp/building > /dev/null && echo $dep >> /tmp/deps/$pkg || true) \
       || (echo $dep >> /tmp/deps/$pkg)
