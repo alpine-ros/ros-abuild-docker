@@ -18,7 +18,7 @@ fi
 rosdep update
 sudo apk update
 
-[ -f ${PACKAGER_PRIVKEY} ] || abuild-keygen -a -i
+[ -f ${PACKAGER_PRIVKEY} ] || abuild-keygen -a -i -n
 
 flatsrc=/flatsrc
 apkdir=/apkdir
