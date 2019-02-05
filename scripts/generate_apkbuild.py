@@ -28,7 +28,6 @@
 
 from __future__ import print_function
 import argparse
-import requests
 import sys
 
 from catkin_pkg.package import parse_package_string
@@ -82,22 +81,29 @@ def resolve(ros_distro, names):
         return None
     return keys
 
-def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
+def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, src=False, rev=0):
     ret = []
     pkg_xml = ''
     if package_name.startswith('http://') or package_name.startswith('https://'):
+        import requests
+
         res = requests.get(package_name)
         pkg_xml = res.text
+    elif package_name.endswith('.xml'):
+        with open(package_name, 'r') as f:
+            pkg_xml = f.read()
     else:
         distro = get_distro(ros_distro)
         pkg_xml = distro.get_release_package_xml(package_name)
     pkg = parse_package_string(pkg_xml)
+
     install_space = ''.join(['/usr/ros/', ros_distro])
     install_space_fakeroot = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
 
     ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
+    ret.append(''.join(['_pkgname=', pkg.name]))
     ret.append(''.join(['pkgver=', pkg.version]))
-    ret.append(''.join(['pkgrel=', '1']))
+    ret.append(''.join(['pkgrel=', str(rev)]))
     ret.append(''.join(['pkgdesc=', '"', pkg.name, ' package for ROS "', ros_distro]))
     if len(pkg.urls) > 0:
         ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
@@ -148,15 +154,21 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False):
     ret.append(''.join(['makedepends=', '"py-setuptools ', ' '.join(makedepends_keys), '"']))
     ret.append(''.join(['subpackages=', '""']))
     ret.append(''.join(['source=', '""']))
-    ret.append(''.join(['builddir=', '"$srcdir"']))
+    ret.append(''.join(['builddir=', '"$startdir/apk-build-temporary"']))
+    ret.append(''.join(['srcdir=', '"/tmp/dummy-src-dir"']))
 
     ret.append('build() {')
+    ret.append('  mkdir -p $builddir')
     ret.append('  cd "$builddir"')
     ret.append('  mkdir -p src')
-    ret.append(' '.join([
-        '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', pkg.name,
-        '|', 'tee', 'pkg.rosinstall']))
-    ret.append('  wstool init --shallow src pkg.rosinstall')
+    if src:
+        ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
+    else:
+        ret.append(' '.join([
+            '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', pkg.name,
+            '|', 'tee', 'pkg.rosinstall']))
+        ret.append('  wstool init --shallow src pkg.rosinstall')
+
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release']))
@@ -211,14 +223,17 @@ if __name__ == '__main__':
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
     parser.add_argument('package', metavar='PACKAGE', nargs=1,
-                        help='package name or URL of package.xml')
+                        help='package name or URL/file path to package.xml')
     parser.add_argument('--nocheck', dest='check', action='store_const',
                         const=False, default=True,
-                        help='disable test (default: enabled)')
+                        help='disable test (default: test enabled)')
+    parser.add_argument('--src', dest='src', action='store_const',
+                        const=True, default=False,
+                        help='build from source (default: disabled)')
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
-                              check=args.check, upstream=args.upstream))
+                              check=args.check, upstream=args.upstream, src=args.src))
