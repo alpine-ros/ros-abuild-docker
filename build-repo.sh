@@ -2,16 +2,11 @@
 
 set -e
 
-if [ $# -lt 1 ]; then
-  echo "usage: $0 REPONAME"
-  exit 1
-fi
-
-repo=$1
+repo=${ROS_DISTRO}
 
 if [ ! -z ${CUSTOM_APK_REPOS} ]; then
-  for repo in ${CUSTOM_APK_REPOS}; do
-    echo $repo >> /etc/apk/repositories
+  for r in ${CUSTOM_APK_REPOS}; do
+    echo $r >> /etc/apk/repositories
   done
 fi
 
@@ -37,7 +32,7 @@ for manifest in ${manifests}; do
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
 
-  /generate_apkbuild.py kinetic ${APORTSDIR}/${repo}/${pkgname}/package.xml --src | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
+  /generate_apkbuild.py ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
 done
 
 buildrepo -a ${APORTSDIR} -d ${REPODIR} ${repo}
