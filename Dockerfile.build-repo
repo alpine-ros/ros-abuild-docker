@@ -36,15 +36,18 @@ RUN rosdep init \
 RUN mkdir -p /var/cache/apk \
   && ln -s /var/cache/apk /etc/apk/cache
 
-ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder@alpine-ros-experimental.rsa"
-
 USER builder
+
+ENV HOME="/home/builder"
+ENV PACKAGER_PRIVKEY="${HOME}/.abuild/builder@alpine-ros-experimental.rsa"
+ENV APORTSDIR="${HOME}/aports"
+ENV REPODIR="${HOME}/aports"
+ENV SRCDIR="/src"
 
 COPY scripts/generate_apkbuild.py /
 COPY build-repo.sh /
 
-VOLUME /apkdir
-VOLUME /srcdir
-WORKDIR /srcdir
+VOLUME ${SRCDIR}
+WORKDIR ${SRCDIR}
 
 ENTRYPOINT ["/build-repo.sh"]

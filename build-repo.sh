@@ -20,21 +20,24 @@ sudo apk update
 
 [ -f ${PACKAGER_PRIVKEY} ] || abuild-keygen -a -i -n
 
-flatsrc=/flatsrc
-apkdir=/apkdir
+mkdir -p ${APORTSDIR}/${repo}
+mkdir -p ${REPODIR}
 
-sudo mkdir -p ${flatsrc}/${repo}
-sudo chown -R builder ${flatsrc}
+manifests=`find ${SRCDIR}/${repo} -name "package.xml"`
+for manifest in ${manifests}; do
+  pkgpath=$(dirname ${manifest})
+  pkgname=$(basename ${pkgpath})
 
-manifests=`find ${repo} -name "package.xml"`
-for manifest in $manifests; do
-  pkgpath=$(dirname $manifest)
-  pkgname=$(basename $pkgpath)
-  cp -r ${pkgpath} ${flatsrc}/${repo}/${pkgname}
-  /generate_apkbuild.py kinetic ${flatsrc}/${repo}/${pkgname}/package.xml --src | tee ${flatsrc}/${repo}/${pkgname}/APKBUILD
+  # Copy files with filter
+  mkdir -p ${APORTSDIR}/${repo}/${pkgname}
+  files=$(ls -1A ${pkgpath})
+  for file in ${files}; do
+    if [ $file == ".git" ]; then continue; fi
+
+    cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
+  done
+
+  /generate_apkbuild.py kinetic ${APORTSDIR}/${repo}/${pkgname}/package.xml --src | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
 done
 
-sudo chown builder ${apkdir}
-mkdir -p ${apkdir}/${repo}
-
-buildrepo -a ${flatsrc} -d ${apkdir} ${repo}
+buildrepo -a ${APORTSDIR} -d ${REPODIR} ${repo}
