@@ -3,6 +3,8 @@ FROM alpine:${ALPINE_VERSION}
 ARG ALPINE_VERSION=3.7
 ARG ROS_DISTRO=kinetic
 
+ENV ROS_DISTRO=${ROS_DISTRO}
+
 RUN apk add --no-cache alpine-sdk lua-aports sudo \
   && adduser -G abuild -D builder \
   && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \

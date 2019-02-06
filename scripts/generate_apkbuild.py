@@ -68,6 +68,10 @@ def resolve(ros_distro, names):
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
         except rosdep2.lookup.ResolutionError as e:
+            # ignoring ROS packages since Alpine ROS packages are not solvable at now
+            if e.rosdep_data['_is_ros']:
+                keys.append(ros_pkgname_to_pkgname(ros_distro, rosdep_name))
+                continue
             not_provided.append(rosdep_name)
             continue
         if type(rule) == dict:
