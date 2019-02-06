@@ -109,7 +109,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     ret.append(''.join(['_pkgname=', pkg.name]))
     ret.append(''.join(['pkgver=', pkg.version]))
     ret.append(''.join(['pkgrel=', str(rev)]))
-    ret.append(''.join(['pkgdesc=', '"', pkg.name, ' package for ROS "', ros_distro]))
+    ret.append(''.join(['pkgdesc=', '"', pkg.name, ' package for ROS ', ros_distro, '"']))
     if len(pkg.urls) > 0:
         ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
     else:
