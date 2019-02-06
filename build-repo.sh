@@ -64,8 +64,7 @@ function summarize_error() {
   fi
 }
 
-summary_file=/dev/stdout
-#rm -f ${summary_file}
+rm -f ${summary_file}
 
 echo "## Summary" >> ${summary_file}
 echo '```' >> ${summary_file}
