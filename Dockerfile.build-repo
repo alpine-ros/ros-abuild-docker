@@ -41,6 +41,7 @@ ENV HOME="/home/builder"
 ENV PACKAGER_PRIVKEY="${HOME}/.abuild/builder@alpine-ros-experimental.rsa"
 ENV APORTSDIR="${HOME}/aports"
 ENV REPODIR="${HOME}/packages"
+ENV LOGDIR="${HOME}/logs"
 ENV SRCDIR="/src"
 
 COPY scripts/generate_apkbuild.py /

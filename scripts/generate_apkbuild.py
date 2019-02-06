@@ -35,6 +35,7 @@ import rosdep2
 from rosdistro import get_cached_distribution, get_index, get_index_url
 from rosdistro.manifest_provider import get_release_tag
 
+
 def get_distro(distro_name):
     index = get_index(get_index_url())
     return get_cached_distribution(index, distro_name)
@@ -156,13 +157,23 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
                         ' '.join(depends_export_keys),
                         '"']))
     ret.append(''.join(['makedepends=', '"py-setuptools ', ' '.join(makedepends_keys), '"']))
-    ret.append(''.join(['subpackages=', '""']))
-    ret.append(''.join(['source=', '""']))
-    ret.append(''.join(['builddir=', '"$startdir/apk-build-temporary"']))
-    ret.append(''.join(['srcdir=', '"/tmp/dummy-src-dir"']))
+    ret.append('subpackages=""')
+    ret.append('source=""')
+    ret.append('builddir="$startdir/apk-build-temporary"')
+    ret.append('srcdir="/tmp/dummy-src-dir"')
+    ret.append('buildlog="$builddir/ros-abuild-build.log"')
+    ret.append('checklog="$builddir/ros-abuild-check.log"')
+    ret.append('statuslog="$builddir/ros-abuild-status.log"')
+    ret.append('if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then')
+    ret.append('  buildlog="/dev/null"')
+    ret.append('  checklog="/dev/null"')
+    ret.append('  statuslog="/dev/null"')
+    ret.append('fi')
 
     ret.append('build() {')
+    ret.append('  set -o pipefail')
     ret.append('  mkdir -p $builddir')
+    ret.append('  echo "building" > $statuslog')
     ret.append('  cd "$builddir"')
     ret.append('  mkdir -p src')
     if src:
@@ -175,30 +186,35 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
 
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release']))
+        ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog']))
     if cmake:
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
         ret.append(''.join([
             '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space,
-            ' -DCMAKE_INSTALL_LIBDIR=lib']))
-        ret.append('  make')
+            ' -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog']))
+        ret.append('  make 2>&1 | tee -a $buildlog')
     ret.append('}')
 
     if check:
         ret.append('check() {')
+        ret.append('  set -o pipefail')
+        ret.append('  echo "checking" >> $statuslog')
         ret.append('  cd "$builddir"')
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-            ret.append(''.join(['  source devel_isolated/setup.sh']))
-            ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --catkin-make-args run_tests']))
-            ret.append('  catkin_test_results')
+            ret.append('  source devel_isolated/setup.sh')
+            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --catkin-make-args run_tests 2>&1 | tee $checklog')
+            ret.append('  catkin_test_results 2>&1 | tee $checklog')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
-            ret.append('  [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ] && make test || true')
+            ret.append('  if [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ]; then')
+            ret.append('    make test 2>&1 | tee $checklog')
+            ret.append('  fi')
         ret.append('}')
 
     ret.append('package() {')
+    ret.append('  echo "packaging" >> $statuslog')
     ret.append('  mkdir -p "$pkgdir"')
     ret.append('  cd "$builddir"')
     ret.append('  export DESTDIR="$pkgdir"')
@@ -218,6 +234,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     if cmake:
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
         ret.append('  make install')
+    ret.append('  echo "finished" >> $statuslog')
     ret.append('}')
 
     return '\n'.join(ret)
