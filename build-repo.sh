@@ -105,6 +105,7 @@ echo '```' >> ${summary_file}
 tail -n6 ${full_log_file} >> ${summary_file}
 echo '```' >> ${summary_file}
 
+error=false
 for manifest in ${manifests}; do
   srcpath=$(dirname ${manifest})
   pkgname=$(basename ${srcpath})
@@ -121,6 +122,8 @@ for manifest in ${manifests}; do
     echo "Build succeeded" >> ${summary_file}
     continue
   fi
+
+  error=true
 
   echo "### Build log" >> ${summary_file}
   if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-build.log ]; then
@@ -143,3 +146,9 @@ done
 echo
 echo "---"
 cat ${summary_file}
+
+if [ $error == "true" ]; then
+  exit 1
+fi
+
+exit 0
