@@ -94,7 +94,7 @@ for manifest in ${manifests}; do
     continue
   fi
   echo "\`\`\`" >> ${summary_file}
-  summarize_error ${pkgpath}/apk-build-temporary/ros-abuild-status.log "error" >> ${summary_file}
+  summarize_error ${pkgpath}/apk-build-temporary/ros-abuild-build.log "error" >> ${summary_file}
   echo "\`\`\`" >> ${summary_file}
 
   if [ -f ${pkgpath}/apk-build-temporary/ros-abuild-check.log ]; then
