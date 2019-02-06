@@ -4,15 +4,6 @@ set -e
 
 repo=${ROS_DISTRO}
 
-if [ ! -z ${CUSTOM_APK_REPOS} ]; then
-  for r in ${CUSTOM_APK_REPOS}; do
-    echo $r >> /etc/apk/repositories
-  done
-fi
-
-rosdep update
-sudo apk update
-
 [ -f ${PACKAGER_PRIVKEY} ] || abuild-keygen -a -i -n
 
 mkdir -p ${APORTSDIR}/${repo}
@@ -22,6 +13,20 @@ mkdir -p ${LOGDIR}
 summary_file=${LOGDIR}/summary.log
 full_log_file=${LOGDIR}/full.log
 
+
+# Update repositories
+
+if [ ! -z ${CUSTOM_APK_REPOS} ]; then
+  for r in ${CUSTOM_APK_REPOS}; do
+    echo $r >> /etc/apk/repositories
+  done
+fi
+echo "${REPODIR}/${repo}" | sudo tee -a /etc/apk/repositories
+sudo apk update
+rosdep update
+
+
+# Generate APKBUILDs
 
 manifests=`find ${SRCDIR} -name "package.xml"`
 for manifest in ${manifests}; do
@@ -44,7 +49,10 @@ rm -f $(find ${APORTSDIR} -name "ros-abuild-build.log")
 rm -f $(find ${APORTSDIR} -name "ros-abuild-check.log")
 rm -f $(find ${APORTSDIR} -name "ros-abuild-status.log")
 
-GENERATE_BUILD_LOGS=yes buildrepo -k -a ${APORTSDIR} -d ${REPODIR} ${repo} | tee ${full_log_file}
+
+# Build everything
+
+GENERATE_BUILD_LOGS=yes buildrepo -k ${repo} | tee ${full_log_file}
 
 
 # Summarize build result
