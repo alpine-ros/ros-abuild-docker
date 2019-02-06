@@ -20,6 +20,9 @@ mkdir -p ${APORTSDIR}/${repo}
 mkdir -p ${REPODIR}
 mkdir -p ${LOGDIR}
 
+extsrc=${HOME}/extsrc
+mkdir -p ${extsrc}
+
 summary_file=${LOGDIR}/summary.log
 full_log_file=${LOGDIR}/full.log
 
@@ -36,9 +39,22 @@ sudo apk update
 rosdep update
 
 
+# Clone packages if .rosinstall is provided
+
+ext_deps=$(find ${SRCDIR} -name "*.rosinstall" || true)
+tmp_ws=$(mktemp -d)
+touch ${tmp_ws}/.rosinstall
+for dep in ${ext_deps}; do
+  wstool merge -y -t ${tmp_ws} $dep
+done
+if [ -s ${tmp_ws}/.rosinstall ]; then
+  wstool init ${extsrc} ${tmp_ws}/.rosinstall --shallow -j4
+fi
+
+
 # Generate APKBUILDs
 
-manifests=`find ${SRCDIR} -name "package.xml"`
+manifests="`find ${SRCDIR} -name "package.xml"` `find ${extsrc} -name "package.xml"`"
 for manifest in ${manifests}; do
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
