@@ -8,7 +8,7 @@ if [ ! -f ${PACKAGER_PRIVKEY} ]; then
   abuild-keygen -a -i -n
 
   # Re-sign packages if private key is updated
-  index=$(find ${REPODIR} -name APKINDEX.tar.gz)
+  index=$(find ${REPODIR} -name APKINDEX.tar.gz || true)
   if [ -f "${index}" ]; then
     rm -f ${index}
     apk index -o ${index} `find $(dirname ${index}) -name '*.apk'`
