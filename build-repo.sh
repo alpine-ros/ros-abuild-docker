@@ -23,7 +23,7 @@ summary_file=${LOGDIR}/summary.log
 full_log_file=${LOGDIR}/full.log
 
 
-manifests=`find ${SRCDIR}/${repo} -name "package.xml"`
+manifests=`find ${SRCDIR} -name "package.xml"`
 for manifest in ${manifests}; do
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
