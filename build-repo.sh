@@ -4,7 +4,17 @@ set -e
 
 repo=${ROS_DISTRO}
 
-[ -f ${PACKAGER_PRIVKEY} ] || abuild-keygen -a -i -n
+if [ ! -f ${PACKAGER_PRIVKEY} ]; then
+  abuild-keygen -a -i -n
+
+  # Re-sign packages if private key is updated
+  index=$(find ${REPODIR} -name APKINDEX.tar.gz)
+  if [ -f "${index}" ]; then
+    rm -f ${index}
+    apk index -o ${index} `find $(dirname ${index}) -name '*.apk'`
+    abuild-sign -k /home/builder/.abuild/*.rsa ${index}
+  fi
+fi
 
 mkdir -p ${APORTSDIR}/${repo}
 mkdir -p ${REPODIR}
@@ -88,7 +98,7 @@ for manifest in ${manifests}; do
   echo "## $pkgname" >> ${summary_file}
 
   if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-status.log ]; then
-    echo "Failed to start build" >> ${summary_file}
+    echo "Failed to start build or already been built" >> ${summary_file}
     continue
   fi
   if grep "finished" ${pkgpath}/apk-build-temporary/ros-abuild-status.log > /dev/null; then
