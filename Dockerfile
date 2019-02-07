@@ -1,13 +1,13 @@
-ARG ALPINE_VERSION=3.8
+ARG ALPINE_VERSION=3.7
 FROM alpine:${ALPINE_VERSION}
-ARG ALPINE_VERSION=3.8
+ARG ALPINE_VERSION=3.7
+ARG ROS_DISTRO=kinetic
 
-RUN apk add --no-cache alpine-sdk sudo \
+ENV ROS_DISTRO=${ROS_DISTRO}
+
+RUN apk add --no-cache alpine-sdk lua-aports sudo \
   && adduser -G abuild -D builder \
-  && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
-  && mkdir -p /packages \
-  && mkdir -p /abuilds \
-  && chown builder:abuild /packages /abuilds
+  && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 RUN apk add --no-cache python3 py3-pip py3-yaml \
   && pip3 install \
@@ -18,6 +18,7 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     wstool
 
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
+  && echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/ros/${ROS_DISTRO}" >> /etc/apk/repositories \
   && echo $'-----BEGIN PUBLIC KEY-----\n\
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSO+a+rIaTorOowj3c8e\n\
 5St89puiGJ54QmOW9faDsTcIWhycl4bM5lftp8IdcpKadcnaihwLtMLeaHNJvMIP\n\
@@ -34,18 +35,19 @@ RUN rosdep init \
 RUN mkdir -p /var/cache/apk \
   && ln -s /var/cache/apk /etc/apk/cache
 
-WORKDIR /abuilds
 USER builder
 
-ENV PACKAGER_PRIVKEY="/home/builder/.abuild/builder@alpine-ros-experimental.rsa"
-ENV REPODEST=/packages
+ENV HOME="/home/builder"
+ENV PACKAGER_PRIVKEY="${HOME}/.abuild/builder@alpine-ros-experimental.rsa"
+ENV APORTSDIR="${HOME}/aports"
+ENV REPODIR="${HOME}/packages"
+ENV LOGDIR="${HOME}/logs"
+ENV SRCDIR="/src"
 
-COPY entrypoint.sh /
-COPY all.sh /
-COPY scripts /scripts
-COPY ros_nocheck.list /abuilds/
-COPY local_index /local_index
-RUN sudo chmod og+rw /local_index
+COPY generate_rospkg_apkbuild /scripts
+COPY build-repo.sh /
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/bin/sh"]
+VOLUME ${SRCDIR}
+WORKDIR ${SRCDIR}
+
+ENTRYPOINT ["/build-repo.sh"]
