@@ -68,7 +68,8 @@ for manifest in ${manifests}; do
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
 
-  /generate_apkbuild.py ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
+  /scripts/generate_apkbuild.py ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src --rev=99999 \
+    | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
 done
 
 rm -f $(find ${APORTSDIR} -name "ros-abuild-build.log")
