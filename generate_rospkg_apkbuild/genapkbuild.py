@@ -39,8 +39,10 @@ def get_distro(distro_name):
     index = get_index(get_index_url())
     return get_cached_distribution(index, distro_name)
 
+
 def ros_pkgname_to_pkgname(ros_distro, pkgname):
     return '-'.join(['ros', ros_distro, pkgname.replace('_', '-')])
+
 
 def load_lookup():
     sources_loader = rosdep2.sources_list.SourcesListLoader.create_default(
@@ -49,12 +51,13 @@ def load_lookup():
 
     return lookup
 
+
 def resolve(ros_distro, names):
     lookup = load_lookup()
     installer_context = rosdep2.create_default_installer_context()
-    os_name, os_version = installer_context.get_os_name_and_version()                         
-    installer_keys = installer_context.get_os_installer_keys(os_name)                         
-    default_key = installer_context.get_default_os_installer_key(os_name)                     
+    os_name, os_version = installer_context.get_os_name_and_version()
+    installer_keys = installer_context.get_os_installer_keys(os_name)
+    default_key = installer_context.get_default_os_installer_key(os_name)
 
     keys = []
     not_provided = []
@@ -84,6 +87,7 @@ def resolve(ros_distro, names):
         print('Some package is not provided by native installer: ' + ' '.join(not_provided), file=sys.stderr)
         return None
     return keys
+
 
 def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, src=False, rev=0):
     ret = []
@@ -149,7 +153,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
         makedepends.append(dep.name)
     makedepends_keys = resolve(ros_distro, makedepends)
 
-    if depends_keys == None or depends_export_keys == None or makedepends_keys == None:
+    if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
     ret.append(''.join(['depends=', '"',
                         ' '.join(depends_keys), ' ',
@@ -203,7 +207,8 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
             ret.append('  source devel_isolated/setup.sh')
-            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --catkin-make-args run_tests 2>&1 | tee $checklog')
+            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release \\')
+            ret.append('    --catkin-make-args run_tests 2>&1 | tee $checklog')
             ret.append('  catkin_test_results 2>&1 | tee $checklog')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -238,6 +243,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
 
     return '\n'.join(ret)
 
+
 def main():
     parser = argparse.ArgumentParser(description='Generate APKBUILD of ROS package')
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
@@ -260,6 +266,7 @@ def main():
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
                               src=args.src, rev=args.rev))
+
 
 if __name__ == '__main__':
     main()
