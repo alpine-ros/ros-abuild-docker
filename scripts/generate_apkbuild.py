@@ -248,6 +248,8 @@ if __name__ == '__main__':
     parser.add_argument('--nocheck', dest='check', action='store_const',
                         const=False, default=True,
                         help='disable test (default: test enabled)')
+    parser.add_argument('--rev', dest='rev', type=int, default=0,
+                        help='set revision number (default: 0)')
     parser.add_argument('--src', dest='src', action='store_const',
                         const=True, default=False,
                         help='build from source (default: disabled)')
@@ -257,4 +259,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
-                              check=args.check, upstream=args.upstream, src=args.src))
+                              check=args.check, upstream=args.upstream,
+                              src=args.src, rev=args.rev))
