@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Copyright (c) 2018, SEQSENSE, Inc.
 # All rights reserved.
 #
@@ -239,7 +238,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
 
     return '\n'.join(ret)
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Generate APKBUILD of ROS package')
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
@@ -261,3 +260,6 @@ if __name__ == '__main__':
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
                               src=args.src, rev=args.rev))
+
+if __name__ == '__main__':
+    main()

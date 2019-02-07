@@ -44,7 +44,7 @@ ENV REPODIR="${HOME}/packages"
 ENV LOGDIR="${HOME}/logs"
 ENV SRCDIR="/src"
 
-COPY scripts /scripts
+COPY generate_rospkg_apkbuild /scripts
 COPY build-repo.sh /
 
 VOLUME ${SRCDIR}
