@@ -190,9 +190,10 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
         if upstream:
             ret.append('  find src -name package.xml | while read manifest; do')
             ret.append('    dir=`dirname $manifest`')
-            ret.append('    pkg=`sed package.xml \\')
-            ret.append('         -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;\'`')
+            ret.append('    pkg=`sed $manifest \\')
+            ret.append('         -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\\1/;\'`')
             ret.append('    if [ $pkg != $_pkgname ]; then')
+            ret.append('      echo Ignoring $pkg which is not $_pkgname')
             ret.append('      touch $dir/CATKIN_IGNORE')
             ret.append('    fi')
             ret.append('  done')
