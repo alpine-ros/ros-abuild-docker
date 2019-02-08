@@ -178,6 +178,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     ret.append('  mkdir -p $builddir')
     ret.append('  echo "building" > $statuslog')
     ret.append('  cd "$builddir"')
+    ret.append('  rm -rf src || true')
     ret.append('  mkdir -p src')
     if src:
         ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
