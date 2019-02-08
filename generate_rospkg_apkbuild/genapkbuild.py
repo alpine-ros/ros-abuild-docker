@@ -112,11 +112,11 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     ret.append(''.join(['_pkgname=', pkg.name]))
     ret.append(''.join(['pkgver=', pkg.version]))
     ret.append(''.join(['pkgrel=', str(rev)]))
-    ret.append(''.join(['pkgdesc=', '"', pkg.name, ' package for ROS ', ros_distro, '"']))
+    ret.append(''.join(['pkgdesc=', '"$_pkgname package for ROS ', ros_distro, '"']))
     if len(pkg.urls) > 0:
         ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
     else:
-        ret.append(''.join(['url=', '"http://wiki.ros.org/', pkg.name, '"']))
+        ret.append(''.join(['url=', '"http://wiki.ros.org/$_pkgname"']))
     ret.append(''.join(['arch=', '"all"']))
     ret.append(''.join(['license=', '"', pkg.licenses[0], '"']))
     if not check:
@@ -182,17 +182,27 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     if src:
         ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
     else:
+        upstream_opt = '--upstream-devel' if upstream else ''
         ret.append(' '.join([
-            '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', pkg.name,
+            '  rosinstall_generator', '--rosdistro', ros_distro, '--flat $_pkgname', upstream_opt,
             '|', 'tee', 'pkg.rosinstall']))
         ret.append('  wstool init --shallow src pkg.rosinstall')
+        if upstream:
+            ret.append('  find src -name package.xml | while read manifest; do')
+            ret.append('    dir=`dirname $manifest`')
+            ret.append('    pkg=`sed package.xml \\')
+            ret.append('         -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;\'`')
+            ret.append('    if [ $pkg != $_pkgname ]; then')
+            ret.append('      touch $dir/CATKIN_IGNORE')
+            ret.append('    fi')
+            ret.append('  done')
 
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog']))
+        ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog')
     if cmake:
-        ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
-        ret.append(''.join(['  cd src/', pkg.name, '/build']))
+        ret.append('  mkdir src/$_pkgname/build')
+        ret.append('  cd src/$_pkgname/build')
         ret.append(''.join([
             '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space,
             ' -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog']))
@@ -211,7 +221,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
             ret.append('    --catkin-make-args run_tests 2>&1 | tee $checklog')
             ret.append('  catkin_test_results 2>&1 | tee $checklog')
         if cmake:
-            ret.append(''.join(['  cd src/', pkg.name, '/build']))
+            ret.append('  cd src/$_pkgname/build')
             ret.append('  if [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ]; then')
             ret.append('    make test 2>&1 | tee $checklog')
             ret.append('  fi')
@@ -236,7 +246,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
             install_space_fakeroot, '/env.sh ',
             install_space_fakeroot, '/.catkin']))
     if cmake:
-        ret.append(''.join(['  cd src/', pkg.name, '/build']))
+        ret.append('  cd src/$_pkgname/build')
         ret.append('  make install')
     ret.append('  echo "finished" >> $statuslog')
     ret.append('}')
