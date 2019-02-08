@@ -175,6 +175,7 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
 
     ret.append('build() {')
     ret.append('  set -o pipefail')
+    ret.append('  rm -rf $builddir || true')
     ret.append('  mkdir -p $builddir')
     ret.append('  echo "building" > $statuslog')
     ret.append('  cd "$builddir"')
