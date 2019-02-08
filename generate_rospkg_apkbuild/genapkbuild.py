@@ -182,14 +182,20 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     if src:
         ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
     else:
+        upstream_option = '--upstream' if upstream else ''
         ret.append(' '.join([
-            '  rosinstall_generator', '--rosdistro', ros_distro, '--flat', pkg.name,
+            '  rosinstall_generator',
+            '--rosdistro', ros_distro, '--flat', upstream_option, pkg.name,
             '|', 'tee', 'pkg.rosinstall']))
         ret.append('  wstool init --shallow src pkg.rosinstall')
 
+    catkin_upstream_option = ('--pkg ' + pkg.name) if upstream else ''
+
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(''.join(['  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog']))
+        ret.append(''.join([
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release ', catkin_upstream_option,
+            ' 2>&1 | tee $buildlog']))
     if cmake:
         ret.append(''.join(['  mkdir src/', pkg.name, '/build']))
         ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -207,8 +213,9 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
             ret.append('  source devel_isolated/setup.sh')
-            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release \\')
-            ret.append('    --catkin-make-args run_tests 2>&1 | tee $checklog')
+            ret.append(''.join([
+                '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release ', catkin_upstream_option,
+                ' --catkin-make-args run_tests 2>&1 | tee $checklog']))
             ret.append('  catkin_test_results 2>&1 | tee $checklog')
         if cmake:
             ret.append(''.join(['  cd src/', pkg.name, '/build']))
@@ -225,9 +232,11 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release ', catkin_upstream_option,
+            ' --install-space', install_space]))
         ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release ', catkin_upstream_option,
+            ' --install --install-space', install_space]))
         ret.append(''.join([
             '  rm ',
             install_space_fakeroot, '/setup.* ',
