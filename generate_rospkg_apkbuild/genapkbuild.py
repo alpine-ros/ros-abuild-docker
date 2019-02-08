@@ -193,6 +193,11 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
 
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
+        if upstream:
+            # hack to generate build scripts before package build
+            ret.append(''.join([
+                '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release',
+                ' --make-args --version --cmake-args --version 2>&1 | tee $buildlog']))
         ret.append(''.join([
             '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release ', catkin_upstream_option,
             ' 2>&1 | tee $buildlog']))
