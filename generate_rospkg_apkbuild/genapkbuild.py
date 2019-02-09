@@ -94,7 +94,7 @@ def resolve(ros_distro, names):
 def git_date(target_dir='./'):
     try:
         d = subprocess.check_output([
-            'git', '--git-dir', target_dir, 'show',
+            'git', '-C', target_dir, 'show',
             '-s', '--format=%ad', '--date=format:%Y%m%d%H%M%S', 'HEAD'])
         return d.decode('ascii').replace('\r', '').replace('\n', '')
     except subprocess.CalledProcessError as e:
@@ -141,7 +141,7 @@ def package_to_apkbuild(ros_distro, package_name,
                     f.close()
                     subprocess.check_output(['wstool', 'update', '-t', tmpd])
                     date = git_date(
-                        '/'.join([tmpd, rosinstall[0]['git']['local-name'], '.git']))
+                        '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
                     if date is not None:
                         ver_suffix = '_git' + date
     elif ver_suffix == '':

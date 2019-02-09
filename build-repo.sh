@@ -59,7 +59,7 @@ for manifest in ${manifests}; do
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
 
-  commit_date=$(git --git-dir=${pkgpath}/.git show \
+  commit_date=$(git -C ${pkgpath} show \
                 -s --format=%ad --date=format:'%Y%m%d%H%M%S' HEAD)
 
   # Copy files with filter
