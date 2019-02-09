@@ -258,6 +258,10 @@ def package_to_apkbuild(ros_distro, package_name,
 
     if check:
         ret.append('check() {')
+        ret.append('  if [ -f $startdir/NOCHECK ]; then')
+        ret.append('    echo "Check skipped" | tee $checklog')
+        ret.append('    return 0')
+        ret.append('  fi')
         ret.append('  set -o pipefail')
         ret.append('  echo "checking" >> $statuslog')
         ret.append('  cd "$builddir"')
