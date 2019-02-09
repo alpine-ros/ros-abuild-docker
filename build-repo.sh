@@ -59,6 +59,9 @@ for manifest in ${manifests}; do
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
 
+  commit_date=$(git --git-dir=${pkgpath}/.git show \
+                -s --format=%ad --date=format:'%Y%m%d%H%M%S' HEAD)
+
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
   files=$(ls -1A ${pkgpath})
@@ -69,7 +72,8 @@ for manifest in ${manifests}; do
   done
 
   /usr/bin/env python3 /scripts/genapkbuild.py \
-    ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src --rev=99999 \
+    ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
+      --ver-suffix=_git${commit_date} \
       | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
 done
 

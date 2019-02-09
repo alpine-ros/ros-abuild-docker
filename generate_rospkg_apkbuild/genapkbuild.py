@@ -28,6 +28,8 @@
 from __future__ import print_function
 import argparse
 import sys
+import subprocess
+import yaml
 
 from catkin_pkg.package import parse_package_string
 import rosdep2
@@ -89,7 +91,19 @@ def resolve(ros_distro, names):
     return keys
 
 
-def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, src=False, rev=0):
+def git_date(target_dir='./'):
+    try:
+        d = subprocess.check_output([
+            'git', '--git-dir', target_dir, 'show',
+            '-s', '--format=%ad', '--date=format:%Y%m%d%H%M%S', 'HEAD'])
+        return d.decode('ascii').replace('\r', '').replace('\n', '')
+    except subprocess.CalledProcessError as e:
+        return None
+
+
+def package_to_apkbuild(ros_distro, package_name,
+                        check=True, upstream=False, src=False, rev=0,
+                        ver_suffix='', commit_hash=None):
     ret = []
     pkg_xml = ''
     if package_name.startswith('http://') or package_name.startswith('https://'):
@@ -108,9 +122,36 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     install_space = ''.join(['/usr/ros/', ros_distro])
     install_space_fakeroot = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
 
+    # generate rosinstall
+    rosinstall = None
+    if not src:
+        upstream_opt = '--upstream-devel' if upstream else ''
+        rosinstall = yaml.load(subprocess.check_output([
+            'rosinstall_generator',
+            '--rosdistro', ros_distro,
+            '--flat', pkg.name, upstream_opt]))
+        if upstream:
+            if commit_hash is not None:
+                rosinstall[0]['git']['version'] = commit_hash
+            if ver_suffix == '':
+                import tempfile
+                with tempfile.TemporaryDirectory() as tmpd:
+                    f = open(tmpd + '/.rosinstall', 'w')
+                    f.write(yaml.dump(rosinstall))
+                    f.close()
+                    subprocess.check_output(['wstool', 'update', '-t', tmpd])
+                    date = git_date(
+                        '/'.join([tmpd, rosinstall[0]['git']['local-name'], '.git']))
+                    if date is not None:
+                        ver_suffix = '_git' + date
+    elif ver_suffix == '':
+        date = git_date()
+        if date is not None:
+            ver_suffix = '_git' + date
+
     ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
     ret.append(''.join(['_pkgname=', pkg.name]))
-    ret.append(''.join(['pkgver=', pkg.version]))
+    ret.append(''.join(['pkgver=', pkg.version, ver_suffix]))
     ret.append(''.join(['pkgrel=', str(rev)]))
     ret.append(''.join(['pkgdesc=', '"$_pkgname package for ROS ', ros_distro, '"']))
     if len(pkg.urls) > 0:
@@ -173,6 +214,9 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     ret.append('  statuslog="/dev/null"')
     ret.append('fi')
 
+    if not src:
+        ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
+
     ret.append('build() {')
     ret.append('  set -o pipefail')
     ret.append('  mkdir -p $builddir')
@@ -183,11 +227,12 @@ def package_to_apkbuild(ros_distro, package_name, check=True, upstream=False, sr
     if src:
         ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
     else:
-        upstream_opt = '--upstream-devel' if upstream else ''
-        ret.append(' '.join([
-            '  rosinstall_generator', '--rosdistro', ros_distro, '--flat $_pkgname', upstream_opt,
-            '|', 'tee', 'pkg.rosinstall']))
-        ret.append('  wstool init --shallow src pkg.rosinstall')
+        ret.append('  echo "$rosinstall" > pkg.rosinstall')
+        if upstream and commit_hash is not None:
+            ret.append('  wstool init src pkg.rosinstall')
+        else:
+            ret.append('  wstool init --shallow src pkg.rosinstall')
+
         if upstream:
             ret.append('  find src -name package.xml | while read manifest; do')
             ret.append('    dir=`dirname $manifest`')
@@ -267,6 +312,12 @@ def main():
                         help='disable test (default: test enabled)')
     parser.add_argument('--rev', dest='rev', type=int, default=0,
                         help='set revision number (default: 0)')
+    parser.add_argument('--ver-suffix', dest='vsuffix', type=str, default='',
+                        help='set version suffix (default: \'\') ' +
+                        '[note: if not specified and --upstream is set, ' +
+                        'automatic detection by cloning the repo will be performed.]')
+    parser.add_argument('--commit-hash', dest='commit', type=str, default=None,
+                        help='set commit hash of upstream (default: None)')
     parser.add_argument('--src', dest='src', action='store_const',
                         const=True, default=False,
                         help='build from source (default: disabled)')
@@ -277,7 +328,9 @@ def main():
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
-                              src=args.src, rev=args.rev))
+                              src=args.src, rev=args.rev,
+                              ver_suffix=args.vsuffix,
+                              commit_hash=args.commit))
 
 
 if __name__ == '__main__':
