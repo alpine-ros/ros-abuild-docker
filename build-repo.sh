@@ -126,6 +126,9 @@ for manifest in ${manifests}; do
   fi
   if grep "finished" ${pkgpath}/apk-build-temporary/ros-abuild-status.log > /dev/null; then
     echo "Build succeeded" >> ${summary_file}
+    if grep "Check skipped" ${pkgpath}/apk-build-temporary/ros-abuild-check.log > /dev/null; then
+      echo "(NOCHECK)" >> ${summary_file}
+    fi
     continue
   fi
 
