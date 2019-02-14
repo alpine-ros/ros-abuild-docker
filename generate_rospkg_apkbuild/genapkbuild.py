@@ -219,10 +219,10 @@ def package_to_apkbuild(ros_distro, package_name,
     if not src:
         ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
 
-    ret.append('build() {')
+    ret.append('prepare() {')
     ret.append('  set -o pipefail')
     ret.append('  mkdir -p $builddir')
-    ret.append('  echo "building" > $statuslog')
+    ret.append('  echo "preparing" > $statuslog')
     ret.append('  cd "$builddir"')
     ret.append('  rm -rf src || true')
     ret.append('  mkdir -p src')
@@ -245,7 +245,16 @@ def package_to_apkbuild(ros_distro, package_name,
             ret.append('      touch $dir/CATKIN_IGNORE')
             ret.append('    fi')
             ret.append('  done')
+    ret.append('  find $startdir -name "*.patch" | while read patchfile; do')
+    ret.append('    echo "Applying $patchfile"')
+    ret.append('    (cd src/* && patch -p1 -i $patchfile)')
+    ret.append('  done')
+    ret.append('}')
 
+    ret.append('build() {')
+    ret.append('  set -o pipefail')
+    ret.append('  echo "building" > $statuslog')
+    ret.append('  cd "$builddir"')
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog')
