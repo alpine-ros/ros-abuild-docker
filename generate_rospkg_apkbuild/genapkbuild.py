@@ -126,10 +126,9 @@ def package_to_apkbuild(ros_distro, package_name,
     # generate rosinstall
     rosinstall = None
     if not src:
-        upstream_devel = True if upstream else False
-        rosinstall_data = generate_rosinstall(
-            ros_distro, [pkg.name],
-            flat=True, tar=False, upstream_source_version=upstream_devel)
+        rosinstall = generate_rosinstall(
+            ros_distro, [pkg.name], flat=True, tar=False,
+            upstream_source_version=(True if upstream else False))
         if upstream:
             if commit_hash is not None:
                 rosinstall[0]['git']['version'] = commit_hash
