@@ -196,7 +196,9 @@ def package_to_apkbuild(ros_distro, package_name,
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
 
-    makedepends_implicit = ['py-setuptools', 'py-rosdep', 'py-rosinstall', 'py-rosinstall-generator', 'py-wstool', 'chrpath']
+    makedepends_implicit = [
+        'py-setuptools', 'py-rosdep', 'py-rosinstall',
+        'py-rosinstall-generator', 'py-wstool', 'chrpath']
 
     ret.append(''.join(['depends=', '"',
                         ' '.join(depends_keys), ' ',
