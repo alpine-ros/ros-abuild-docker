@@ -35,6 +35,7 @@ from catkin_pkg.package import parse_package_string
 import rosdep2
 from rosdistro import get_cached_distribution, get_index, get_index_url
 from rosdistro.manifest_provider import get_release_tag
+from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
 
 
 def get_distro(distro_name):
@@ -115,7 +116,7 @@ def package_to_apkbuild(ros_distro, package_name,
         with open(package_name, 'r') as f:
             pkg_xml = f.read()
     else:
-        distro = get_distro(ros_distro)
+        distro = get_wet_distro(ros_distro)
         pkg_xml = distro.get_release_package_xml(package_name)
     pkg = parse_package_string(pkg_xml)
 
@@ -125,11 +126,10 @@ def package_to_apkbuild(ros_distro, package_name,
     # generate rosinstall
     rosinstall = None
     if not src:
-        upstream_opt = '--upstream-devel' if upstream else ''
-        rosinstall = yaml.load(subprocess.check_output([
-            'rosinstall_generator',
-            '--rosdistro', ros_distro,
-            '--flat', pkg.name, upstream_opt]))
+        upstream_devel = True if upstream else False
+        rosinstall_data = generate_rosinstall(
+            ros_distro, [pkg.name],
+            flat=True, tar=False, upstream_source_version=upstream_devel)
         if upstream:
             if commit_hash is not None:
                 rosinstall[0]['git']['version'] = commit_hash
