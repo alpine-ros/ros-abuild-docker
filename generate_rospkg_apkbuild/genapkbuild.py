@@ -196,7 +196,7 @@ def package_to_apkbuild(ros_distro, package_name,
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
 
-    makedepends_implicit = ['py-setuptools', 'py-rosdep', 'py-rosinstall', 'py-rosinstall-generator', 'py-wstool']
+    makedepends_implicit = ['py-setuptools', 'py-rosdep', 'py-rosinstall', 'py-rosinstall-generator', 'py-wstool', 'chrpath']
 
     ret.append(''.join(['depends=', '"',
                         ' '.join(depends_keys), ' ',
@@ -310,6 +310,21 @@ def package_to_apkbuild(ros_distro, package_name,
     if cmake:
         ret.append('  cd src/$_pkgname/build')
         ret.append('  make install')
+
+    ret.append('  find $pkgdir -name "*.so" | while read so; do')
+    ret.append('    chrpath_out=$(chrpath ${so} || true)')
+    ret.append('    if echo ${chrpath_out} | grep -q "RPATH="; then')
+    ret.append('      rpath=$(echo -n "${chrpath_out}" | sed -e "s/^.*RPATH=//")')
+    ret.append('      if echo "${rpath}" | grep -q home; then')
+    ret.append('        echo "RPATH contains home!: ${rpath}"')
+    ret.append('        rpathfix=$(echo -n "${rpath}" | tr ":" "\\n" \'')
+    ret.append('          | grep -v -e home | tr "\\n" ":" | sed -e "s/:$//; s/:://;")')
+    ret.append('        echo "Fixing to ${rpathfix}"')
+    ret.append('        chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)')
+    ret.append('      fi')
+    ret.append('    fi')
+    ret.append('  done')
+
     ret.append('  echo "finished" >> $statuslog')
     ret.append('}')
 
