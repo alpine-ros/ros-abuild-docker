@@ -317,7 +317,7 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('      rpath=$(echo -n "${chrpath_out}" | sed -e "s/^.*RPATH=//")')
     ret.append('      if echo "${rpath}" | grep -q home; then')
     ret.append('        echo "RPATH contains home!: ${rpath}"')
-    ret.append('        rpathfix=$(echo -n "${rpath}" | tr ":" "\\n" \'')
+    ret.append('        rpathfix=$(echo -n "${rpath}" | tr ":" "\\n" \\')
     ret.append('          | grep -v -e home | tr "\\n" ":" | sed -e "s/:$//; s/:://;")')
     ret.append('        echo "Fixing to ${rpathfix}"')
     ret.append('        chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)')
