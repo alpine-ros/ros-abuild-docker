@@ -11,7 +11,8 @@ setup(
     install_requires=['catkin_pkg', 'requests', 'rosdep', 'rosdistro', 'pyyaml'],
     entry_points={
         'console_scripts': [
-            'generate-rospkg-apkbuild=generate_rospkg_apkbuild.genapkbuild:main'
+            'generate-rospkg-apkbuild=generate_rospkg_apkbuild.genapkbuild:main',
+            'generate-rospkg-apkbuild-multi=generate_rospkg_apkbuild.genapkbuild:main_multi'
         ]
     },
     license="BSD"

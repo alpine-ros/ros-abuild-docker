@@ -27,8 +27,9 @@
 
 from __future__ import print_function
 import argparse
-import sys
+import os
 import subprocess
+import sys
 import yaml
 
 from catkin_pkg.package import parse_package_string
@@ -36,11 +37,6 @@ import rosdep2
 from rosdistro import get_cached_distribution, get_index, get_index_url
 from rosdistro.manifest_provider import get_release_tag
 from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
-
-
-def get_distro(distro_name):
-    index = get_index(get_index_url())
-    return get_cached_distribution(index, distro_name)
 
 
 def ros_pkgname_to_pkgname(ros_distro, pkgname):
@@ -363,6 +359,40 @@ def main():
                               src=args.src, rev=args.rev,
                               ver_suffix=args.vsuffix,
                               commit_hash=args.commit))
+
+
+def main_multi():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='''Generate multiple APKBUILDs of ROS packages
+
+This command reads a list of package names and output paths.
+example:
+  roscpp ros/kinetic/roscpp/APKBUILD
+  rospy ros/kinetic/rospy/APKBUILD''')
+    parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
+                        help='name of the ROS distribution')
+    parser.add_argument('--rev', dest='rev', type=int, default=0,
+                        help='set revision number (default: 0)')
+    parser.add_argument('--upstream', action='store_const',
+                        const=True, default=False,
+                        help='use upstream repository (default: False)')
+    args = parser.parse_args()
+
+    for line in sys.stdin:
+        [pkgname, filepath] = line.split()
+        if pkgname == '':
+            continue
+
+        apkbuild = package_to_apkbuild(
+            args.ros_distro[0], pkgname, upstream=args.upstream, rev=args.rev)
+
+        directory = os.path.dirname(filepath)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        with open(filepath, 'w') as f:
+            f.write(apkbuild)
 
 
 if __name__ == '__main__':
