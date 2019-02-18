@@ -56,6 +56,8 @@ fi
 
 manifests="`find ${SRCDIR} -name "package.xml"` `find ${extsrc} -name "package.xml"`"
 for manifest in ${manifests}; do
+  echo +++++++++++++++++++++++++
+  echo ${manifest}
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
 
@@ -71,10 +73,11 @@ for manifest in ${manifests}; do
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
 
-  /usr/bin/env python3 /scripts/genapkbuild.py \
+  (set -o pipefail && /usr/bin/env python3 /scripts/genapkbuild.py \
     ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
       --ver-suffix=_git${commit_date} \
-      | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD
+      | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD) \
+    || (echo "## Package dependency failure" >> ${summary_file} && false)
 done
 
 rm -f $(find ${APORTSDIR} -name "ros-abuild-build.log")
