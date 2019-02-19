@@ -373,6 +373,9 @@ example:
   rospy ros/kinetic/rospy/APKBUILD''')
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
+    parser.add_argument('--all', dest='all', action='store_const',
+                        const=True, default=False,
+                        help='generate all packages in the rosdistro under current directory (default: False)')
     parser.add_argument('--rev', dest='rev', type=int, default=0,
                         help='set revision number (default: 0)')
     parser.add_argument('--upstream', action='store_const',
@@ -380,7 +383,16 @@ example:
                         help='use upstream repository (default: False)')
     args = parser.parse_args()
 
-    for line in sys.stdin:
+    pkglist = None
+    if args.all:
+        distro = get_wet_distro(args.ros_distro[0])
+        pkglist = []
+        for pkgname, _ in distro._distribution_file.release_packages.items():
+            pkglist.append(pkgname + ' ' + pkgname + '/APKBUILD')
+    else:
+        pkglist = sys.stdin
+
+    for line in pkglist:
         [pkgname, filepath] = line.split()
         if pkgname == '':
             continue
