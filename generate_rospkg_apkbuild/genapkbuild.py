@@ -393,16 +393,13 @@ example:
         pkglist = []
         for pkgname, _ in distro._distribution_file.release_packages.items():
             pkglist.append(pkgname + ' ' + pkgname + '/APKBUILD')
-            force_upstream[pkgname] = False
-            ignore[pkgname] = False
-            upstream_ref[pkgname] = None
         for reponame, repo in distro._distribution_file.repositories.items():
             if repo.status_description is not None and repo.status_description.startswith('force-upstream'):
                 ref = repo.status_description.split('/')[1] if '/' in repo.status_description else None
                 for pkgname in repo.release_repository.package_names:
                     force_upstream[pkgname] = True
                     if ref is not None:
-                        upstream_ref[pkgname] = None
+                        upstream_ref[pkgname] = ref
             for pkgname, status in repo.status_per_package.items():
                 if 'status_description' in status:
                     if status['status_description'].startswith('force-upstream'):
@@ -418,12 +415,16 @@ example:
         [pkgname, filepath] = line.split()
         if pkgname == '':
             continue
-        if ignore[pkgname]:
+        if pkgname in ignore and ignore[pkgname]:
             continue
+
+        pkg_force_upstream = force_upstream[pkgname] if pkgname in force_upstream else False
+        pkg_upstream_ref = upstream_ref[pkgname] if pkgname in upstream_ref else None
 
         apkbuild = package_to_apkbuild(
             args.ros_distro[0], pkgname,
-            upstream=(args.upstream or force_upstream[pkgname]), rev=args.rev, commit_hash=upstream_ref[pkgname])
+            upstream=(args.upstream or pkg_force_upstream),
+            rev=args.rev, commit_hash=pkg_upstream_ref)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
