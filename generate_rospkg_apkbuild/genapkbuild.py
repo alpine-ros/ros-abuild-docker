@@ -136,7 +136,7 @@ def package_to_apkbuild(ros_distro, package_name,
                     f = open(pkglist, 'w')
                     f.write(yaml.dump(rosinstall))
                     f.close()
-                    subprocess.check_output(['wstool', 'init', '--shallow', tmpd, pkglist])
+                    subprocess.check_output(['wstool', 'init', tmpd, pkglist])
                     date = git_date(
                         '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
                     if date is not None:
