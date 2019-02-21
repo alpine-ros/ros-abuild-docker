@@ -31,7 +31,7 @@ full_log_file=${LOGDIR}/full.log
 
 if [ ! -z ${CUSTOM_APK_REPOS} ]; then
   for r in ${CUSTOM_APK_REPOS}; do
-    echo $r >> /etc/apk/repositories
+    echo $r | sudo tee -a /etc/apk/repositories
   done
 fi
 echo "${REPODIR}/${repo}" | sudo tee -a /etc/apk/repositories
