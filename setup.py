@@ -8,7 +8,7 @@ setup(
     author='Atsushi Watanabe',
     author_email='atsushi.w@ieee.org',
     packages=find_packages(),
-    install_requires=['catkin_pkg', 'requests', 'rosdep', 'rosdistro', 'pyyaml'],
+    install_requires=['catkin_pkg', 'requests', 'rosdep', 'rosdistro', 'pyyaml', 'wstool'],
     entry_points={
         'console_scripts': [
             'generate-rospkg-apkbuild=generate_rospkg_apkbuild.genapkbuild:main',
