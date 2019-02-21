@@ -386,6 +386,7 @@ example:
 
     pkglist = None
     force_upstream = dict()
+    upstream_ref = dict()
     ignore = dict()
     if args.all:
         distro = get_wet_distro(args.ros_distro[0])
@@ -394,14 +395,20 @@ example:
             pkglist.append(pkgname + ' ' + pkgname + '/APKBUILD')
             force_upstream[pkgname] = False
             ignore[pkgname] = False
+            upstream_ref[pkgname] = None
         for reponame, repo in distro._distribution_file.repositories.items():
-            if repo.status_description is not None and repo.status_description == 'force-upstream':
+            if repo.status_description is not None and repo.status_description.startswith('force-upstream'):
+                ref = repo.status_description.split('/')[1] if '/' in repo.status_description else None
                 for pkgname in repo.release_repository.package_names:
                     force_upstream[pkgname] = True
+                    if ref is not None:
+                        upstream_ref[pkgname] = None
             for pkgname, status in repo.status_per_package.items():
                 if 'status_description' in status:
-                    if status['status_description'] == 'force-upstream':
+                    if status['status_description'].startswith('force-upstream'):
                         force_upstream[pkgname] = True
+                        upstream_ref[pkgname] = status['status_description'].split('/')[1] \
+                            if '/' in status['status_description'] else None
                     elif status['status_description'] == 'ignore':
                         ignore[pkgname] = True
     else:
@@ -416,7 +423,7 @@ example:
 
         apkbuild = package_to_apkbuild(
             args.ros_distro[0], pkgname,
-            upstream=(args.upstream or force_upstream[pkgname]), rev=args.rev)
+            upstream=(args.upstream or force_upstream[pkgname]), rev=args.rev, commit_hash=upstream_ref[pkgname])
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
