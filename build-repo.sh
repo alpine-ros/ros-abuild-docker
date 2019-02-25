@@ -123,7 +123,8 @@ for manifest in ${manifests}; do
   apk_filename=$(. ${pkgpath}/APKBUILD; echo "${pkgname}-${pkgver}-r${pkgrel}.apk")
 
   echo >> ${summary_file}
-  echo "## $pkgname (${apk_filename})" >> ${summary_file}
+  echo "## $pkgname" >> ${summary_file}
+  echo "**${apk_filename}**" >> ${summary_file}
 
   if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-status.log ]; then
     if [ -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
