@@ -87,7 +87,7 @@ rm -f $(find ${APORTSDIR} -name "ros-abuild-status.log")
 
 # Build everything
 
-GENERATE_BUILD_LOGS=yes buildrepo -k ${repo} | tee ${full_log_file}
+GENERATE_BUILD_LOGS=yes buildrepo -k -d ${REPODIR} -a ${APORTSDIR} ${repo} | tee ${full_log_file}
 
 
 # Summarize build result
@@ -120,17 +120,28 @@ for manifest in ${manifests}; do
   pkgname=$(basename ${srcpath})
   pkgpath=${APORTSDIR}/${repo}/${pkgname}
 
+  apk_filename=$(. ${pkgpath}/APKBUILD; echo "${pkgname}-${pkgver}-r${pkgrel}.apk")
+
   echo >> ${summary_file}
-  echo "## $pkgname" >> ${summary_file}
+  echo "## $pkgname (${apk_filename})" >> ${summary_file}
 
   if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-status.log ]; then
-    echo "Failed to start build or already been built" >> ${summary_file}
+    if [ -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
+      echo "Already been built." >> ${summary_file}
+    else
+      echo "Failed to start build. The package might have unsatisfied dependencies." >> ${summary_file}
+      error=True
+    fi
     continue
   fi
   if grep "finished" ${pkgpath}/apk-build-temporary/ros-abuild-status.log > /dev/null; then
-    echo "Build succeeded" >> ${summary_file}
+    echo "Build succeeded." >> ${summary_file}
     if grep "Check skipped" ${pkgpath}/apk-build-temporary/ros-abuild-check.log > /dev/null; then
       echo "(NOCHECK)" >> ${summary_file}
+    fi
+    if [ ! -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
+      echo "Failed to generate package." >> ${summary_file}
+      error=True
     fi
     continue
   fi
