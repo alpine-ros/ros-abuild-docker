@@ -54,6 +54,8 @@ fi
 
 # Generate APKBUILDs
 
+error=false
+
 manifests="`find ${SRCDIR} -name "package.xml"` `find ${extsrc} -name "package.xml"`"
 for manifest in ${manifests}; do
   echo +++++++++++++++++++++++++
@@ -73,11 +75,13 @@ for manifest in ${manifests}; do
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
 
-  (set -o pipefail && /usr/bin/env python3 /scripts/genapkbuild.py \
+  if ! (set -o pipefail && /usr/bin/env python3 /scripts/genapkbuild.py \
     ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
       --ver-suffix=_git${commit_date} \
-      | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD) \
-    || (echo "## Package dependency failure" >> ${summary_file} && false)
+      | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD); then
+    echo "## Package dependency failure" >> ${summary_file}
+    error=true
+  fi
 done
 
 rm -f $(find ${APORTSDIR} -name "ros-abuild-build.log")
@@ -114,7 +118,6 @@ echo '```' >> ${summary_file}
 tail -n6 ${full_log_file} >> ${summary_file}
 echo '```' >> ${summary_file}
 
-error=false
 for manifest in ${manifests}; do
   srcpath=$(dirname ${manifest})
   pkgname=$(basename ${srcpath})
@@ -131,7 +134,7 @@ for manifest in ${manifests}; do
       echo "Already been built." >> ${summary_file}
     else
       echo "Failed to start build. The package might have unsatisfied dependencies." >> ${summary_file}
-      error=True
+      error=true
     fi
     continue
   fi
@@ -142,7 +145,7 @@ for manifest in ${manifests}; do
     fi
     if [ ! -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
       echo "Failed to generate package." >> ${summary_file}
-      error=True
+      error=true
     fi
     continue
   fi
@@ -171,7 +174,7 @@ echo
 echo "---"
 cat ${summary_file}
 
-if [ $error == "true" ]; then
+if [ $error != "false" ]; then
   exit 1
 fi
 
