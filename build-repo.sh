@@ -2,6 +2,16 @@
 
 set -e
 
+if [ ! -z ${CFLAGS} ]; then
+  echo "Overwriting CFLAGS"
+  echo "original:"
+  head /etc/abuild.conf
+  sudo sed -i "s/export CFLAGS=\"-Os -fomit-frame-pointer\"/export CFLAGS=\"${CFLAGS}\"/"
+  echo "updated:"
+  head /etc/abuild.conf
+  echo
+fi
+
 repo=${ROS_DISTRO}
 
 if [ ! -f ${PACKAGER_PRIVKEY} ]; then
