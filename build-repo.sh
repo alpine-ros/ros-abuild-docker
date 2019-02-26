@@ -2,7 +2,7 @@
 
 set -e
 
-if [ ! -z ${CFLAGS} ]; then
+if [ ! -z "${CFLAGS}" ]; then
   echo "Overwriting CFLAGS"
   echo "original:"
   head /etc/abuild.conf
