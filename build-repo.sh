@@ -6,7 +6,7 @@ if [ ! -z "${CFLAGS}" ]; then
   echo "Overwriting CFLAGS"
   echo "original:"
   head /etc/abuild.conf
-  sudo sed -i "s/export CFLAGS=\"-Os -fomit-frame-pointer\"/export CFLAGS=\"${CFLAGS}\"/"
+  sudo sed -i "s/export CFLAGS=\"-Os -fomit-frame-pointer\"/export CFLAGS=\"${CFLAGS}\"/" /etc/abuild.conf
   echo "updated:"
   head /etc/abuild.conf
   echo
