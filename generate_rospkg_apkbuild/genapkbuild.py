@@ -291,6 +291,12 @@ def package_to_apkbuild(ros_distro, package_name,
             ret.append('  fi')
         ret.append('}')
 
+
+    ret.append('dbg() {')
+    ret.append('  mkdir -p "$subpkgdir"')
+    ret.append('  default_dbg')
+    ret.append('}')
+
     ret.append('package() {')
     ret.append('  echo "packaging" >> $statuslog')
     ret.append('  mkdir -p "$pkgdir"')
