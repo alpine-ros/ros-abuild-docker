@@ -245,7 +245,7 @@ def package_to_apkbuild(ros_distro, package_name,
             ret.append('      touch $dir/CATKIN_IGNORE')
             ret.append('    fi')
             ret.append('  done')
-    ret.append('  find $startdir -name "*.patch" | while read patchfile; do')
+    ret.append('  find $startdir -maxdepth 1 -name "*.patch" | while read patchfile; do')
     ret.append('    echo "Applying $patchfile"')
     ret.append('    (cd src/* && patch -p1 -i $patchfile)')
     ret.append('  done')
