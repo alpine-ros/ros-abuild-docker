@@ -203,7 +203,7 @@ def package_to_apkbuild(ros_distro, package_name,
                         ' '.join(depends_export_keys),
                         '"']))
     ret.append(''.join(['makedepends="', ' '.join(makedepends_implicit + makedepends_keys), '"']))
-    ret.append('subpackages=""')
+    ret.append('subpackages="$pkgname-dbg"')
     ret.append('source=""')
     ret.append('builddir="$startdir/apk-build-temporary"')
     ret.append('srcdir="/tmp/dummy-src-dir"')
@@ -257,12 +257,14 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('  cd "$builddir"')
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release 2>&1 | tee $buildlog')
+        ret.append('  catkin_make_isolated \\')
+        ret.append('    -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog')
     if cmake:
         ret.append('  mkdir src/$_pkgname/build')
         ret.append('  cd src/$_pkgname/build')
         ret.append(''.join([
             '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space,
+            ' -DCMAKE_BUILD_TYPE=RelWithDebInfo',
             ' -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog']))
         ret.append('  make 2>&1 | tee -a $buildlog')
     ret.append('}')
@@ -279,7 +281,7 @@ def package_to_apkbuild(ros_distro, package_name,
         if catkin:
             ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
             ret.append('  source devel_isolated/setup.sh')
-            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release \\')
+            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo \\')
             ret.append('    --catkin-make-args run_tests 2>&1 | tee $checklog')
             ret.append('  catkin_test_results 2>&1 | tee $checklog')
         if cmake:
@@ -297,9 +299,9 @@ def package_to_apkbuild(ros_distro, package_name,
     if catkin:
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo --install-space', install_space]))
         ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=Release --install --install-space', install_space]))
+            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo --install --install-space', install_space]))
         ret.append(''.join([
             '  rm ',
             install_space_fakeroot, '/setup.* ',
