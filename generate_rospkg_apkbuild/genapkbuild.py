@@ -145,17 +145,26 @@ def package_to_apkbuild(ros_distro, package_name,
     if len(todo_upstream_clone) > 0:
         import tempfile
         with tempfile.TemporaryDirectory() as tmpd:
-            pkglist = tmpd + '/pkg.rosinstall'
+            pkglist = '/'.join([tmpd, 'pkg.rosinstall'])
             f = open(pkglist, 'w')
             f.write(yaml.dump(rosinstall))
             f.close()
             subprocess.check_output(['wstool', 'init', tmpd, pkglist])
+            basepath = '/'.join([tmpd, rosinstall[0]['git']['local-name']])
 
             if 'read_manifest' in todo_upstream_clone and todo_upstream_clone['read_manifest']:
-                with open(
-                        '/'.join([tmpd, rosinstall[0]['git']['local-name'], 'package.xml']),
-                        'r') as f:
-                    pkg = parse_package_string(f.read())
+                target_name = pkg.name
+                pkg = None
+                for root, _, names in os.walk(basepath):
+                    if pkg is not None:
+                        break
+                    for name in names:
+                        if name == 'package.xml':
+                            with open('/'.join([root, name]), 'r') as f:
+                                pkg_tmp = parse_package_string(f.read())
+                                if pkg_tmp.name == target_name:
+                                    pkg = pkg_tmp
+                                    break
             if 'obtain_ver_suffix' in todo_upstream_clone and todo_upstream_clone['obtain_ver_suffix']:
                 date = git_date(
                     '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
