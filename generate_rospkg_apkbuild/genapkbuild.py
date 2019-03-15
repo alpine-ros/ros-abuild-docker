@@ -104,6 +104,8 @@ def package_to_apkbuild(ros_distro, package_name,
                         ver_suffix='', commit_hash=None):
     ret = []
     pkg_xml = ''
+    todo_upstream_clone = dict()
+
     if package_name.startswith('http://') or package_name.startswith('https://'):
         import requests
 
@@ -115,6 +117,8 @@ def package_to_apkbuild(ros_distro, package_name,
     else:
         distro = get_wet_distro(ros_distro)
         pkg_xml = distro.get_release_package_xml(package_name)
+        if upstream:
+            todo_upstream_clone['read_manifest'] = True
     pkg = parse_package_string(pkg_xml)
 
     install_space = ''.join(['/usr/ros/', ros_distro])
@@ -131,21 +135,32 @@ def package_to_apkbuild(ros_distro, package_name,
             if commit_hash is not None:
                 rosinstall[0]['git']['version'] = commit_hash
             if ver_suffix == '':
-                import tempfile
-                with tempfile.TemporaryDirectory() as tmpd:
-                    pkglist = tmpd + '/pkg.rosinstall'
-                    f = open(pkglist, 'w')
-                    f.write(yaml.dump(rosinstall))
-                    f.close()
-                    subprocess.check_output(['wstool', 'init', tmpd, pkglist])
-                    date = git_date(
-                        '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
-                    if date is not None:
-                        ver_suffix = '_git' + date
+                todo_upstream_clone['obtain_ver_suffix'] = True
     elif ver_suffix == '':
         date = git_date()
         if date is not None:
             ver_suffix = '_git' + date
+
+    # temporary close upstream if needed
+    if len(todo_upstream_clone) > 0:
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpd:
+            pkglist = tmpd + '/pkg.rosinstall'
+            f = open(pkglist, 'w')
+            f.write(yaml.dump(rosinstall))
+            f.close()
+            subprocess.check_output(['wstool', 'init', tmpd, pkglist])
+
+            if 'read_manifest' in todo_upstream_clone and todo_upstream_clone['read_manifest']:
+                with open(
+                        '/'.join([tmpd, rosinstall[0]['git']['local-name'], 'package.xml']),
+                        'r') as f:
+                    pkg = parse_package_string(f.read())
+            if 'obtain_ver_suffix' in todo_upstream_clone and todo_upstream_clone['obtain_ver_suffix']:
+                date = git_date(
+                    '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
+                if date is not None:
+                    ver_suffix = '_git' + date
 
     ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
     ret.append(''.join(['_pkgname=', pkg.name]))
