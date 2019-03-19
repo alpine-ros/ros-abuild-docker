@@ -42,8 +42,12 @@ from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
 def ros_pkgname_to_pkgname(ros_distro, pkgname):
     return '-'.join(['ros', ros_distro, pkgname.replace('_', '-')])
 
+class NameAndVersion:
+    def __init__(self, name, version):
+        self.name = name
+        self.version = version
 
-def ros_dependency_to_apk_dependency(dep):
+def ros_dependency_to_name_ver(dep):
     version_spec = ''
     if dep.version_lte is not None:
         version_spec = "<=" + dep.version_lte
@@ -64,7 +68,7 @@ def ros_dependency_to_apk_dependency(dep):
             raise ValueError("dependency has more than one version spec")
         version_spec = "=" + dep.version_eq
 
-    return dep.name + version_spec
+    return NameAndVersion(dep.name, version_spec)
 
 
 def load_lookup():
@@ -75,7 +79,7 @@ def load_lookup():
     return lookup
 
 
-def resolve(ros_distro, names):
+def resolve(ros_distro, deps):
     lookup = load_lookup()
     installer_context = rosdep2.create_default_installer_context()
     os_name, os_version = installer_context.get_os_name_and_version()
@@ -84,12 +88,12 @@ def resolve(ros_distro, names):
 
     keys = []
     not_provided = []
-    for rosdep_name in names:
+    for dep in deps:
         view = lookup.get_rosdep_view(rosdep2.rospkg_loader.DEFAULT_VIEW_KEY)
         try:
-            d = view.lookup(rosdep_name)
+            d = view.lookup(dep.name)
         except KeyError as e:
-            keys.append(ros_pkgname_to_pkgname(ros_distro, rosdep_name))
+            keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name), dep.version)
             continue
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
@@ -97,16 +101,16 @@ def resolve(ros_distro, names):
             # ignoring ROS packages since Alpine ROS packages are not solvable at now
             if '_is_ros' in e.rosdep_data:
                 if e.rosdep_data['_is_ros']:
-                    keys.append(ros_pkgname_to_pkgname(ros_distro, rosdep_name))
+                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name), dep.version)
                     continue
-            not_provided.append(rosdep_name)
+            not_provided.append(dep.name)
             continue
         if type(rule) == dict:
-            not_provided.append(rosdep_name)
+            not_provided.append(dep.name)
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
         for r in resolved:
-            keys.append(r)
+            keys.append(r, dep.version)
     if len(not_provided) > 0:
         print('Some package is not provided by native installer: ' + ' '.join(not_provided), file=sys.stderr)
         return None
@@ -211,21 +215,21 @@ def package_to_apkbuild(ros_distro, package_name,
 
     depends = []
     for dep in pkg.exec_depends:
-        depends.append(ros_dependency_to_apk_dependency(dep))
+        depends.append(ros_dependency_to_name_ver(dep))
     depends_keys = resolve(ros_distro, depends)
 
     depends_export = []
     for dep in pkg.buildtool_export_depends:
-        depends_export.append(ros_dependency_to_apk_dependency(dep))
+        depends_export.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.build_export_depends:
-        depends_export.append(ros_dependency_to_apk_dependency(dep))
+        depends_export.append(ros_dependency_to_name_ver(dep))
     depends_export_keys = resolve(ros_distro, depends_export)
 
     makedepends = []
     catkin = False
     cmake = False
     for dep in pkg.buildtool_depends:
-        makedepends.append(ros_dependency_to_apk_dependency(dep))
+        makedepends.append(ros_dependency_to_name_ver(dep))
         if dep.name == 'catkin':
             catkin = True
         elif dep.name == 'cmake':
@@ -235,9 +239,9 @@ def package_to_apkbuild(ros_distro, package_name,
         sys.exit(1)
 
     for dep in pkg.build_depends:
-        makedepends.append(ros_dependency_to_apk_dependency(dep))
+        makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
-        makedepends.append(ros_dependency_to_apk_dependency(dep))
+        makedepends.append(ros_dependency_to_name_ver(dep))
     makedepends_keys = resolve(ros_distro, makedepends)
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
