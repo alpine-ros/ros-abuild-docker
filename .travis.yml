@@ -1,0 +1,14 @@
+sudo: required
+services: docker
+language: bash
+
+branches:
+  only:
+    - master
+
+install:
+  - docker build -t alpineros/ros-abuild:3.7-kinetic .
+  - git clone --depth=1 -b kinetic-devel https://github.com/ros/ros_comm.git /tmp/ros_comm
+
+script:
+  - docker run -it --rm -v /tmp/ros_comm:/src:ro alpineros/ros-abuild:3.7-kinetic
