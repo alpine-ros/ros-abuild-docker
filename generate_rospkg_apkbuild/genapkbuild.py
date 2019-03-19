@@ -93,7 +93,7 @@ def resolve(ros_distro, deps):
         try:
             d = view.lookup(dep.name)
         except KeyError as e:
-            keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name), dep.version)
+            keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
             continue
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
@@ -101,7 +101,7 @@ def resolve(ros_distro, deps):
             # ignoring ROS packages since Alpine ROS packages are not solvable at now
             if '_is_ros' in e.rosdep_data:
                 if e.rosdep_data['_is_ros']:
-                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name), dep.version)
+                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
                     continue
             not_provided.append(dep.name)
             continue
@@ -110,7 +110,7 @@ def resolve(ros_distro, deps):
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
         for r in resolved:
-            keys.append(r, dep.version)
+            keys.append(r + dep.version)
     if len(not_provided) > 0:
         print('Some package is not provided by native installer: ' + ' '.join(not_provided), file=sys.stderr)
         return None
