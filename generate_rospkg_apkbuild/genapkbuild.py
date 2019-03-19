@@ -39,13 +39,15 @@ from rosdistro.manifest_provider import get_release_tag
 from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
 
 
-def ros_pkgname_to_pkgname(ros_distro, pkgname):
-    return '-'.join(['ros', ros_distro, pkgname.replace('_', '-')])
-
 class NameAndVersion:
     def __init__(self, name, version):
         self.name = name
         self.version = version
+
+
+def ros_pkgname_to_pkgname(ros_distro, pkgname):
+    return '-'.join(['ros', ros_distro, pkgname.replace('_', '-')])
+
 
 def ros_dependency_to_name_ver(dep):
     version_spec = ''
@@ -348,7 +350,6 @@ def package_to_apkbuild(ros_distro, package_name,
             ret.append('    make test 2>&1 | tee $checklog')
             ret.append('  fi')
         ret.append('}')
-
 
     ret.append('dbg() {')
     ret.append('  mkdir -p "$subpkgdir"')
