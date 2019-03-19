@@ -8,7 +8,7 @@ branches:
 
 install:
   - docker build -t alpineros/ros-abuild:3.7-kinetic .
-  - git clone --depth=1 -b indigo-devel https://github.com/ros/rospack /tmp/rospack
+  - git clone --depth=1 -b kinetic-devel https://github.com/ros/rospack /tmp/rospack
 
 script:
   - docker run -it --rm -v /tmp/rospack:/src/rospack:ro alpineros/ros-abuild:3.7-kinetic
