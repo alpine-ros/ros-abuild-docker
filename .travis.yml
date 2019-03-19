@@ -11,4 +11,4 @@ install:
   - git clone --depth=1 -b indigo-devel https://github.com/ros/class_loader /tmp/class_loader
 
 script:
-  - docker run -it --rm -v /tmp/class_loader:/catkin:ro alpineros/ros-abuild:3.7-kinetic
+  - docker run -it --rm -v /tmp/class_loader:/src/class_loader:ro alpineros/ros-abuild:3.7-kinetic
