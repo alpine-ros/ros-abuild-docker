@@ -18,7 +18,7 @@ fi
 
 repo=${ROS_DISTRO}
 
-if [ ! -f ${PACKAGER_PRIVKEY} ]; then
+if [ ! -f "${PACKAGER_PRIVKEY}" ]; then
   abuild-keygen -a -i -n
 
   # Re-sign packages if private key is updated
@@ -43,7 +43,7 @@ full_log_file=${LOGDIR}/full.log
 
 # Update repositories
 
-if [ ! -z ${CUSTOM_APK_REPOS} ]; then
+if [ ! -z "${CUSTOM_APK_REPOS}" ]; then
   for r in ${CUSTOM_APK_REPOS}; do
     echo $r | sudo tee -a /etc/apk/repositories
   done
