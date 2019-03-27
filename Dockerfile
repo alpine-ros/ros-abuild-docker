@@ -51,6 +51,7 @@ ENV SRCDIR="/src"
 
 COPY generate_rospkg_apkbuild /scripts
 COPY build-repo.sh /
+COPY sign-repo-index.sh /
 
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
