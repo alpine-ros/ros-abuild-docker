@@ -78,7 +78,7 @@ for manifest in ${manifests}; do
   pkgname=$(basename ${pkgpath})
 
   commit_date=$(git -C ${pkgpath} show \
-                -s --format=%ad --date=format:'%Y%m%d%H%M%S' HEAD)
+                -s --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD)
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
