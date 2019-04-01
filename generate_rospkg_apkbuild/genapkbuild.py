@@ -123,7 +123,7 @@ def git_date(target_dir='./'):
     try:
         d = subprocess.check_output([
             'git', '-C', target_dir, 'show',
-            '-s', '--format=%ad', '--date=format:%Y%m%d%H%M%S', 'HEAD'])
+            '-s', '--format=%ad', '--date=format-local:%Y%m%d%H%M%S', 'HEAD'])
         return d.decode('ascii').replace('\r', '').replace('\n', '')
     except subprocess.CalledProcessError as e:
         return None
