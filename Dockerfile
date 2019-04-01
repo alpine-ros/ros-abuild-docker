@@ -48,6 +48,7 @@ ENV APORTSDIR="${HOME}/aports"
 ENV REPODIR="${HOME}/packages"
 ENV LOGDIR="${HOME}/logs"
 ENV SRCDIR="/src"
+ENV TZ=UTC
 
 COPY generate_rospkg_apkbuild /scripts
 COPY build-repo.sh /
