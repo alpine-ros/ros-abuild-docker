@@ -120,10 +120,12 @@ def resolve(ros_distro, deps):
 
 
 def git_date(target_dir='./'):
+    cmd = [
+        'git', '-C', target_dir, 'show',
+        '-s', '--format=%ad', '--date=format-local:%Y%m%d%H%M%S', 'HEAD']
+    env = os.environ.copy()
     try:
-        d = subprocess.check_output([
-            'git', '-C', target_dir, 'show',
-            '-s', '--format=%ad', '--date=format-local:%Y%m%d%H%M%S', 'HEAD'])
+        d = subprocess.check_output(cmd, env=env)
         return d.decode('ascii').replace('\r', '').replace('\n', '')
     except subprocess.CalledProcessError as e:
         return None
