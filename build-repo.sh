@@ -2,6 +2,25 @@
 
 set -e
 
+# Validate environment variables
+
+case "${FORCE_LOCAL_VERSION}" in
+  "")
+    FORCE_LOCAL_VERSION=no
+    ;;
+  yes)
+    ;;
+  no)
+    ;;
+  *)
+    echo "FORCE_LOCAL_VERSION must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    exit 1
+    ;;
+esac
+
+
+# Setup environment variables
+
 if [ ! -z "${CFLAGS}" ]; then
   echo "Overwriting CFLAGS"
   echo "original:"
@@ -25,7 +44,7 @@ if [ ! -f "${PACKAGER_PRIVKEY}" ]; then
   index=$(find ${REPODIR} -name APKINDEX.tar.gz || true)
   if [ -f "${index}" ]; then
     rm -f ${index}
-    apk index -o ${index} `find $(dirname ${index}) -name '*.apk'`
+    apk index -o ${index} $(find $(dirname ${index}) -name '*.apk')
     abuild-sign -k /home/builder/.abuild/*.rsa ${index}
   fi
 fi
@@ -70,7 +89,7 @@ fi
 
 error=false
 
-manifests="`find ${SRCDIR} -name "package.xml"` `find ${extsrc} -name "package.xml"`"
+manifests="$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")"
 for manifest in ${manifests}; do
   echo +++++++++++++++++++++++++
   echo ${manifest}
@@ -101,6 +120,31 @@ done
 rm -f $(find ${APORTSDIR} -name "ros-abuild-build.log")
 rm -f $(find ${APORTSDIR} -name "ros-abuild-check.log")
 rm -f $(find ${APORTSDIR} -name "ros-abuild-status.log")
+
+
+# Tweak version constraints
+
+if [ "${FORCE_LOCAL_VERSION}" == "yes" ]; then
+  # Find all package versions
+  apkbuilds="$(find ${APORTSDIR} -name "APKBUILD")"
+  for apkbuild in ${apkbuilds}; do
+    pkgname=$(. ${apkbuild}; echo "${pkgname}")
+    pkgver=$(. ${apkbuild}; echo "${pkgver}")
+    pkgrel=$(. ${apkbuild}; echo "${pkgrel}")
+
+    # Specify package versions
+    for apkbuild_subst in ${apkbuilds}; do
+      sed \
+        "/depends=/!b end; s/\([ \t\"']\)${pkgname}\([ \t\"']\)/\1${pkgname}=${pkgver}-r${pkgrel}\2/g; :end" \
+        -i ${apkbuild_subst}
+    done
+  done
+
+  echo
+  echo "Tweaked APKBUILD dependencies:"
+  grep -r "depends=" ${APORTSDIR}
+  echo
+fi
 
 
 # Build everything
