@@ -49,6 +49,7 @@ ENV REPODIR="${HOME}/packages"
 ENV LOGDIR="${HOME}/logs"
 ENV SRCDIR="/src"
 ENV TZ=UTC
+ENV FORCE_LOCAL_VERSION=no
 
 COPY generate_rospkg_apkbuild /scripts
 COPY build-repo.sh /
