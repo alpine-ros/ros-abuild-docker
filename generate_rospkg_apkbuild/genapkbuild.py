@@ -252,19 +252,18 @@ def package_to_apkbuild(ros_distro, package_name,
         sys.exit(1)
 
     # Remove duplicated dependency keys
-    depends_keys = list(set(depends_keys))
-    depends_export_keys = list(set(depends_export_keys))
-    makedepends_keys = list(set(makedepends_keys))
+    depends_keys = sorted(list(set(depends_keys)))
+    depends_export_keys = sorted(list(set(depends_export_keys)))
+    makedepends_keys = sorted(list(set(makedepends_keys)))
 
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
         'py-rosinstall-generator', 'py-wstool', 'chrpath']
 
-    ret.append(''.join(['depends=', '"',
-                        ' '.join(depends_keys), ' ',
-                        ' '.join(depends_export_keys),
-                        '"']))
-    ret.append(''.join(['makedepends="', ' '.join(makedepends_implicit + makedepends_keys), '"']))
+    ret.append(''.join(['depends="',
+                        ' '.join(depends_keys + depends_export_keys), '"']))
+    ret.append(''.join(['makedepends="',
+                        ' '.join(makedepends_implicit + makedepends_keys), '"']))
     ret.append('subpackages="$pkgname-dbg"')
     ret.append('source=""')
     ret.append('builddir="$startdir/apk-build-temporary"')
