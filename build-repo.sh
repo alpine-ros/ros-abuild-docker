@@ -58,6 +58,7 @@ mkdir -p ${extsrc}
 
 summary_file=${LOGDIR}/summary.log
 full_log_file=${LOGDIR}/full.log
+apk_list_file=${LOGDIR}/apk_list.log
 
 
 # Update repositories
@@ -169,7 +170,7 @@ function summarize_error() {
   fi
 }
 
-rm -f ${summary_file}
+rm -f ${summary_file} ${apk_list_file}
 
 echo "## Summary" >> ${summary_file}
 echo '```' >> ${summary_file}
@@ -186,6 +187,7 @@ for manifest in ${manifests}; do
   echo >> ${summary_file}
   echo "## $pkgname" >> ${summary_file}
   echo "**${apk_filename}**" >> ${summary_file}
+  echo "${apk_filename}" >> ${apk_list_file}
 
   if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-status.log ]; then
     if [ -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
