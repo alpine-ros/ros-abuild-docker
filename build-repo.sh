@@ -18,6 +18,20 @@ case "${FORCE_LOCAL_VERSION}" in
     ;;
 esac
 
+case "${VERSION_PER_SUBPACKAGE}" in
+  "")
+    VERSION_PER_SUBPACKAGE=no
+    ;;
+  yes)
+    ;;
+  no)
+    ;;
+  *)
+    echo "VERSION_PER_SUBPACKAGE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    exit 1
+    ;;
+esac
+
 
 # Setup environment variables
 
@@ -90,6 +104,11 @@ fi
 
 error=false
 
+commit_date_path=
+if [ "${VERSION_PER_SUBPACKAGE}" == "yes" ]; then
+  commit_date_path="."
+fi
+
 manifests="$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")"
 for manifest in ${manifests}; do
   echo +++++++++++++++++++++++++
@@ -97,8 +116,8 @@ for manifest in ${manifests}; do
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
 
-  commit_date=$(git -C ${pkgpath} show \
-                -s --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD)
+  commit_date=$(git -C ${pkgpath} log \
+                -n1 --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD ${commit_date_path})
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
