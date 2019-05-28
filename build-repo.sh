@@ -2,6 +2,8 @@
 
 set -e
 
+umask ${UMASK:-0000}
+
 # Validate environment variables
 
 case "${FORCE_LOCAL_VERSION}" in
