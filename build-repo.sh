@@ -119,6 +119,7 @@ for manifest in ${manifests}; do
   pkgname=$(basename ${pkgpath})
 
   commit_date=$(git -C ${pkgpath} log \
+                --full-history \
                 -n1 --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD ${commit_date_path})
 
   # Copy files with filter
