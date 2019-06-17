@@ -369,7 +369,7 @@ def package_to_apkbuild(ros_distro, package_name,
         ret.append(' '.join([
             '  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo --install --install-space', install_space]))
         ret.append(''.join([
-            '  rm ',
+            '  rm -f ',
             install_space_fakeroot, '/setup.* ',
             install_space_fakeroot, '/local_setup.* ',
             install_space_fakeroot, '/.rosinstall ',
