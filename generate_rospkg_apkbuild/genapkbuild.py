@@ -371,6 +371,7 @@ def package_to_apkbuild(ros_distro, package_name,
         ret.append(''.join([
             '  rm ',
             install_space_fakeroot, '/setup.* ',
+            install_space_fakeroot, '/local_setup.* ',
             install_space_fakeroot, '/.rosinstall ',
             install_space_fakeroot, '/_setup_util.py ',
             install_space_fakeroot, '/env.sh ',
