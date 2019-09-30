@@ -404,7 +404,7 @@ def package_to_apkbuild(ros_distro, package_name,
 def setup_environment_variables():
     if 'ROS_PYTHON_VERSION' not in os.environ:
         os.environ['ROS_PYTHON_VERSION'] = "2"
-        print('ROS_PYTHON_VERSION is not set. Using default value 2.')
+        print('ROS_PYTHON_VERSION is not set. Using default value 2.', file=sys.stderr)
 
 
 def main():
