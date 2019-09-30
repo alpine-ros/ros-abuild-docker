@@ -277,6 +277,7 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('  statuslog="/dev/null"')
     ret.append('fi')
 
+    ret.append(''.join(['ROS_PYTHON_VERSION=', os.environ["ROS_PYTHON_VERSION"]]))
     if not src:
         ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
 
@@ -400,7 +401,15 @@ def package_to_apkbuild(ros_distro, package_name,
     return '\n'.join(ret)
 
 
+def setup_environment_variables():
+    if 'ROS_PYTHON_VERSION' not in os.environ:
+        os.environ['ROS_PYTHON_VERSION'] = "2"
+        print('ROS_PYTHON_VERSION is not set. Using default value 2.', file=sys.stderr)
+
+
 def main():
+    setup_environment_variables()
+
     parser = argparse.ArgumentParser(description='Generate APKBUILD of ROS package')
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
@@ -433,6 +442,8 @@ def main():
 
 
 def main_multi():
+    setup_environment_variables()
+
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description='''Generate multiple APKBUILDs of ROS packages

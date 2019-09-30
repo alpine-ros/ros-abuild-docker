@@ -51,6 +51,8 @@ ENV SRCDIR="/src"
 ENV TZ=UTC
 ENV FORCE_LOCAL_VERSION=no
 
+ENV ROS_PYTHON_VERSION=2
+
 COPY generate_rospkg_apkbuild /scripts
 COPY build-repo.sh /
 COPY sign-repo-index.sh /
