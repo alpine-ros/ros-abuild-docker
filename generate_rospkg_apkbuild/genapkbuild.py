@@ -70,6 +70,11 @@ def ros_dependency_to_name_ver(dep):
             raise ValueError("dependency has more than one version spec")
         version_spec = "=" + dep.version_eq
 
+    if dep.condition is not None:
+        cond = os.path.expandvars(dep.condition)
+        if eval(cond) != True:
+            return None
+
     return NameAndVersion(dep.name, version_spec)
 
 
@@ -91,6 +96,9 @@ def resolve(ros_distro, deps):
     keys = []
     not_provided = []
     for dep in deps:
+        if dep is None:
+            continue
+
         view = lookup.get_rosdep_view(rosdep2.rospkg_loader.DEFAULT_VIEW_KEY)
         try:
             d = view.lookup(dep.name)
