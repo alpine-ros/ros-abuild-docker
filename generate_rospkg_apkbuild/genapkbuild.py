@@ -129,9 +129,12 @@ def resolve(ros_distro, deps):
 
 
 def force_py3_keys(keys):
+    new_keys = []
     for key in keys:
-        key = re.sub(r'^py2-', r'py3-', key)
-        key = re.sub(r'^python2-', r'python3-', key)
+        new_key = re.sub(r'^py2-', r'py3-', key)
+        new_key = re.sub(r'^python2-', r'python3-', new_key)
+        new_keys.append(new_key)
+    return new_keys
 
 
 def git_date(target_dir='./'):
