@@ -17,7 +17,8 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     rosinstall_generator \
     wstool
 
-ENV ROS_PYTHON_VERSION=2
+ARG ROS_PYTHON_VERSION=2
+ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
 
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
   && echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/$([ v\"$ROS_PYTHON_VERSION\" != \"v3\" ] && echo ros || echo ros-py3)/${ROS_DISTRO}" >> /etc/apk/repositories \
