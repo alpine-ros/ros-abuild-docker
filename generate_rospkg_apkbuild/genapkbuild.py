@@ -302,7 +302,7 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('  statuslog="/dev/null"')
     ret.append('fi')
 
-    ret.append(''.join(['ROS_PYTHON_VERSION=', ros_python_version]))
+    ret.append(''.join(['export ROS_PYTHON_VERSION=', ros_python_version]))
     if not src:
         ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
 
