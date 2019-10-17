@@ -31,6 +31,7 @@ import os
 import subprocess
 import sys
 import yaml
+import re
 
 from catkin_pkg.package import Dependency, parse_package_string
 import rosdep2
@@ -127,6 +128,12 @@ def resolve(ros_distro, deps):
     return keys
 
 
+def force_py3_keys(keys):
+    for key in keys:
+        key = re.sub(r'^py2-', r'py3-', key)
+        key = re.sub(r'^python2-', r'python3-', key)
+
+
 def git_date(target_dir='./'):
     cmd = [
         'git', '-C', target_dir, 'show',
@@ -145,6 +152,7 @@ def package_to_apkbuild(ros_distro, package_name,
     ret = []
     pkg_xml = ''
     todo_upstream_clone = dict()
+    ros_python_version = os.environ["ROS_PYTHON_VERSION"]
 
     if package_name.startswith('http://') or package_name.startswith('https://'):
         import requests
@@ -264,6 +272,12 @@ def package_to_apkbuild(ros_distro, package_name,
     depends_export_keys = sorted(list(set(depends_export_keys)))
     makedepends_keys = sorted(list(set(makedepends_keys)))
 
+    # Force using py3- packages for Python 3 build
+    if ros_python_version == '3':
+        depends_keys = force_py3_keys(depends_keys)
+        depends_export_keys = force_py3_keys(depends_export_keys)
+        makedepends_keys = force_py3_keys(makedepends_keys)
+
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
         'py-rosinstall-generator', 'py-wstool', 'chrpath']
@@ -285,7 +299,7 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('  statuslog="/dev/null"')
     ret.append('fi')
 
-    ret.append(''.join(['ROS_PYTHON_VERSION=', os.environ["ROS_PYTHON_VERSION"]]))
+    ret.append(''.join(['ROS_PYTHON_VERSION=', ros_python_version]))
     if not src:
         ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
 
