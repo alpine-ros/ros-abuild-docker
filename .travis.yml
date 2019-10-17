@@ -11,11 +11,13 @@ install:
   - git clone --depth=1 -b kinetic-devel https://github.com/ros/rospack /tmp/rospack
 
 script:
-  - docker run -it --rm \
+  - |
+    docker run -it --rm \
       -v /tmp/rospack:/src/rospack:ro \
       -e ROS_PYTHON_VERSION=2 \
       alpineros/ros-abuild:3.7-kinetic
-  - docker run -it --rm \
+  - |
+    docker run -it --rm \
       -v /tmp/rospack:/src/rospack:ro \
       -e ROS_PYTHON_VERSION=3 \
       alpineros/ros-abuild:3.7-kinetic
