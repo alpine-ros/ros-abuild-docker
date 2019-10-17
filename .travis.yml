@@ -8,6 +8,10 @@ branches:
 
 install:
   - docker build -t alpineros/ros-abuild:3.7-kinetic .
+  - |
+    docker build -t alpineros/ros-abuild:3.8-melodic \
+      --build-arg ALPINE_VERSION=3.8 \
+      --build-arg ROS_DISTRO=melodic .
   - git clone --depth=1 -b kinetic-devel https://github.com/ros/rospack /tmp/rospack
 
 script:
@@ -20,4 +24,4 @@ script:
     docker run -it --rm \
       -v /tmp/rospack:/src/rospack:ro \
       -e ROS_PYTHON_VERSION=3 \
-      alpineros/ros-abuild:3.7-kinetic
+      alpineros/ros-abuild:3.8-melodic
