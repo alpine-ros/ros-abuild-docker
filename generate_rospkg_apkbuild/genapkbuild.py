@@ -343,6 +343,23 @@ def package_to_apkbuild(ros_distro, package_name,
     ret.append('  echo "building" > $statuslog')
     ret.append('  cd "$builddir"')
     if catkin:
+        if ros_python_version == '3':
+            # Overwrite shebang
+            ret.append('  find src -type f | while read file; do')
+            ret.append('    h=$(head -n1 $file)')
+            ret.append('    rewrite_shebang=false')
+            ret.append('    if echo $h | grep -q -s "^#\!\s*/usr/bin/env\s*python$"; then')
+            ret.append('      rewrite_shebang=true')
+            ret.append('    fi')
+            ret.append('    if echo $h | grep -q -s "^#\!\s*/usr/bin/python$"; then')
+            ret.append('      rewrite_shebang=true')
+            ret.append('    fi')
+            ret.append('    if [ $rewrite_shebang == "true" ]; then')
+            ret.append('      echo "WARN: rewriting python shebang of $file"')
+            ret.append('      sed -i "1c#\!/usr/bin/env python3" $file')
+            ret.append('    fi')
+            ret.append('  done')
+
         ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
         ret.append('  catkin_make_isolated \\')
         ret.append('    -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog')
