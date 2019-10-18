@@ -77,6 +77,14 @@ full_log_file=${LOGDIR}/full.log
 apk_list_file=${LOGDIR}/apk_list.log
 
 
+commit_date_path=
+ext_pkg_option="--shallow"
+if [ "${VERSION_PER_SUBPACKAGE}" == "yes" ]; then
+  commit_date_path="."
+  ext_pkg_option=
+fi
+
+
 # Update repositories
 
 if [ ! -z "${CUSTOM_APK_REPOS}" ]; then
@@ -98,18 +106,13 @@ for dep in ${ext_deps}; do
   wstool merge -y -t ${tmp_ws} $dep
 done
 if [ -s ${tmp_ws}/.rosinstall ]; then
-  wstool init ${extsrc} ${tmp_ws}/.rosinstall --shallow -j4
+  wstool init ${extsrc} ${tmp_ws}/.rosinstall ${ext_pkg_option} -j4
 fi
 
 
 # Generate APKBUILDs
 
 error=false
-
-commit_date_path=
-if [ "${VERSION_PER_SUBPACKAGE}" == "yes" ]; then
-  commit_date_path="."
-fi
 
 manifests="$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")"
 for manifest in ${manifests}; do
