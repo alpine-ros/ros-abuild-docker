@@ -11,10 +11,10 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
 
 RUN apk add --no-cache python3 py3-pip py3-yaml \
   && pip3 install \
-    rospkg \
-    git+https://github.com/at-wat/rosdep.git@alpine-installer \
     requests \
+    rosdep \
     rosinstall_generator \
+    rospkg \
     wstool
 
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \

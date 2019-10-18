@@ -115,8 +115,6 @@ def resolve(ros_distro, deps):
                     continue
             not_provided.append(dep.name)
             continue
-        if type(rule) == dict:
-            not_provided.append(dep.name)
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
         for r in resolved:
