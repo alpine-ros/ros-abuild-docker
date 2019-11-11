@@ -1,0 +1,9 @@
+pkgname="@pkgname"
+_pkgname="@_pkgname"
+pkgver="@pkgver"
+pkgrel="@pkgrel"
+pkgdesc="@_pkgname package for ROS @rosdistro"
+url="@url"
+arch="all"
+license="@license"
+@[if not check]options="!check"@[end if]

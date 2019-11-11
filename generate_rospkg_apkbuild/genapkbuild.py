@@ -31,6 +31,8 @@ import os
 import subprocess
 import sys
 import yaml
+import em
+from io import StringIO
 
 from catkin_pkg.package import Dependency, parse_package_string
 import rosdep2
@@ -209,20 +211,6 @@ def package_to_apkbuild(ros_distro, package_name,
                 if date is not None:
                     ver_suffix = '_git' + date
 
-    ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
-    ret.append(''.join(['_pkgname=', pkg.name]))
-    ret.append(''.join(['pkgver=', pkg.version, ver_suffix]))
-    ret.append(''.join(['pkgrel=', str(rev)]))
-    ret.append(''.join(['pkgdesc=', '"$_pkgname package for ROS ', ros_distro, '"']))
-    if len(pkg.urls) > 0:
-        ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
-    else:
-        ret.append(''.join(['url=', '"http://wiki.ros.org/$_pkgname"']))
-    ret.append(''.join(['arch=', '"all"']))
-    ret.append(''.join(['license=', '"', pkg.licenses[0], '"']))
-    if not check:
-        ret.append(''.join(['options=', '"!check"']))
-
     depends = []
     for dep in pkg.exec_depends:
         depends.append(ros_dependency_to_name_ver(dep))
@@ -265,6 +253,24 @@ def package_to_apkbuild(ros_distro, package_name,
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
         'py-rosinstall-generator', 'py-wstool', 'chrpath']
+
+    g = {
+        "pkgname": ros_pkgname_to_pkgname(ros_distro, pkg.name),
+        "_pkgname": pkg.name,
+        "pkgver": pkg.version + ver_suffix,
+        "pkgrel": rev,
+        "rosdistro": ros_distro,
+        "url": pkg.urls[0].url if len(pkg.urls) > 0 else "http://wiki.ros.org/$_pkgname",
+        "license": pkg.licenses[0],
+        "check": check,
+    }
+    template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em')
+    apkbuild = StringIO()
+    interpreter = em.Interpreter(output=apkbuild, globals=g)
+    interpreter.file(open(template_path))
+    interpreter.flush()
+    ret.append(apkbuild.getvalue())
+    interpreter.shutdown()
 
     ret.append(''.join(['depends="',
                         ' '.join(depends_keys + depends_export_keys), '"']))
