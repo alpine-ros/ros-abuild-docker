@@ -8,7 +8,7 @@ setup(
     author='Atsushi Watanabe',
     author_email='atsushi.w@ieee.org',
     packages=['generate_rospkg_apkbuild'],
-    package_data={'generate_rospkg_apkbuild': "*.em"},
+    package_data={'generate_rospkg_apkbuild': "*.em.*"},
     install_requires=[
         'catkin_pkg',
         'empy',

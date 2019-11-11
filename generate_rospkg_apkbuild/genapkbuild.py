@@ -268,7 +268,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_catkin': catkin,
         'use_cmake': cmake,
     }
-    template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em')
+    template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
     interpreter = em.Interpreter(output=apkbuild, globals=g)
     interpreter.file(open(template_path))
