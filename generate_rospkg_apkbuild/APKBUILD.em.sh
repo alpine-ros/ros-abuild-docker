@@ -46,9 +46,9 @@ prepare() {
   wstool init @wstool_opt src pkg.rosinstall
 @[if upstream]@
   find src -name package.xml | while read manifest; do
-    dir=`dirname $manifest`
-    pkg=`sed $manifest \
-         -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;\'`
+    dir=$(dirname $manifest)
+    pkg=$(sed $manifest \
+          -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;\')
     if [ $pkg != $_pkgname ]; then
       echo Ignoring $pkg which is not $_pkgname
       touch $dir/CATKIN_IGNORE
@@ -101,7 +101,7 @@ check() {
 @[end if]@
 @[if use_cmake]@
   cd src/$_pkgname/build
-  if [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ]; then
+  if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
     make test 2>&1 | tee $checklog
   fi
 @[end if]@
