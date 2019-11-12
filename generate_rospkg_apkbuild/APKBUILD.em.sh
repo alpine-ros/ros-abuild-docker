@@ -44,7 +44,7 @@ prepare() {
 @[else]@
   echo "$rosinstall" > pkg.rosinstall
   wstool init @wstool_opt src pkg.rosinstall
-@[  if upstream]@
+@[  if use_upstream]@
   find src -name package.xml | while read manifest; do
     dir=$(dirname $manifest)
     pkg=$(sed $manifest \
