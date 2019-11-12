@@ -26,19 +26,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from io import StringIO
 import argparse
+import em
 import os
 import subprocess
 import sys
 import yaml
-import em
-from io import StringIO
 
 from catkin_pkg.package import Dependency, parse_package_string
-import rosdep2
 from rosdistro import get_cached_distribution, get_index, get_index_url
 from rosdistro.manifest_provider import get_release_tag
 from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
+import rosdep2
 
 
 class NameAndVersion:
