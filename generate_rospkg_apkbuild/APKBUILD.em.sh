@@ -44,7 +44,7 @@ prepare() {
 @[else]@
   echo "$rosinstall" > pkg.rosinstall
   wstool init @wstool_opt src pkg.rosinstall
-@[if upstream]@
+@[  if upstream]@
   find src -name package.xml | while read manifest; do
     dir=$(dirname $manifest)
     pkg=$(sed $manifest \
@@ -54,7 +54,7 @@ prepare() {
       touch $dir/CATKIN_IGNORE
     fi
   done
-@[end if]@
+@[  end if]@
 @[end if]@
   find $startdir -maxdepth 1 -name "*.patch" | while read patchfile; do
     echo "Applying $patchfile"
@@ -91,20 +91,20 @@ check() {
   set -o pipefail
   echo "checking" >> $statuslog
   cd "$builddir"
-@[if use_catkin]@
+@[  if use_catkin]@
   source /usr/ros/@(ros_distro)/setup.sh
   source devel_isolated/setup.sh
   catkin_make_isolated \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     --catkin-make-args run_tests 2>&1 | tee $checklog
   catkin_test_results 2>&1 | tee $checklog
-@[end if]@
-@[if use_cmake]@
+@[  end if]@
+@[  if use_cmake]@
   cd src/$_pkgname/build
   if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
     make test 2>&1 | tee $checklog
   fi
-@[end if]@
+@[  end if]@
 }
 @[end if]@
 
