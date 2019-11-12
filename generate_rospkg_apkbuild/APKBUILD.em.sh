@@ -48,7 +48,7 @@ prepare() {
   find src -name package.xml | while read manifest; do
     dir=$(dirname $manifest)
     pkg=$(sed $manifest \
-          -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;\')
+          -e ':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\1/;')
     if [ $pkg != $_pkgname ]; then
       echo Ignoring $pkg which is not $_pkgname
       touch $dir/CATKIN_IGNORE
