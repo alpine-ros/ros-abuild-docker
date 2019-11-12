@@ -26,17 +26,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from io import StringIO
 import argparse
+import em
 import os
 import subprocess
 import sys
 import yaml
 
 from catkin_pkg.package import Dependency, parse_package_string
-import rosdep2
 from rosdistro import get_cached_distribution, get_index, get_index_url
 from rosdistro.manifest_provider import get_release_tag
 from rosinstall_generator.generator import generate_rosinstall, get_wet_distro
+import rosdep2
 
 
 class NameAndVersion:
@@ -140,7 +142,6 @@ def git_date(target_dir='./'):
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, rev=0,
                         ver_suffix='', commit_hash=None):
-    ret = []
     pkg_xml = ''
     todo_upstream_clone = dict()
 
@@ -158,9 +159,6 @@ def package_to_apkbuild(ros_distro, package_name,
         if upstream:
             todo_upstream_clone['read_manifest'] = True
     pkg = parse_package_string(pkg_xml)
-
-    install_space = ''.join(['/usr/ros/', ros_distro])
-    install_space_fakeroot = ''.join(['"$pkgdir"', '/usr/ros/', ros_distro])
 
     # generate rosinstall
     rosinstall = None
@@ -209,20 +207,6 @@ def package_to_apkbuild(ros_distro, package_name,
                 if date is not None:
                     ver_suffix = '_git' + date
 
-    ret.append(''.join(['pkgname=', ros_pkgname_to_pkgname(ros_distro, pkg.name)]))
-    ret.append(''.join(['_pkgname=', pkg.name]))
-    ret.append(''.join(['pkgver=', pkg.version, ver_suffix]))
-    ret.append(''.join(['pkgrel=', str(rev)]))
-    ret.append(''.join(['pkgdesc=', '"$_pkgname package for ROS ', ros_distro, '"']))
-    if len(pkg.urls) > 0:
-        ret.append(''.join(['url=', '"', pkg.urls[0].url, '"']))
-    else:
-        ret.append(''.join(['url=', '"http://wiki.ros.org/$_pkgname"']))
-    ret.append(''.join(['arch=', '"all"']))
-    ret.append(''.join(['license=', '"', pkg.licenses[0], '"']))
-    if not check:
-        ret.append(''.join(['options=', '"!check"']))
-
     depends = []
     for dep in pkg.exec_depends:
         depends.append(ros_dependency_to_name_ver(dep))
@@ -266,145 +250,33 @@ def package_to_apkbuild(ros_distro, package_name,
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
         'py-rosinstall-generator', 'py-wstool', 'chrpath']
 
-    ret.append(''.join(['depends="',
-                        ' '.join(depends_keys + depends_export_keys), '"']))
-    ret.append(''.join(['makedepends="',
-                        ' '.join(makedepends_implicit + makedepends_keys), '"']))
-    ret.append('subpackages="$pkgname-dbg"')
-    ret.append('source=""')
-    ret.append('builddir="$startdir/apk-build-temporary"')
-    ret.append('srcdir="/tmp/dummy-src-dir"')
-    ret.append('buildlog="$builddir/ros-abuild-build.log"')
-    ret.append('checklog="$builddir/ros-abuild-check.log"')
-    ret.append('statuslog="$builddir/ros-abuild-status.log"')
-    ret.append('if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then')
-    ret.append('  buildlog="/dev/null"')
-    ret.append('  checklog="/dev/null"')
-    ret.append('  statuslog="/dev/null"')
-    ret.append('fi')
+    g = {
+        'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
+        '_pkgname': pkg.name,
+        'pkgver': pkg.version + ver_suffix,
+        'pkgrel': rev,
+        'ros_distro': ros_distro,
+        'url': pkg.urls[0].url if len(pkg.urls) > 0 else 'http://wiki.ros.org/$_pkgname',
+        'license': pkg.licenses[0],
+        'check': check,
+        'depends': depends_keys + depends_export_keys,
+        'makedepends': makedepends_implicit + makedepends_keys,
+        'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
+        'rosinstall': None if src else yaml.dump(rosinstall),
+        'wstool_opt': '' if upstream and commit_hash is not None else '--shallow',
+        'use_upstream': upstream,
+        'use_catkin': catkin,
+        'use_cmake': cmake,
+    }
+    template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
+    apkbuild = StringIO()
+    interpreter = em.Interpreter(output=apkbuild, globals=g)
+    interpreter.file(open(template_path))
+    interpreter.flush()
+    apkbuild_str = apkbuild.getvalue()
+    interpreter.shutdown()
 
-    ret.append(''.join(['ROS_PYTHON_VERSION=', os.environ["ROS_PYTHON_VERSION"]]))
-    if not src:
-        ret.append(''.join(['rosinstall="', yaml.dump(rosinstall), '"']))
-
-    ret.append('prepare() {')
-    ret.append('  set -o pipefail')
-    ret.append('  mkdir -p $builddir')
-    ret.append('  echo "preparing" > $statuslog')
-    ret.append('  cd "$builddir"')
-    ret.append('  rm -rf src || true')
-    ret.append('  mkdir -p src')
-    if src:
-        ret.append('  cp -r $startdir src/$_pkgname || true  # ignore recursion error')
-    else:
-        ret.append('  echo "$rosinstall" > pkg.rosinstall')
-        if upstream and commit_hash is not None:
-            ret.append('  wstool init src pkg.rosinstall')
-        else:
-            ret.append('  wstool init --shallow src pkg.rosinstall')
-
-        if upstream:
-            ret.append('  find src -name package.xml | while read manifest; do')
-            ret.append('    dir=`dirname $manifest`')
-            ret.append('    pkg=`sed $manifest \\')
-            ret.append('         -e \':l1;N;$!b l1;s/.*<\s*name\s*>\s*\(.*\)\s*<\s*\/name\s*>.*/\\1/;\'`')
-            ret.append('    if [ $pkg != $_pkgname ]; then')
-            ret.append('      echo Ignoring $pkg which is not $_pkgname')
-            ret.append('      touch $dir/CATKIN_IGNORE')
-            ret.append('    fi')
-            ret.append('  done')
-    ret.append('  find $startdir -maxdepth 1 -name "*.patch" | while read patchfile; do')
-    ret.append('    echo "Applying $patchfile"')
-    ret.append('    (cd src/* && patch -p1 -i $patchfile)')
-    ret.append('  done')
-    ret.append('}')
-
-    ret.append('build() {')
-    ret.append('  set -o pipefail')
-    ret.append('  echo "building" > $statuslog')
-    ret.append('  cd "$builddir"')
-    if catkin:
-        ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append('  catkin_make_isolated \\')
-        ret.append('    -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog')
-    if cmake:
-        ret.append('  mkdir src/$_pkgname/build')
-        ret.append('  cd src/$_pkgname/build')
-        ret.append(''.join([
-            '  cmake .. -DCMAKE_INSTALL_PREFIX=', install_space,
-            ' -DCMAKE_BUILD_TYPE=RelWithDebInfo',
-            ' -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog']))
-        ret.append('  make 2>&1 | tee -a $buildlog')
-    ret.append('}')
-
-    if check:
-        ret.append('check() {')
-        ret.append('  if [ -f $startdir/NOCHECK ]; then')
-        ret.append('    echo "Check skipped" | tee $checklog')
-        ret.append('    return 0')
-        ret.append('  fi')
-        ret.append('  set -o pipefail')
-        ret.append('  echo "checking" >> $statuslog')
-        ret.append('  cd "$builddir"')
-        if catkin:
-            ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-            ret.append('  source devel_isolated/setup.sh')
-            ret.append('  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo \\')
-            ret.append('    --catkin-make-args run_tests 2>&1 | tee $checklog')
-            ret.append('  catkin_test_results 2>&1 | tee $checklog')
-        if cmake:
-            ret.append('  cd src/$_pkgname/build')
-            ret.append('  if [ `make -q test > /dev/null 2> /dev/null; echo $?` -eq 1 ]; then')
-            ret.append('    make test 2>&1 | tee $checklog')
-            ret.append('  fi')
-        ret.append('}')
-
-    ret.append('dbg() {')
-    ret.append('  mkdir -p "$subpkgdir"')
-    ret.append('  default_dbg')
-    ret.append('}')
-
-    ret.append('package() {')
-    ret.append('  echo "packaging" >> $statuslog')
-    ret.append('  mkdir -p "$pkgdir"')
-    ret.append('  cd "$builddir"')
-    ret.append('  export DESTDIR="$pkgdir"')
-    if catkin:
-        ret.append(''.join(['  source /usr/ros/', ros_distro, '/setup.sh']))
-        ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo --install-space', install_space]))
-        ret.append(' '.join([
-            '  catkin_make_isolated -DCMAKE_BUILD_TYPE=RelWithDebInfo --install --install-space', install_space]))
-        ret.append(''.join([
-            '  rm -f ',
-            install_space_fakeroot, '/setup.* ',
-            install_space_fakeroot, '/local_setup.* ',
-            install_space_fakeroot, '/.rosinstall ',
-            install_space_fakeroot, '/_setup_util.py ',
-            install_space_fakeroot, '/env.sh ',
-            install_space_fakeroot, '/.catkin']))
-    if cmake:
-        ret.append('  cd src/$_pkgname/build')
-        ret.append('  make install')
-
-    ret.append('  find $pkgdir -name "*.so" | while read so; do')
-    ret.append('    chrpath_out=$(chrpath ${so} || true)')
-    ret.append('    if echo ${chrpath_out} | grep -q "RPATH="; then')
-    ret.append('      rpath=$(echo -n "${chrpath_out}" | sed -e "s/^.*RPATH=//")')
-    ret.append('      if echo "${rpath}" | grep -q home; then')
-    ret.append('        echo "RPATH contains home!: ${rpath}"')
-    ret.append('        rpathfix=$(echo -n "${rpath}" | tr ":" "\\n" \\')
-    ret.append('          | grep -v -e home | tr "\\n" ":" | sed -e "s/:$//; s/::/:/;")')
-    ret.append('        echo "Fixing to ${rpathfix}"')
-    ret.append('        chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)')
-    ret.append('      fi')
-    ret.append('    fi')
-    ret.append('  done')
-
-    ret.append('  echo "finished" >> $statuslog')
-    ret.append('}')
-
-    return '\n'.join(ret)
+    return apkbuild_str
 
 
 def setup_environment_variables():

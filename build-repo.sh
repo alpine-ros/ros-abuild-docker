@@ -134,7 +134,7 @@ for manifest in ${manifests}; do
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
 
-  if ! (set -o pipefail && /usr/bin/env python3 /scripts/genapkbuild.py \
+  if ! (set -o pipefail && generate-rospkg-apkbuild \
     ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
       --ver-suffix=_git${commit_date} \
       | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD); then

@@ -40,6 +40,13 @@ RUN mkdir -p /root/.ros \
   && chmod a+x /root \
   && chmod a+rwx /root/.ros
 
+COPY setup.py /tmp/genapkbuild/
+COPY generate_rospkg_apkbuild /tmp/genapkbuild/generate_rospkg_apkbuild
+RUN pip3 install /tmp/genapkbuild
+
+COPY build-repo.sh /
+COPY sign-repo-index.sh /
+
 USER builder
 
 ENV HOME="/home/builder"
@@ -52,10 +59,6 @@ ENV TZ=UTC
 ENV FORCE_LOCAL_VERSION=no
 
 ENV ROS_PYTHON_VERSION=2
-
-COPY generate_rospkg_apkbuild /scripts
-COPY build-repo.sh /
-COPY sign-repo-index.sh /
 
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
