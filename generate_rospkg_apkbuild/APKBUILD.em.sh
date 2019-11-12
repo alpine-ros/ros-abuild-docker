@@ -1,8 +1,8 @@
-pkgname="@pkgname"
-_pkgname="@_pkgname"
-pkgver="@pkgver"
-pkgrel="@pkgrel"
-pkgdesc="@_pkgname package for ROS @ros_distro"
+pkgname=@pkgname
+_pkgname=@_pkgname
+pkgver=@pkgver
+pkgrel=@pkgrel
+pkgdesc="$_pkgname package for ROS @ros_distro"
 url="@url"
 arch="all"
 license="@license"
