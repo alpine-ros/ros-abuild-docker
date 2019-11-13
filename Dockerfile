@@ -11,10 +11,10 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
 
 RUN apk add --no-cache python3 py3-pip py3-yaml \
   && pip3 install \
-    rospkg \
-    git+https://github.com/at-wat/rosdep.git@alpine-installer \
     requests \
+    rosdep \
     rosinstall_generator \
+    rospkg \
     wstool
 
 ARG ROS_PYTHON_VERSION=2
@@ -43,6 +43,13 @@ RUN mkdir -p /root/.ros \
   && chmod a+x /root \
   && chmod a+rwx /root/.ros
 
+COPY setup.py /tmp/genapkbuild/
+COPY generate_rospkg_apkbuild /tmp/genapkbuild/generate_rospkg_apkbuild
+RUN pip3 install /tmp/genapkbuild
+
+COPY build-repo.sh /
+COPY sign-repo-index.sh /
+
 USER builder
 
 ENV HOME="/home/builder"
@@ -53,10 +60,6 @@ ENV LOGDIR="${HOME}/logs"
 ENV SRCDIR="/src"
 ENV TZ=UTC
 ENV FORCE_LOCAL_VERSION=no
-
-COPY generate_rospkg_apkbuild /scripts
-COPY build-repo.sh /
-COPY sign-repo-index.sh /
 
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
