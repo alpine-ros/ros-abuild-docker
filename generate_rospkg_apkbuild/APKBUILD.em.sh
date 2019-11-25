@@ -140,6 +140,7 @@ package() {
   make install
 @[end if]@
 
+  # Tweak invalid RPATH
   find $pkgdir -name "*.so" | while read so; do
     chrpath_out=$(chrpath ${so} || true)
     if echo ${chrpath_out} | grep -q "RPATH="; then
@@ -151,6 +152,24 @@ package() {
         echo "Fixing to ${rpathfix}"
         chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)
       fi
+    fi
+  done
+
+  # Tweak hardcoded library versions
+  find $pkgdir -name "*.cmake" | while read cm; do
+    if grep -q -e '^set(libraries ".*\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}[;"]' $cm
+    then
+      # lib.so.0.1.2 -> lib.so.0.1
+      sed -e '/^set(libraries /{s/\(\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\)\.[0-9]\{1,\}/\1/g}' \
+        -i $cm
+      echo "Removing library patch version from $cm"
+    fi
+    if grep -q -e '^set(libraries ".*-[0-9]\{1,\}\.[0-9]\{1,\}\.so\.[0-9]\{1,\}[;"]' $cm
+    then
+      # lib-0.1.so.2 -> lib-0.1.so
+      sed -e '/^set(libraries /{s/\(-[0-9]\{1,\}\.[0-9]\{1,\}\.so\)\.[0-9]\{1,\}/\1/g}' \
+        -i $cm
+      echo "Removing library patch version from $cm"
     fi
   done
 
