@@ -157,20 +157,27 @@ package() {
 
   # Tweak hardcoded library versions
   find $pkgdir -name "*.cmake" | while read cm; do
-    if grep -q -e '^set(libraries ".*\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}[;"]' $cm
-    then
+    libs=$(sed -n '/^set(libraries/{s/^.*"\(.*\)")$/\1/;s/;/ /g;p}' $cm)
+    for lib in $libs; do
+      rep=
       # lib.so.0.1.2 -> lib.so.0.1
-      sed -e '/^set(libraries /{s/\(\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\)\.[0-9]\{1,\}/\1/g}' \
-        -i $cm
-      echo "Removing library patch version from $cm"
-    fi
-    if grep -q -e '^set(libraries ".*-[0-9]\{1,\}\.[0-9]\{1,\}\.so\.[0-9]\{1,\}[;"]' $cm
-    then
+      if echo $lib | grep -q -e '\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}$'; then
+        rep=$(echo $lib | sed -e 's/\(\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\)\.[0-9]\{1,\}$/\1/')
+      fi
       # lib-0.1.so.2 -> lib-0.1.so
-      sed -e '/^set(libraries /{s/\(-[0-9]\{1,\}\.[0-9]\{1,\}\.so\)\.[0-9]\{1,\}/\1/g}' \
-        -i $cm
-      echo "Removing library patch version from $cm"
-    fi
+      if echo $lib | grep -q -e '-[0-9]\{1,\}\.[0-9]\{1,\}\.so\.[0-9]\{1,\}$'; then
+        rep=$(echo $lib | sed -e 's/\(-[0-9]\{1,\}\.[0-9]\{1,\}\.so\)\.[0-9]\{1,\}$/\1/')
+      fi
+
+      if [ ! -z "$rep" ]; then
+        if [ -f $rep ]; then
+          echo "$cm: $lib -> $rep"
+          sed -e "s|\([\";]\)$lib\([\";]\)|\1$rep\2|g" -i $cm
+        else
+          echo "$cm: $lib is specified, but $rep doesn't exist"
+        fi
+      fi
+    done
   done
 
   echo "finished" >> $statuslog
