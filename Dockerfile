@@ -47,20 +47,22 @@ RUN pip3 install /tmp/genapkbuild
 COPY build-repo.sh /
 COPY sign-repo-index.sh /
 
-USER builder
-
 ENV HOME="/home/builder"
 ENV PACKAGER_PRIVKEY="${HOME}/.abuild/builder@alpine-ros-experimental.rsa"
-ENV APORTSDIR="${HOME}/aports"
-ENV REPODIR="${HOME}/packages"
-ENV LOGDIR="${HOME}/logs"
+ENV APORTSDIR="/aports"
+ENV REPODIR="/packages"
+ENV LOGDIR="/logs"
 ENV SRCDIR="/src"
 ENV TZ=UTC
 ENV FORCE_LOCAL_VERSION=no
+
+RUN mkdir -p ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR} \
+  && chmod a+rwx ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR}
 
 ENV ROS_PYTHON_VERSION=2
 
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
 
+USER builder
 ENTRYPOINT ["/build-repo.sh"]
