@@ -20,7 +20,6 @@ In ROS package directory:
 ```shell
 docker run -it --rm \
   -v $(pwd):/src/$(basename $(pwd)):ro \
-  -v /tmp:/logdir -e LOGDIR=/logdir \
   alpineros/ros-abuild:3.7-kinetic
 ```
 
@@ -28,8 +27,17 @@ In ROS meta-package root directory:
 ```shell
 docker run -it --rm \
   -v $(pwd):/src:ro \
-  -v /tmp:/logdir -e LOGDIR=/logdir \
   alpineros/ros-abuild:3.7-kinetic
 ```
+
+To get generated apk package,
+1. Create a directory to store packages.
+    ```shell
+    mkdir -p /path/to/your/packages
+    ```
+2. Build with following arguments:
+    ```
+    -v /path/to/your/packages:/packages
+    ```
 
 If `*.rosinstall` file is present, packages specified in the file will be automatically cloned and built.
