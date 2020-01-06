@@ -16,7 +16,7 @@ makedepends="@(' '.join(makedepends))"
 subpackages="$pkgname-dbg"
 
 source=""
-builddir="$startdir/apk-build"
+builddir="$startdir/abuild"
 srcdir="/tmp/dummy-src-dir"
 buildlog="$builddir/ros-abuild-build.log"
 checklog="$builddir/ros-abuild-check.log"
