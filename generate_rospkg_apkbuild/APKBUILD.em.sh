@@ -16,7 +16,7 @@ makedepends="@(' '.join(makedepends))"
 subpackages="$pkgname-dbg"
 
 source=""
-builddir="$startdir/apk-build-temporary"
+builddir="$startdir/abuild"
 srcdir="/tmp/dummy-src-dir"
 buildlog="$builddir/ros-abuild-build.log"
 checklog="$builddir/ros-abuild-check.log"
@@ -157,6 +157,7 @@ package() {
   make install
 @[end if]@
 
+  # Tweak invalid RPATH
   find $pkgdir -name "*.so" | while read so; do
     chrpath_out=$(chrpath ${so} || true)
     if echo ${chrpath_out} | grep -q "RPATH="; then
@@ -169,6 +170,31 @@ package() {
         chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)
       fi
     fi
+  done
+
+  # Tweak hardcoded library versions
+  find $pkgdir -name "*.cmake" | while read cm; do
+    libs=$(sed -n '/^set(libraries/{s/^.*"\(.*\)")$/\1/;s/;/ /g;p}' $cm)
+    for lib in $libs; do
+      rep=
+      # lib.so.0.1.2 -> lib.so.0.1
+      if echo $lib | grep -q -e '\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}$'; then
+        rep=$(echo $lib | sed -e 's/\(\.so\.[0-9]\{1,\}\.[0-9]\{1,\}\)\.[0-9]\{1,\}$/\1/')
+      fi
+      # lib-0.1.so.2 -> lib-0.1.so
+      if echo $lib | grep -q -e '-[0-9]\{1,\}\.[0-9]\{1,\}\.so\.[0-9]\{1,\}$'; then
+        rep=$(echo $lib | sed -e 's/\(-[0-9]\{1,\}\.[0-9]\{1,\}\.so\)\.[0-9]\{1,\}$/\1/')
+      fi
+
+      if [ ! -z "$rep" ]; then
+        if [ -f $rep ]; then
+          echo "$cm: $lib -> $rep"
+          sed -e "s|\([\";]\)$lib\([\";]\)|\1$rep\2|g" -i $cm
+        else
+          echo "$cm: $lib is specified, but $rep doesn't exist"
+        fi
+      fi
+    done
   done
 
   echo "finished" >> $statuslog
