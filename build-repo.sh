@@ -4,6 +4,8 @@ set -e
 
 umask ${UMASK:-0000}
 
+build_subdir=abuild
+
 # Validate environment variables
 
 case "${FORCE_LOCAL_VERSION}" in
@@ -214,7 +216,7 @@ for manifest in ${manifests}; do
   echo "**${apk_filename}**" >> ${summary_file}
   echo "${apk_filename}" >> ${apk_list_file}
 
-  if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-status.log ]; then
+  if [ ! -f ${pkgpath}/${build_subdir}/ros-abuild-status.log ]; then
     if [ -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
       echo "Already been built." >> ${summary_file}
     else
@@ -223,9 +225,9 @@ for manifest in ${manifests}; do
     fi
     continue
   fi
-  if grep "finished" ${pkgpath}/apk-build-temporary/ros-abuild-status.log > /dev/null; then
+  if grep "finished" ${pkgpath}/${build_subdir}/ros-abuild-status.log > /dev/null; then
     echo "Build succeeded." >> ${summary_file}
-    if grep "Check skipped" ${pkgpath}/apk-build-temporary/ros-abuild-check.log > /dev/null; then
+    if grep "Check skipped" ${pkgpath}/${build_subdir}/ros-abuild-check.log > /dev/null; then
       echo "(NOCHECK)" >> ${summary_file}
     fi
     if [ ! -f ${REPODIR}/${repo}/*/${apk_filename} ]; then
@@ -238,18 +240,18 @@ for manifest in ${manifests}; do
   error=true
 
   echo "### Build log" >> ${summary_file}
-  if [ ! -f ${pkgpath}/apk-build-temporary/ros-abuild-build.log ]; then
+  if [ ! -f ${pkgpath}/${build_subdir}/ros-abuild-build.log ]; then
     echo "Build log not found" >> ${summary_file}
     continue
   fi
   echo "\`\`\`" >> ${summary_file}
-  summarize_error ${pkgpath}/apk-build-temporary/ros-abuild-build.log "error" >> ${summary_file}
+  summarize_error ${pkgpath}/${build_subdir}/ros-abuild-build.log "error" >> ${summary_file}
   echo "\`\`\`" >> ${summary_file}
 
-  if [ -f ${pkgpath}/apk-build-temporary/ros-abuild-check.log ]; then
+  if [ -f ${pkgpath}/${build_subdir}/ros-abuild-check.log ]; then
     echo "### Check log" >> ${summary_file}
     echo '```' >> ${summary_file}
-    summarize_error ${pkgpath}/apk-build-temporary/ros-abuild-check.log "(error|failure)" >> ${summary_file}
+    summarize_error ${pkgpath}/${build_subdir}/ros-abuild-check.log "(error|failure)" >> ${summary_file}
     echo '```' >> ${summary_file}
     continue
   fi
