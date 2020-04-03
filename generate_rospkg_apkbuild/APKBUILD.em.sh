@@ -27,7 +27,7 @@ if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then
   statuslog="/dev/null"
 fi
 
-ROS_PYTHON_VERSION=@ros_python_version
+export ROS_PYTHON_VERSION=@ros_python_version
 @[if rosinstall is not None]@
 rosinstall="@rosinstall"
 @[end if]@
@@ -67,6 +67,23 @@ build() {
   echo "building" > $statuslog
   cd "$builddir"
 @[if use_catkin]@
+@[  if ros_python_version == '3']@
+  # Overwrite shebang
+  find src -type f | while read file; do
+    h=$(head -n1 "$file")
+    rewrite_shebang=false
+    if echo $h | grep -q -s "^#\!\s*/usr/bin/env\s*python$"; then
+      rewrite_shebang=true
+    fi
+    if echo $h | grep -q -s "^#\!\s*/usr/bin/python$"; then
+      rewrite_shebang=true
+    fi
+    if [ $rewrite_shebang == "true" ]; then
+      echo "WARN: rewriting python shebang of $file"
+      sed -i "1c#\!/usr/bin/env python3" "$file"
+    fi
+  done
+@[  end if]@
   source /usr/ros/@(ros_distro)/setup.sh
   catkin_make_isolated \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog

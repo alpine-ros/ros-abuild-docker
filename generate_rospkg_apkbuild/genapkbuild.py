@@ -33,6 +33,7 @@ import os
 import subprocess
 import sys
 import yaml
+import re
 
 from catkin_pkg.package import Dependency, parse_package_string
 from rosdistro import get_cached_distribution, get_index, get_index_url
@@ -127,6 +128,17 @@ def resolve(ros_distro, deps):
     return keys
 
 
+def force_py3_keys(keys):
+    new_keys = []
+    for key in keys:
+        if re.match(r'^py2-backports', key) is not None:
+            continue
+        new_key = re.sub(r'^py2-', r'py3-', key)
+        new_key = re.sub(r'^python2-', r'python3-', new_key)
+        new_keys.append(new_key)
+    return new_keys
+
+
 def git_date(target_dir='./'):
     cmd = [
         'git', '-C', target_dir, 'show',
@@ -144,6 +156,7 @@ def package_to_apkbuild(ros_distro, package_name,
                         ver_suffix='', commit_hash=None):
     pkg_xml = ''
     todo_upstream_clone = dict()
+    ros_python_version = os.environ["ROS_PYTHON_VERSION"]
 
     if package_name.startswith('http://') or package_name.startswith('https://'):
         import requests
@@ -245,6 +258,12 @@ def package_to_apkbuild(ros_distro, package_name,
     depends_keys = sorted(list(set(depends_keys)))
     depends_export_keys = sorted(list(set(depends_export_keys)))
     makedepends_keys = sorted(list(set(makedepends_keys)))
+
+    # Force using py3- packages for Python 3 build
+    if ros_python_version == '3':
+        depends_keys = force_py3_keys(depends_keys)
+        depends_export_keys = force_py3_keys(depends_export_keys)
+        makedepends_keys = force_py3_keys(makedepends_keys)
 
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep', 'py-rosinstall',

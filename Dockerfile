@@ -17,6 +17,9 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     rospkg \
     wstool
 
+ARG ROS_PYTHON_VERSION=2
+ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
+
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
   && echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/ros/${ROS_DISTRO}" >> /etc/apk/repositories \
   && echo $'-----BEGIN PUBLIC KEY-----\n\
@@ -30,7 +33,7 @@ ewIDAQAB\n\
 -----END PUBLIC KEY-----' > /etc/apk/keys/builder@alpine-ros-experimental.rsa.pub
 
 RUN rosdep init \
-  && sed -i -e 's/ros\/rosdistro\/master/alpine-ros\/rosdistro\/alpine-custom-apk/' /etc/ros/rosdep/sources.list.d/20-default.list
+  && sed -i -e 's|ros/rosdistro/master|alpine-ros/rosdistro/alpine-custom-apk|' /etc/ros/rosdep/sources.list.d/20-default.list
 
 RUN mkdir -p /var/cache/apk \
   && ln -s /var/cache/apk /etc/apk/cache
@@ -58,8 +61,6 @@ ENV FORCE_LOCAL_VERSION=no
 
 RUN mkdir -p ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR} \
   && chmod a+rwx ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR}
-
-ENV ROS_PYTHON_VERSION=2
 
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
