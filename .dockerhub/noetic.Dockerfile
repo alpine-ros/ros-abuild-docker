@@ -15,8 +15,7 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     rospkg \
     wstool
 
-ARG ROS_PYTHON_VERSION=2
-ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
+ENV ROS_PYTHON_VERSION=3
 
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v3.11/backports" >> /etc/apk/repositories \
   && echo "http://alpine-ros-experimental.dev-sq.work/v3.11/ros/noetic" >> /etc/apk/repositories \
