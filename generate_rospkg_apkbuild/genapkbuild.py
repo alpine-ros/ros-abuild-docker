@@ -73,10 +73,8 @@ def ros_dependency_to_name_ver(dep):
             raise ValueError("dependency has more than one version spec")
         version_spec = "=" + dep.version_eq
 
-    if dep.condition is not None:
-        cond = os.path.expandvars(dep.condition)
-        if eval(cond) != True:
-            return None
+    if not dep.evaluated_condition:
+        return None
 
     return NameAndVersion(dep.name, version_spec)
 
@@ -219,6 +217,8 @@ def package_to_apkbuild(ros_distro, package_name,
                     '/'.join([tmpd, rosinstall[0]['git']['local-name']]))
                 if date is not None:
                     ver_suffix = '_git' + date
+
+    pkg.evaluate_conditions(os.environ)
 
     depends = []
     for dep in pkg.exec_depends:
