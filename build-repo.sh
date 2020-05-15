@@ -125,7 +125,8 @@ for manifest in ${manifests}; do
 
   commit_date=$(git -C ${pkgpath} log \
                 --full-history \
-                -n1 --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD ${commit_date_path})
+                -n1 --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD ${commit_date_path} \
+                  || echo -n "19700101000000")
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
