@@ -16,6 +16,7 @@ setup(
         'requests',
         'rosdep',
         'rosdistro',
+        'rosinstall-generator',
         'wstool',
     ],
     entry_points={
