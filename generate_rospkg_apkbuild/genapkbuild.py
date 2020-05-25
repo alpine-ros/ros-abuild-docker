@@ -151,7 +151,7 @@ def git_date(target_dir='./'):
 
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, rev=0,
-                        ver_suffix='', commit_hash=None):
+                        ver_suffix=None, commit_hash=None):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -181,9 +181,9 @@ def package_to_apkbuild(ros_distro, package_name,
         if upstream:
             if commit_hash is not None:
                 rosinstall[0]['git']['version'] = commit_hash
-            if ver_suffix == '':
+            if ver_suffix is None:
                 todo_upstream_clone['obtain_ver_suffix'] = True
-    elif ver_suffix == '':
+    elif ver_suffix is None:
         date = git_date()
         if date is not None:
             ver_suffix = '_git' + date
@@ -317,8 +317,8 @@ def main():
                         help='disable test (default: test enabled)')
     parser.add_argument('--rev', dest='rev', type=int, default=0,
                         help='set revision number (default: 0)')
-    parser.add_argument('--ver-suffix', dest='vsuffix', type=str, default='',
-                        help='set version suffix (default: \'\') ' +
+    parser.add_argument('--ver-suffix', dest='vsuffix', type=str, default=None,
+                        help='set version suffix (default: auto detect) ' +
                         '[note: if not specified and --upstream is set, ' +
                         'automatic detection by cloning the repo will be performed.]')
     parser.add_argument('--commit-hash', dest='commit', type=str, default=None,
