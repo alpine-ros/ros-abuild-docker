@@ -269,6 +269,9 @@ def package_to_apkbuild(ros_distro, package_name,
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
         'py-rosinstall-generator', 'py-wstool', 'chrpath']
 
+    if ver_suffix is None:
+        ver_suffix = ''
+
     g = {
         'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
         '_pkgname': pkg.name,
