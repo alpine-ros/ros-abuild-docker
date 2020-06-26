@@ -53,6 +53,20 @@ if [ ! -z "${CFLAGS}" ]; then
   echo
 fi
 
+if [ ! -z "${JOBS}" ]; then
+  echo "Overwriting JOBS"
+  echo "original:"
+  echo "---"
+  grep "JOBS=" /etc/abuild.conf
+  sudo sed -i "s/export JOBS=.*/export JOBS=${JOBS}/" /etc/abuild.conf
+  echo "---"
+  echo "updated:"
+  echo "---"
+  grep "JOBS=" /etc/abuild.conf
+  echo "---"
+  echo
+fi
+
 repo=${ROS_DISTRO}
 
 if [ ! -f "${PACKAGER_PRIVKEY}" ]; then
