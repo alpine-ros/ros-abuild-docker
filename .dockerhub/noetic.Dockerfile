@@ -55,6 +55,7 @@ ENV LOGDIR="/logs"
 ENV SRCDIR="/src"
 ENV TZ=UTC
 ENV FORCE_LOCAL_VERSION=no
+ENV SKIP_ROSDEP_UPDATE=false
 
 RUN mkdir -p ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR} \
   && chmod a+rwx ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR}
@@ -62,5 +63,13 @@ RUN mkdir -p ${APORTSDIR} ${REPODIR} ${LOGDIR} ${SRCDIR} \
 VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
 
+RUN mkdir -p /var/cache/apk \
+  && ln -s /var/cache/apk /etc/apk/cache \
+  && mkdir -p ${HOME}/.ros/rosdep
+
 USER builder
+
+VOLUME /var/cache/apk
+VOLUME ${HOME}/.ros/rosdep
+
 ENTRYPOINT ["/build-repo.sh"]
