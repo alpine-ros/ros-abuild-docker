@@ -3,7 +3,10 @@
 set -e
 
 umask ${UMASK:-0000}
-sudo chmod a+rwx /var/cache/apk ${HOME}/.ros/rosdep
+sudo chmod a+rwx \
+  /var/cache/apk \
+  ${HOME}/.ros \
+  ${HOME}/.ros/rosdep
 
 build_subdir=abuild
 

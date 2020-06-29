@@ -67,7 +67,8 @@ VOLUME ${SRCDIR}
 WORKDIR ${SRCDIR}
 
 RUN mkdir -p /var/cache/apk \
-  && ln -s /var/cache/apk /etc/apk/cache
+  && ln -s /var/cache/apk /etc/apk/cache \
+  && mkdir -p ${HOME}/.ros/rosdep
 
 USER builder
 
