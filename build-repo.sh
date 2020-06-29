@@ -3,6 +3,7 @@
 set -e
 
 umask ${UMASK:-0000}
+sudo chmod a+rwx /var/cache/apk ${HOME}/.ros/rosdep
 
 build_subdir=abuild
 
@@ -96,7 +97,10 @@ if [ ! -z "${CUSTOM_APK_REPOS}" ]; then
 fi
 echo "${REPODIR}/${repo}" | sudo tee -a /etc/apk/repositories
 sudo apk update
-rosdep update
+
+if [ ! -f ${HOME}/.ros/rosdep/sources.cache/index ] || ! ${SKIP_ROSDEP_UPDATE:-false}; then
+  rosdep update
+fi
 
 
 # Clone packages if .rosinstall is provided
