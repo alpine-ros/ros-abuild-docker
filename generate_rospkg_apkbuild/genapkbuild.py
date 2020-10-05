@@ -282,7 +282,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
         '_pkgname': pkg.name,
         'pkgver': pkg.version + ver_suffix,
-        'pkgrel': revfn(pkg.version),
+        'pkgrel': revfn(pkg.version + ver_suffix),
         'ros_distro': ros_distro,
         'url': pkg.urls[0].url if len(pkg.urls) > 0 else 'http://wiki.ros.org/$_pkgname',
         'license': pkg.licenses[0],
@@ -417,7 +417,7 @@ example:
                 ['sh', '-c', '. %s; echo -n ${pkgver}' % filepath]).decode('ascii')
 
         def revfn(ver):
-            if prev_rev != ver:
+            if prev_ver != ver:
                 return 0
             if args.bumprev:
                 return prev_rev + 1
