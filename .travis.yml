@@ -29,6 +29,6 @@ script:
       -v /tmp/apks:/packages \
       builder
   - ls -l /tmp/apks/*
-  - test -f /tmp/apks/noetic/x86_64/ros-${ROS_DISTRO}-rospack-dbg-*.apk
-  - test -f /tmp/apks/noetic/x86_64/ros-${ROS_DISTRO}-rospack-doc-*.apk
+  - test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-dbg-*.apk
+  - test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-doc-*.apk
   - test -f $(find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" | grep -v "rospack-dbg" | grep -v "rospack-doc")
