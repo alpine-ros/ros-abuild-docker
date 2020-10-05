@@ -149,8 +149,14 @@ def git_date(target_dir='./'):
         return None
 
 
+def static_revfn(rev):
+    def revfn(ver):
+        return rev
+    return revfn
+
+
 def package_to_apkbuild(ros_distro, package_name,
-                        check=True, upstream=False, src=False, rev=0,
+                        check=True, upstream=False, src=False, revfn=static_revfn(0),
                         ver_suffix=None, commit_hash=None):
     pkg_xml = ''
     todo_upstream_clone = dict()
@@ -276,7 +282,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
         '_pkgname': pkg.name,
         'pkgver': pkg.version + ver_suffix,
-        'pkgrel': rev,
+        'pkgrel': revfn(pkg.version),
         'ros_distro': ros_distro,
         'url': pkg.urls[0].url if len(pkg.urls) > 0 else 'http://wiki.ros.org/$_pkgname',
         'license': pkg.licenses[0],
@@ -336,7 +342,7 @@ def main():
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
-                              src=args.src, rev=args.rev,
+                              src=args.src, revfn=static_revfn(args.rev),
                               ver_suffix=args.vsuffix,
                               commit_hash=args.commit))
 
@@ -357,8 +363,9 @@ example:
     parser.add_argument('--all', dest='all', action='store_const',
                         const=True, default=False,
                         help='generate all packages in the rosdistro under current directory (default: False)')
-    parser.add_argument('--rev', dest='rev', type=int, default=0,
-                        help='set revision number (default: 0)')
+    parser.add_argument('--bumprev', action='store_const',
+                        const=True, default=False,
+                        help='bump pkgrel (default: False)')
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
@@ -401,10 +408,24 @@ example:
         pkg_force_upstream = force_upstream[pkgname] if pkgname in force_upstream else False
         pkg_upstream_ref = upstream_ref[pkgname] if pkgname in upstream_ref else None
 
+        prev_rev = 0
+        prev_ver = None
+        if os.path.exists(filepath):
+            prev_rev = os.subprocess.check_output('sh -c \'. ./APKBUILD; echo -n ${pkgrel}\'').to_i
+            prev_ver = os.subprocess.check_output('sh -c \'. ./APKBUILD; echo -n ${pkgver}\'')
+
+        def revfn(ver):
+            if prev_rev != ver:
+                return 0
+            if args.bumprev:
+                return prev_rev + 1
+            return prev_rev
+
         apkbuild = package_to_apkbuild(
             args.ros_distro[0], pkgname,
             upstream=(args.upstream or pkg_force_upstream),
-            rev=args.rev, commit_hash=pkg_upstream_ref)
+            revfn=revfn,
+            commit_hash=pkg_upstream_ref)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
