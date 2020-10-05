@@ -198,15 +198,57 @@ package() {
   done
 
   # Install license files
+  licensedir="$pkgdir"/usr/share/licenses/$pkgname/
   cd $builddir/src/$_pkgname
   find . -iname "license*" | while read file; do
     # Copy license files under the source
-    install -Dm644 $file "$pkgdir"/usr/share/licenses/$pkgname/$file
+    install -Dm644 $file "$licensedir"/$file
   done
   if [ -f $startdir/LICENSE ]; then
     # If LICENSE file is in aports directory, copy it
-    install -Dm644 $startdir/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+    install -Dm644 $startdir/LICENSE "$licensedir"/LICENSE
   fi
+  if [ -z "$(find . -type f)" ]; then
+    # If no explicit license file found, extract from source files
+    find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
+      tmplicense=$(mktemp)
+      sed -n '1,/^\s*\(\/\/\|\*\/\|#\)/p' $file > $tmplicense
+
+      if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense; then
+        # Looks not like a license statement
+        rm -f $tmplicense
+        continue
+      fi
+
+      licenses=$(mktemp)
+      find "$licensedir" -type f > $licenses
+      savethis=true
+      while read existing; do
+        if diff -bBiw $tmplicense $existing; then
+          # Same license statement found
+          savethis=false
+          break
+        fi
+      done < $licenses
+
+      if $savethis; then
+        # Save license statement
+        local num=0
+        while true; do
+          newfile="$licensedir"/LICENSE.$num
+          if [ ! -f "$newfile" ]; then
+            mv $tmplicense $newfile
+            break
+          fi
+        done
+      fi
+
+      rm -f $licenses $tmplicense
+    done
+  fi
+  # List license files
+  echo "license files:"
+  find . -type f | xargs -n1 echo "-"
 
   echo "finished" >> $statuslog
 }
