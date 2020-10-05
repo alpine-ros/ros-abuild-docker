@@ -411,8 +411,10 @@ example:
         prev_rev = 0
         prev_ver = None
         if os.path.exists(filepath):
-            prev_rev = os.subprocess.check_output('sh -c \'. ./APKBUILD; echo -n ${pkgrel}\'').to_i
-            prev_ver = os.subprocess.check_output('sh -c \'. ./APKBUILD; echo -n ${pkgver}\'')
+            prev_rev = subprocess.check_output(
+                'sh -c \'. %s; echo -n ${pkgrel}\'' % filepath).to_i
+            prev_ver = subprocess.check_output(
+                'sh -c \'. %s; echo -n ${pkgver}\'' % filepath)
 
         def revfn(ver):
             if prev_rev != ver:
