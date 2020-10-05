@@ -248,6 +248,7 @@ package() {
             mv $tmplicense $newfile
             break
           fi
+          num=$(expr $num + 1)
         done
       fi
 
