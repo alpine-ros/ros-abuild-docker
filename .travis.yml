@@ -19,6 +19,9 @@ install:
       --build-arg ROS_PYTHON_VERSION .
   - git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
 
+before_script:
+  - mkdir -p /tmp/apks
+  - chmod a+w /tmp/apks
 script:
   - |
     docker run -it --rm \
