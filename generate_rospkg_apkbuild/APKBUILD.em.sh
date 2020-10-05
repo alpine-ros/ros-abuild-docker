@@ -210,16 +210,20 @@ package() {
   fi
   if [ -z "$(find . -type f)" ]; then
     # If no explicit license file found, extract from source files
+    mkdir -p "$licensedir"
     find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
+      echo "Checking copyright header in $file"
       tmplicense=$(mktemp)
       sed -n '1,/^\s*\(\/\/\|\*\/\|#\)/p' $file > $tmplicense
 
       if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense; then
         # Looks not like a license statement
+        echo "No license statement"
         rm -f $tmplicense
         continue
       fi
 
+      echo "Checking duplication"
       licenses=$(mktemp)
       find "$licensedir" -type f > $licenses
       savethis=true
@@ -237,6 +241,7 @@ package() {
         while true; do
           newfile="$licensedir"/LICENSE.$num
           if [ ! -f "$newfile" ]; then
+            echo "Saving license statement as $newfile"
             mv $tmplicense $newfile
             break
           fi
