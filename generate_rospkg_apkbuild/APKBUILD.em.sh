@@ -220,6 +220,8 @@ package() {
       sed -n '/\/\*/{/\*\//d; :l0; p; n; /\*\//!b l0; p; q};
         /^\s*#/{:l1; /^#!/!p; n; /^\s*#/b l1; q};
         /^\s*\/\//{:l2; p; n; /^\s\/\//b l2; q};' $file > $tmplicense
+      sed 's/\/\*//;s/\*\///;s/^ \* \{0,1\}//;s/^\s*# \{0,1\}//;
+        s/\s\+$//;1{/^$/{0,/^$/d}};${/^$/d};' -i $tmplicense
 
       if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense > /dev/null; then
         # Looks not like a license statement
