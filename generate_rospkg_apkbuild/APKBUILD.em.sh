@@ -210,3 +210,9 @@ package() {
 
   echo "finished" >> $statuslog
 }
+
+doc() {
+  mkdir -p $subpkgdir
+
+  default_doc
+}
