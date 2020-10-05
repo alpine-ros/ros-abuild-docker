@@ -412,9 +412,9 @@ example:
         prev_ver = None
         if os.path.exists(filepath):
             prev_rev = subprocess.check_output(
-                'sh -c \'. %s; echo -n ${pkgrel}\'' % filepath).to_i
+                ['sh', '-c', '. %s; echo -n ${pkgrel}' % filepath]).to_i
             prev_ver = subprocess.check_output(
-                'sh -c \'. %s; echo -n ${pkgver}\'' % filepath)
+                ['sh', '-c', '. %s; echo -n ${pkgver}' % filepath])
 
         def revfn(ver):
             if prev_rev != ver:
