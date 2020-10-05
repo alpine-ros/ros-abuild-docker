@@ -13,7 +13,7 @@ options="!check"
 depends="@(' '.join(depends))"
 makedepends="@(' '.join(makedepends))"
 
-subpackages="$pkgname-dbg"
+subpackages="$pkgname-dbg $pkgname-doc"
 
 source=""
 builddir="$startdir/abuild"
@@ -196,6 +196,17 @@ package() {
       fi
     done
   done
+
+  # Install license files
+  cd $builddir/src/$_pkgname
+  find . -iname "license*" | while read file; do
+    # Copy license files under the source
+    install -Dm644 $file "$pkgdir"/usr/share/licenses/$pkgname/$file
+  done
+  if [ -f $startdir/LICENSE ]; then
+    # If LICENSE file is in aports directory, copy it
+    install -Dm644 $startdir/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+  fi
 
   echo "finished" >> $statuslog
 }
