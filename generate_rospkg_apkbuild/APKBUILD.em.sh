@@ -217,9 +217,11 @@ package() {
     find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
       echo "Checking license header in $file"
       tmplicense=$(mktemp)
-      sed -n '1,/^\s*\(\/\/\|\*\/\|#\)/p' $file > $tmplicense
+      sed -n '/\/\*/{/\*\//d; :l0; p; n; /\*\//!b l0; p; q};
+        /^\s*#/{:l1; /^#!/!p; n; /^\s*#/b l1; q};
+        /^\s*\/\//{:l2; p; n; /^\s\/\//b l2; q};' $file > $tmplicense
 
-      if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense; then
+      if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense > /dev/null; then
         # Looks not like a license statement
         echo "No license statement"
         rm -f $tmplicense
@@ -231,7 +233,7 @@ package() {
       find "$licensedir" -type f > $licenses
       savethis=true
       while read existing; do
-        if diff -bBiw $tmplicense $existing; then
+        if diff -bBiw $tmplicense $existing > /dev/null; then
           # Same license statement found
           savethis=false
           break
