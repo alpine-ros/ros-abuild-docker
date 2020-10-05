@@ -411,8 +411,8 @@ example:
         prev_rev = 0
         prev_ver = None
         if os.path.exists(filepath):
-            prev_rev = subprocess.check_output(
-                ['sh', '-c', '. %s; echo -n ${pkgrel}' % filepath]).decode('ascii').to_i
+            prev_rev = int(subprocess.check_output(
+                ['sh', '-c', '. %s; echo -n ${pkgrel}' % filepath]).decode('ascii'))
             prev_ver = subprocess.check_output(
                 ['sh', '-c', '. %s; echo -n ${pkgver}' % filepath]).decode('ascii')
 
