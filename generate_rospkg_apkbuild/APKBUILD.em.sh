@@ -248,7 +248,7 @@ package() {
   fi
   # List license files
   echo "license files:"
-  find . -type f | xargs -n1 echo "-"
+  find "$licensedir" -type f | xargs -n1 echo "-"
 
   echo "finished" >> $statuslog
 }
