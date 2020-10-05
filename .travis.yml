@@ -28,6 +28,7 @@ script:
       -v /tmp/rospack:/src/rospack:ro \
       -v /tmp/apks:/packages \
       builder
+  - ls -l /tmp/apks
   - test -f /tmp/apks/ros-${ROS_DISTRO}-rospack-dbg-*.apk
   - test -f /tmp/apks/ros-${ROS_DISTRO}-rospack-doc-*.apk
   - test -f $(find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" | grep -v "rospack-dbg" | grep -v "rospack-doc")
