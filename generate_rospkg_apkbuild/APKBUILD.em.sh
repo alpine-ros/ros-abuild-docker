@@ -237,7 +237,8 @@ package() {
       sed 's/\/\*//; s/\*\///; s/^s*\/\/\s\{0,1\}//;
         s/^ \* \{0,1\}//; s/^\s*# \{0,1\}//; s/\s\+$//;' -i $tmplicense
       # Trim empty lines
-      sed '{:l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;}; ${/^$/d};' -i $tmplicense
+      sed ':l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;' -i $tmplicense
+      sed '${/^$/d}' -i $tmplicense
 
       if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense > /dev/null; then
         # Looks not like a license statement
