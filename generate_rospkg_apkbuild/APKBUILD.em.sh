@@ -229,9 +229,11 @@ package() {
     find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
       echo "Checking license header in $file"
       tmplicense=$(mktemp)
+      # Extract heading comment
       sed -n '/\/\*/{/\*\//d; :l0; p; n; /\*\//!b l0; p; q};
         /^\s*#/{:l1; /^#!/!p; n; /^\s*#/b l1; q};
         /^\s*\/\//{:l2; p; n; /^\s\/\//b l2; q};' $file > $tmplicense
+      # Remove comment syntax and trim empty lines
       sed 's/\/\*//; s/\*\///;s/^ \* \{0,1\}//; s/^\s*# \{0,1\}//;
         s/\s\+$//; {:l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;}; ${/^$/d};' -i $tmplicense
 
