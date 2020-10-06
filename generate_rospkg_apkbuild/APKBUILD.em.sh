@@ -214,6 +214,14 @@ package() {
     echo "Copying license file from aports"
     install -Dm644 $startdir/LICENSE "$licensedir"/LICENSE
   fi
+  if [ -f $startdir/LICENSE_URLS ]; then
+    # If LICENSE_URLS file is in aports directory, download it
+    echo "Downloading license file from URLs"
+    cat $startdir/LICENSE_URLS | while read url; do
+      echo "- $url"
+      wget -O "$licensedir"/$(basename $url) $url
+    done
+  fi
   if [ -z "$(find "$licensedir" -type f)" ]; then
     # If no explicit license file found, extract from source files
     mkdir -p "$licensedir"
