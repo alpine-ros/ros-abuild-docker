@@ -13,7 +13,7 @@ options="!check"
 depends="@(' '.join(depends))"
 makedepends="@(' '.join(makedepends))"
 
-subpackages="$pkgname-dbg"
+subpackages="$pkgname-dbg $pkgname-doc"
 
 source=""
 builddir="$startdir/abuild"
@@ -198,5 +198,94 @@ package() {
     done
   done
 
+  # Install license files
+  licensedir="$pkgdir"/usr/share/licenses/$pkgname/
+  cd $builddir/src/$_pkgname
+  find . -iname "license*" | while read file; do
+    # Copy license files under the source
+    if echo $file | grep -e '^\./\.'; then
+      # Omit files under hidden directory
+      continue
+    fi
+    echo "Copying license files from source tree: $file"
+    install -Dm644 $file "$licensedir"/$file
+  done
+  if [ -f $startdir/LICENSE ]; then
+    # If LICENSE file is in aports directory, copy it
+    echo "Copying license file from aports"
+    install -Dm644 $startdir/LICENSE "$licensedir"/LICENSE
+  fi
+  if [ -f $startdir/LICENSE_URLS ]; then
+    # If LICENSE_URLS file is in aports directory, download it
+    echo "Downloading license file from URLs"
+    cat $startdir/LICENSE_URLS | while read url; do
+      echo "- $url"
+      wget -O "$licensedir"/$(basename $url) $url
+    done
+  fi
+  if [ -z "$(find "$licensedir" -type f)" ]; then
+    # If no explicit license file found, extract from source files
+    mkdir -p "$licensedir"
+    echo "Copying license from source file headers"
+    find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
+      echo "Checking license header in $file"
+      tmplicense=$(mktemp)
+      # Extract heading comment
+      sed -n '/\/\*/{/\*\//d; :l0; p; n; /\*\//!b l0; p; q};
+        /^\s*#/{:l1; /^#!/!p; n; /^\s*#/b l1; q};
+        /^\s*\/\//{:l2; p; n; /^\s*\/\//b l2; q};' $file > $tmplicense
+      # Remove comment syntax
+      sed 's/\/\*//; s/\*\///; s/^s*\/\/\s\{0,1\}//;
+        s/^ \* \{0,1\}//; s/^\s*# \{0,1\}//; s/\s\+$//;' -i $tmplicense
+      # Trim empty lines
+      sed ':l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;' -i $tmplicense
+      sed '${/^$/d}' -i $tmplicense
+
+      if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense > /dev/null; then
+        # Looks not like a license statement
+        echo "No license statement"
+        rm -f $tmplicense
+        continue
+      fi
+
+      echo "Checking duplication"
+      licenses=$(mktemp)
+      find "$licensedir" -type f > $licenses
+      savethis=true
+      while read existing; do
+        if diff -bBiw $tmplicense $existing > /dev/null; then
+          # Same license statement found
+          savethis=false
+          break
+        fi
+      done < $licenses
+
+      if $savethis; then
+        # Save license statement
+        local num=0
+        while true; do
+          newfile="$licensedir"/LICENSE.$num
+          if [ ! -f "$newfile" ]; then
+            echo "Saving license statement as $newfile"
+            mv $tmplicense $newfile
+            break
+          fi
+          num=$(expr $num + 1)
+        done
+      fi
+
+      rm -f $licenses $tmplicense
+    done
+  fi
+  # List license files
+  echo "License files:"
+  find "$licensedir" -type f | xargs -n1 echo "-"
+
   echo "finished" >> $statuslog
+}
+
+doc() {
+  mkdir -p $subpkgdir
+
+  default_doc
 }

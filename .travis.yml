@@ -19,8 +19,16 @@ install:
       --build-arg ROS_PYTHON_VERSION .
   - git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
 
+before_script:
+  - mkdir -p /tmp/apks
+  - chmod a+w /tmp/apks
 script:
   - |
     docker run -it --rm \
       -v /tmp/rospack:/src/rospack:ro \
+      -v /tmp/apks:/packages \
       builder
+  - ls -l /tmp/apks/*
+  - test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-dbg-*.apk
+  - test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-doc-*.apk
+  - test -f $(find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" | grep -v "rospack-dbg" | grep -v "rospack-doc")
