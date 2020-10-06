@@ -232,10 +232,12 @@ package() {
       # Extract heading comment
       sed -n '/\/\*/{/\*\//d; :l0; p; n; /\*\//!b l0; p; q};
         /^\s*#/{:l1; /^#!/!p; n; /^\s*#/b l1; q};
-        /^\s*\/\//{:l2; p; n; /^\s\/\//b l2; q};' $file > $tmplicense
-      # Remove comment syntax and trim empty lines
-      sed 's/\/\*//; s/\*\///;s/^ \* \{0,1\}//; s/^\s*# \{0,1\}//;
-        s/\s\+$//; {:l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;}; ${/^$/d};' -i $tmplicense
+        /^\s*\/\//{:l2; p; n; /^\s*\/\//b l2; q};' $file > $tmplicense
+      # Remove comment syntax
+      sed 's/\/\*//; s/\*\///; s/^s*\/\/\s\{0,1\}//;
+        s/^ \* \{0,1\}//; s/^\s*# \{0,1\}//; s/\s\+$//;' -i $tmplicense
+      # Trim empty lines
+      sed '{:l0; /^$/d; n; /^$/!b l0; :l1; n; b l1;}; ${/^$/d};' -i $tmplicense
 
       if ! grep -i -e "\(license\|copyright\|copyleft\)" $tmplicense > /dev/null; then
         # Looks not like a license statement
