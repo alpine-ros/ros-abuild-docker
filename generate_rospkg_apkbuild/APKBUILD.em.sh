@@ -162,10 +162,11 @@ package() {
     chrpath_out=$(chrpath ${so} || true)
     if echo ${chrpath_out} | grep -q "RPATH="; then
       rpath=$(echo -n "${chrpath_out}" | sed -e "s/^.*RPATH=//")
-      if echo "${rpath}" | grep -q home; then
-        echo "RPATH contains home!: ${rpath}"
+      if echo "${rpath}" | grep -q -e "\(home\|aports\)"; then
+        echo "RPATH contains home/aports!: ${rpath}"
         rpathfix=$(echo -n "${rpath}" | tr ":" "\n" \
-          | grep -v -e home | tr "\n" ":" | sed -e "s/:$//; s/::/:/;")
+          | grep -v -e home | grep -v -e aports \
+          | tr "\n" ":" | sed -e "s/:$//; s/::/:/;")
         echo "Fixing to ${rpathfix}"
         chrpath -r ${rpathfix} ${so} || (echo chrpath failed; false)
       fi
