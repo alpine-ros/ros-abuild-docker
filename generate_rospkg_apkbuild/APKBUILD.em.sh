@@ -202,6 +202,10 @@ package() {
   cd $builddir/src/$_pkgname
   find . -iname "license*" | while read file; do
     # Copy license files under the source
+    if echo $file | grep -e '^\./\.'; then
+      # Omit files under hidden directory
+      continue
+    fi
     echo "Copying license files from source tree: $file"
     install -Dm644 $file "$licensedir"/$file
   done
