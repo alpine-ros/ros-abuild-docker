@@ -199,7 +199,6 @@ package() {
 
   # Install license files
   licensedir="$pkgdir"/usr/share/licenses/$pkgname/
-  mkdir -p "$licensedir"
   cd $builddir/src/$_pkgname
   find . -iname "license*" | while read file; do
     # Copy license files under the source
@@ -213,6 +212,7 @@ package() {
   fi
   if [ -z "$(find "$licensedir" -type f)" ]; then
     # If no explicit license file found, extract from source files
+    mkdir -p "$licensedir"
     echo "Copying license from source file headers"
     find . -name "*.h" -or -name "*.cpp" -or -name "*.py" | while read file; do
       echo "Checking license header in $file"
