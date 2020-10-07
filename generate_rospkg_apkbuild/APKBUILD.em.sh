@@ -201,7 +201,12 @@ package() {
   # Install license files
   licensedir="$pkgdir"/usr/share/licenses/$pkgname/
   cd $builddir/src/$_pkgname
-  find . -iname "license*" | while read file; do
+  find . \
+      -iname "license*" -or \
+      -iname "copyright*" -or \
+      -iname "copying*" -or \
+      -iname "gnu-*gpl*" \
+    | while read file; do
     # Copy license files under the source
     if echo $file | grep -e '^\./\.'; then
       # Omit files under hidden directory
