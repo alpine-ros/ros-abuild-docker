@@ -71,7 +71,8 @@ def ros_dependency_to_name_ver(dep):
     if dep.version_eq is not None:
         if version_spec != '':
             raise ValueError("dependency has more than one version spec")
-        version_spec = "=" + dep.version_eq
+        # =~: fuzzy matching (e.g. "=~1.6" matches with 1.6.* )
+        version_spec = "=~" + dep.version_eq
 
     if not dep.evaluated_condition:
         return None
