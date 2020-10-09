@@ -212,6 +212,12 @@ package() {
       # Omit files under hidden directory
       continue
     fi
+@[if use_cmake]@
+    if echo $file | grep -e '^\./build/'; then
+      # Omit files under build directory
+      continue
+    fi
+@[end if]@
     echo "Copying license files from source tree: $file"
     install -Dm644 $file "$licensedir"/$file
   done
