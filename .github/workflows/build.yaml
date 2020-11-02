@@ -37,7 +37,7 @@ jobs:
           git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
-          docker run -it --rm \
+          docker run --rm \
             -v /tmp/rospack:/src/rospack:ro \
             -v /tmp/apks:/packages \
             ${image}
