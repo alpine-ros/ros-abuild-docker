@@ -43,11 +43,16 @@ jobs:
             ${image}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          eval test -f /tmp/apks/${ROS_DISTRO}/*/ros-${ROS_DISTRO}-rospack-dbg-*.apk
+          find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" \
+            | grep "rospack-dbg"
           echo "Checking -doc subpackage"
-          eval test -f /tmp/apks/${ROS_DISTRO}/*/ros-${ROS_DISTRO}-rospack-doc-*.apk
+          find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" \
+            | grep "rospack-doc"
           echo "Checking main package"
-          test -f $(find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" | grep -v "rospack-dbg" | grep -v "rospack-doc")
+          find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" \
+            | grep -v "rospack-dbg" \
+            | grep -v "rospack-doc" \
+            | grep rospack
 
       - name: Login to GitHub Container Registry
         #if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
