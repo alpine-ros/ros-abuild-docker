@@ -41,16 +41,15 @@ jobs:
             -v /tmp/rospack:/src/rospack:ro \
             -v /tmp/apks:/packages \
             ${image}
+
+          echo 'ros-kinetic-rospack-dbg-2.5.6_git20200513181536-r0.apk' | grep -e "ros-${ROS_DISTRO}-rospack-dbg-[0-9\._git]\+-r0.apk"
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          ls -l /tmp/apks/*/* \
-            | grep -e "ros-${ROS_DISTRO}-rospack-dbg-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-dbg-[0-9\._git]\+-r0.apk"
           echo "Checking -doc subpackage"
-          ls -l /tmp/apks/*/* \
-            | grep -e "ros-${ROS_DISTRO}-rospack-doc-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-doc-[0-9\._git]\+-r0.apk"
           echo "Checking main package"
-          ls -l /tmp/apks/*/* \
-            | grep -e "ros-${ROS_DISTRO}-rospack-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-[0-9\._git]\+-r0.apk"
 
       - name: Login to GitHub Container Registry
         #if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
