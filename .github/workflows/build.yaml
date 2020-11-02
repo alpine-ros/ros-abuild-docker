@@ -26,9 +26,9 @@ jobs:
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
           docker build -t ${image} \
-            --build-arg ALPINE_VERSION \
-            --build-arg ROS_DISTRO \
-            --build-arg ROS_PYTHON_VERSION .
+            --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+            --build-arg ROS_DISTRO=${ROS_DISTRO} \
+            --build-arg ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION} .
       - name: Test
         run: |
           eval ${{ matrix.env }}
@@ -42,7 +42,6 @@ jobs:
             -v /tmp/apks:/packages \
             ${image}
 
-          echo 'ros-kinetic-rospack-dbg-2.5.6_git20200513181536-r0.apk' | grep -e "ros-${ROS_DISTRO}-rospack-dbg-[0-9\._git]\+-r0.apk"
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-dbg-[0-9\._git]\+-r0.apk"
