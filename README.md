@@ -8,10 +8,11 @@ Alpine Linux package builder for ROS (Robot Operating System)
 docker build -t alpineros/ros-abuild:3.7-kinetic .
 ```
 
-or pull from docker hub
+or pull from GitHub Container Registry
 
 ```shell
-docker pull alpineros/ros-abuild:3.7-kinetic
+docker pull ghcr.io/alpine-ros/ros-abuild:3.7-kinetic
+docker tag ghcr.io/alpine-ros/ros-abuild:3.7-kinetic alpineros/ros-abuild:3.7-kinetic
 ```
 
 ## Build ROS package(s)
