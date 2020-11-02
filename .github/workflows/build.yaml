@@ -23,19 +23,24 @@ jobs:
       - name: Build image
         run: |
           eval ${{ matrix.env }}
-          docker build -t builder \
+          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
+          docker build -t ${image} \
             --build-arg ALPINE_VERSION \
             --build-arg ROS_DISTRO \
             --build-arg ROS_PYTHON_VERSION .
       - name: Test
         run: |
+          eval ${{ matrix.env }}
+          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
           git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run -it --rm \
             -v /tmp/rospack:/src/rospack:ro \
             -v /tmp/apks:/packages \
-            builder
+            ${image}
           ls -l /tmp/apks/*
           test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-dbg-*.apk
           test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-doc-*.apk
@@ -52,6 +57,7 @@ jobs:
         #if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         run: |
           eval ${{ matrix.env }}
-          tag=alpine-ros:$(echo ${DOCKERFILE_PATH} | sed 's|/|-|g')
-          docker tag ${tag} ghcr.io/${{ github.repository_owner }}/${tag}
-          docker push ghcr.io/${{ github.repository_owner }}/${tag}
+          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
+          docker tag ${image} ghcr.io/${{ github.repository_owner }}/${image}
+          docker push ghcr.io/${{ github.repository_owner }}/${image}
