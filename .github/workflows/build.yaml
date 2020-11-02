@@ -43,9 +43,9 @@ jobs:
             ${image}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-dbg-*.apk
+          eval test -f /tmp/apks/${ROS_DISTRO}/*/ros-${ROS_DISTRO}-rospack-dbg-*.apk
           echo "Checking -doc subpackage"
-          test -f /tmp/apks/${ROS_DISTRO}/x86_64/ros-${ROS_DISTRO}-rospack-doc-*.apk
+          eval test -f /tmp/apks/${ROS_DISTRO}/*/ros-${ROS_DISTRO}-rospack-doc-*.apk
           echo "Checking main package"
           test -f $(find /tmp/apks -name "ros-${ROS_DISTRO}-rospack-*.apk" | grep -v "rospack-dbg" | grep -v "rospack-doc")
 
