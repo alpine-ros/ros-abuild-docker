@@ -231,6 +231,7 @@ package() {
     echo "Downloading license file from URLs"
     cat $startdir/LICENSE_URLS | while read url; do
       echo "- $url"
+      mkdir -p "$licensedir"
       wget -O "$licensedir"/$(basename $url) $url
     done
   fi
