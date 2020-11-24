@@ -380,7 +380,7 @@ example:
         distro = get_wet_distro(args.ros_distro[0])
         pkglist = []
         for pkgname, _ in distro._distribution_file.release_packages.items():
-            pkglist.append(pkgname + ' ' + pkgname + '/APKBUILD')
+            pkglist.append(pkgname + ' ' + ros_pkgname_to_pkgname(args.ros_distro[0], pkgname) + '/APKBUILD')
         for reponame, repo in distro._distribution_file.repositories.items():
             if repo.status_description is not None and repo.status_description.startswith('force-upstream'):
                 ref = repo.status_description.split('/')[1] if '/' in repo.status_description else None
