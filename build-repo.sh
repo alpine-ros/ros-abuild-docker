@@ -43,6 +43,12 @@ esac
 
 # Setup environment variables
 
+if [ ! -z "${JOBS}" ]; then
+  sudo sed -i "s/export JOBS=.*/export JOBS=${JOBS}/" /etc/abuild.conf
+fi
+
+sudo sed -i 's/export MAKEFLAGS=.*/export MAKEFLAGS="-j$JOBS -l$JOBS"/' /etc/abuild.conf
+
 if [ ! -z "${CFLAGS}" ]; then
   echo "Overwriting CFLAGS"
   echo "original:"
