@@ -91,7 +91,7 @@ apk_list_file=${LOGDIR}/apk_list.log
 
 commit_date_path=
 ext_pkg_option="--shallow"
-if [ "${VERSION_PER_SUBPACKAGE}" == "yes" ]; then
+if [ "${VERSION_PER_SUBPACKAGE}" = "yes" ]; then
   commit_date_path="."
   ext_pkg_option=
 fi
@@ -144,7 +144,7 @@ for manifest in ${manifests}; do
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
   files=$(ls -1A ${pkgpath})
   for file in ${files}; do
-    if [ $file == ".git" ]; then continue; fi
+    if [ $file = ".git" ]; then continue; fi
 
     cp -r ${pkgpath}/${file} ${APORTSDIR}/${repo}/${pkgname}/${file}
   done
@@ -165,7 +165,7 @@ rm -f $(find ${APORTSDIR} -name "ros-abuild-status.log")
 
 # Tweak version constraints
 
-if [ "${FORCE_LOCAL_VERSION}" == "yes" ]; then
+if [ "${FORCE_LOCAL_VERSION}" = "yes" ]; then
   # Find all package versions
   apkbuilds="$(find ${APORTSDIR} -name "APKBUILD")"
   for apkbuild in ${apkbuilds}; do
