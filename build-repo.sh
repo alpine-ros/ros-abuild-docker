@@ -32,10 +32,16 @@ case "${VERSION_PER_SUBPACKAGE}" in
     ;;
   yes)
     ;;
+  full)
+    ;;
   no)
     ;;
   *)
-    echo "VERSION_PER_SUBPACKAGE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    echo "VERSION_PER_SUBPACKAGE must be one of:"
+    echo "   \"yes\": versioned based on the latest commit of the subpackage (merge commit is ignored)"
+    echo "  \"full\": versioned based on the latest commit of the subpackage (including merge commit)"
+    echo "    \"no\": versioned based on the latest commit of the repository"
+    echo "      \"\": use default (\"no\")"
     exit 1
     ;;
 esac
@@ -89,13 +95,22 @@ full_log_file=${LOGDIR}/full.log
 apk_list_file=${LOGDIR}/apk_list.log
 
 
-commit_date_path=
-ext_pkg_option="--shallow"
-if [ "${VERSION_PER_SUBPACKAGE}" = "yes" ]; then
-  echo "VERSION_PER_SUBPACKAGE: enabled"
-  commit_date_path="."
-  ext_pkg_option=
-fi
+case "${VERSION_PER_SUBPACKAGE}" in
+  "yes")
+    echo "VERSION_PER_SUBPACKAGE: enabled"
+    commit_date_option="."
+    ext_pkg_option=
+    ;;
+  "full")
+    echo "VERSION_PER_SUBPACKAGE: enabled (including merge commit)"
+    commit_date_option="--full-history ."
+    ext_pkg_option=
+    ;;
+  *)
+    commit_date_option=
+    ext_pkg_option="--shallow"
+    ;;
+esac
 
 
 # Update repositories
@@ -134,13 +149,16 @@ error=false
 manifests="$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")"
 for manifest in ${manifests}; do
   echo +++++++++++++++++++++++++
-  echo ${manifest}
+  echo "manifest: ${manifest}"
   pkgpath=$(dirname ${manifest})
   pkgname=$(basename ${pkgpath})
 
+  echo "latest commit:"
+  git_log_opts="-n1 HEAD ${commit_date_option}"
+  git -C ${pkgpath} log ${git_log_opts}
+  echo
   commit_date=$(git -C ${pkgpath} log \
-                --full-history \
-                -n1 --format=%ad --date=format-local:'%Y%m%d%H%M%S' HEAD ${commit_date_path})
+                --format=%ad --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
