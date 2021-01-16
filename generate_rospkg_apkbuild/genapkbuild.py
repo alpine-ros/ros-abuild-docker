@@ -178,6 +178,16 @@ def package_to_apkbuild(ros_distro, package_name,
             todo_upstream_clone['read_manifest'] = True
     pkg = parse_package_string(pkg_xml)
 
+    alpine_depends = []
+    alpine_depends_match = re.findall('<!--\s+alpine/depends:\s+(.*?)\s+-->', pkg_xml)
+    for m in alpine_depends_match:
+        alpine_depends += m.split()
+
+    alpine_makedepends = []
+    alpine_makedepends_match = re.findall('<!--\s+alpine/makedepends:\s+(.*?)\s+-->', pkg_xml)
+    for m in alpine_makedepends_match:
+        alpine_makedepends += m.split()
+
     # generate rosinstall
     rosinstall = None
     if not src:
@@ -260,6 +270,9 @@ def package_to_apkbuild(ros_distro, package_name,
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
+
+    depends_keys += alpine_depends
+    makedepends_keys += alpine_makedepends
 
     # Remove duplicated dependency keys
     depends_keys = sorted(list(set(depends_keys)))
