@@ -7,21 +7,28 @@ Alpine Linux package builder for ROS (Robot Operating System)
 ```shell
 docker pull ghcr.io/alpine-ros/ros-abuild:3.11-noetic
 ```
+
 or build locally
 
 ```shell
-docker build -t ghcr.io/alpine-ros/ros-abuild:3.11-noetic .
+docker build \
+  --build-arg ROS_DISTRO=noetic \
+  --build-arg ALPINE_VERSION=3.11 \
+  --build-arg ROS_PYTHON_VERSION=3 \
+  -t ghcr.io/alpine-ros/ros-abuild:3.11-noetic .
 ```
 
 ## Build ROS package(s)
 
 ### Just build and test
 
+Run following command at the root of the ROS package repository:
 ```shell
 docker run -it --rm \
   -v $(pwd):/src:ro \
   ghcr.io/alpine-ros/ros-abuild:3.11-noetic
 ```
+(`$(pwd)` can be replaced by a full path to the ROS package repository.)
 
 If `*.rosinstall` file is present, packages specified in the file will be automatically cloned and built.
 
@@ -36,7 +43,7 @@ Build and output generated packages to the directory.
 ```shell
 docker run -it --rm \
   -v $(pwd):/src:ro \
-  -v /path/to/your/packages:/packages
+  -v /path/to/your/packages:/packages \
   ghcr.io/alpine-ros/ros-abuild:3.11-noetic
 ```
 
