@@ -266,15 +266,16 @@ def package_to_apkbuild(ros_distro, package_name,
     depends_export_keys = sorted(list(set(depends_export_keys)))
     makedepends_keys = sorted(list(set(makedepends_keys)))
 
+    makedepends_implicit = [
+        'py2-setuptools', 'py2-rosdep', 'py2-rosinstall',
+        'py2-rosinstall-generator', 'py2-wstool', 'chrpath']
+
     # Force using py3- packages for Python 3 build
     if ros_python_version == '3':
         depends_keys = force_py3_keys(depends_keys)
         depends_export_keys = force_py3_keys(depends_export_keys)
         makedepends_keys = force_py3_keys(makedepends_keys)
-
-    makedepends_implicit = [
-        'py-setuptools', 'py-rosdep', 'py-rosinstall',
-        'py-rosinstall-generator', 'py-wstool', 'chrpath']
+        makedepends_implicit = force_py3_keys(makedepends_implicit)
 
     if ver_suffix is None:
         ver_suffix = ''
