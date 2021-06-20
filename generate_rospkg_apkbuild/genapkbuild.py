@@ -133,6 +133,7 @@ def force_py3_keys(keys):
         if re.match(r'^py2-backports', key) is not None:
             continue
         new_key = re.sub(r'^py2-', r'py3-', key)
+        new_key = re.sub(r'^py-', r'py3-', key)
         new_key = re.sub(r'^python2-', r'python3-', new_key)
         new_keys.append(new_key)
     return new_keys
@@ -266,15 +267,16 @@ def package_to_apkbuild(ros_distro, package_name,
     depends_export_keys = sorted(list(set(depends_export_keys)))
     makedepends_keys = sorted(list(set(makedepends_keys)))
 
+    makedepends_implicit = [
+        'py-setuptools', 'py-rosdep', 'py-rosinstall',
+        'py-rosinstall-generator', 'py-wstool', 'chrpath']
+
     # Force using py3- packages for Python 3 build
     if ros_python_version == '3':
         depends_keys = force_py3_keys(depends_keys)
         depends_export_keys = force_py3_keys(depends_export_keys)
         makedepends_keys = force_py3_keys(makedepends_keys)
-
-    makedepends_implicit = [
-        'py-setuptools', 'py-rosdep', 'py-rosinstall',
-        'py-rosinstall-generator', 'py-wstool', 'chrpath']
+        makedepends_implicit = force_py3_keys(makedepends_implicit)
 
     if ver_suffix is None:
         ver_suffix = ''
