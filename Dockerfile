@@ -1,7 +1,7 @@
-ARG ALPINE_VERSION=3.7
+ARG ALPINE_VERSION=3.11
 FROM alpine:${ALPINE_VERSION}
-ARG ALPINE_VERSION=3.7
-ARG ROS_DISTRO=kinetic
+ARG ALPINE_VERSION=3.11
+ARG ROS_DISTRO=noetic
 
 ENV ROS_DISTRO=${ROS_DISTRO}
 
@@ -17,7 +17,7 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     rospkg \
     wstool
 
-ARG ROS_PYTHON_VERSION=2
+ARG ROS_PYTHON_VERSION=3
 ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
 
 RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \

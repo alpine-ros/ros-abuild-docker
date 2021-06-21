@@ -357,8 +357,8 @@ def main_multi():
 
 This command reads a list of package names and output paths.
 example:
-  roscpp ros/kinetic/roscpp/APKBUILD
-  rospy ros/kinetic/rospy/APKBUILD''')
+  roscpp ros/noetic/roscpp/APKBUILD
+  rospy ros/noetic/rospy/APKBUILD''')
     parser.add_argument('ros_distro', metavar='ROS_DISTRO', nargs=1,
                         help='name of the ROS distribution')
     parser.add_argument('--all', dest='all', action='store_const',
