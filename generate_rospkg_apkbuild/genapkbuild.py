@@ -133,7 +133,7 @@ def force_py3_keys(keys):
         if re.match(r'^py2-backports', key) is not None:
             continue
         new_key = re.sub(r'^py2-', r'py3-', key)
-        new_key = re.sub(r'^py-', r'py3-', key)
+        new_key = re.sub(r'^py-', r'py3-', new_key)
         new_key = re.sub(r'^python2-', r'python3-', new_key)
         new_keys.append(new_key)
     return new_keys
