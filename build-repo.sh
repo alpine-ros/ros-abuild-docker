@@ -135,11 +135,8 @@ ext_deps=$(find ${SRCDIR} -name "*.rosinstall" || true)
 tmp_ws=$(mktemp -d)
 touch ${tmp_ws}/.rosinstall
 for dep in ${ext_deps}; do
-  wstool merge -y -t ${tmp_ws} $dep
+  vcs import ${tmp_ws}/.rosinstall ${ext_pkg_option} --workers 4
 done
-if [ -s ${tmp_ws}/.rosinstall ]; then
-  wstool init ${extsrc} ${tmp_ws}/.rosinstall ${ext_pkg_option} -j4
-fi
 
 
 # Generate APKBUILDs
