@@ -17,7 +17,7 @@ setup(
         'rosdep',
         'rosdistro',
         'rosinstall-generator',
-        'wstool',
+        'vcstool',
     ],
     entry_points={
         'console_scripts': [

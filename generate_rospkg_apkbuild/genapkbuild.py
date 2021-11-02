@@ -269,7 +269,7 @@ def package_to_apkbuild(ros_distro, package_name,
 
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep', 'py-rosinstall',
-        'py-rosinstall-generator', 'py-wstool', 'chrpath']
+        'py-rosinstall-generator', 'py-vcstool', 'chrpath']
 
     # Force using py3- packages for Python 3 build
     if ros_python_version == '3':
@@ -294,7 +294,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'makedepends': makedepends_implicit + makedepends_keys,
         'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
         'rosinstall': None if src else yaml.dump(rosinstall),
-        'wstool_opt': '' if upstream and commit_hash is not None else '--shallow',
+        'vcstool_opt': '' if upstream and commit_hash is not None else '--shallow',
         'use_upstream': upstream,
         'use_catkin': catkin,
         'use_cmake': cmake,
