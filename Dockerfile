@@ -15,7 +15,7 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
     rosdep \
     rosinstall_generator \
     rospkg \
-    wstool
+    vcstool
 
 ARG ROS_PYTHON_VERSION=3
 ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
