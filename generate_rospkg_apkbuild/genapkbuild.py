@@ -204,7 +204,7 @@ def package_to_apkbuild(ros_distro, package_name,
             f = open(pkglist, 'w')
             f.write(yaml.dump(rosinstall))
             f.close()
-            subprocess.check_output(['vcs', 'import', '<', pkglist])
+            subprocess.check_output(['vcs', 'import', '--input', pkglist])
             basepath = '/'.join([tmpd, rosinstall[0]['git']['local-name']])
 
             if 'read_manifest' in todo_upstream_clone and todo_upstream_clone['read_manifest']:
