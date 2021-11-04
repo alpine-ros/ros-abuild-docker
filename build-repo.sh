@@ -132,10 +132,8 @@ fi
 # Clone packages if .rosinstall is provided
 
 ext_deps=$(find ${SRCDIR} -name "*.rosinstall" || true)
-tmp_ws=$(mktemp -d)
-touch ${tmp_ws}/.rosinstall
 for dep in ${ext_deps}; do
-  vcs import ${tmp_ws}/.rosinstall ${ext_pkg_option} --workers 4
+  vcs import ${dep} ${ext_pkg_option} --workers 4
 done
 
 
