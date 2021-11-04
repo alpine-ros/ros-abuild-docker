@@ -133,7 +133,7 @@ fi
 
 ext_deps=$(find ${SRCDIR} -name "*.rosinstall" || true)
 for dep in ${ext_deps}; do
-  vcs import --input ${dep} ${ext_pkg_option} ${VCS_OPTIONS:-} --workers 4 ${extsrc}
+  vcs import --input ${dep} ${ext_pkg_option} ${VCS_OPTIONS} --workers 4 ${extsrc}
 done
 
 
