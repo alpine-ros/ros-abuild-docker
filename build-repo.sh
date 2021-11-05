@@ -133,9 +133,14 @@ fi
 
 ext_deps=$(find ${SRCDIR} -name "*.rosinstall" || true)
 for dep in ${ext_deps}; do
-  if ! vcs validate --input ${dep}; then
-    echo "Skipping ${dep}: no valid repository found."
+  # skip empty and all commented out .rosinstall files
+  if [ $(cat ${dep} | sed '/^\s*#/d;/^\s*$/d' | wc -l) -eq 0 ]; then
+    echo "Skipping ${dep}: no repository found"
     continue
+  fi
+  if ! vcs validate --input ${dep}; then
+    echo "${dep} is invalid"
+    exit 1
   fi
   vcs import --input ${dep} ${ext_pkg_option} ${VCS_OPTIONS} --workers 4 ${extsrc}
 done
