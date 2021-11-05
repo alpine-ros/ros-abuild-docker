@@ -43,7 +43,7 @@ prepare() {
   cp -r $startdir src/$_pkgname || true  # ignore recursion error
 @[else]@
   echo "$rosinstall" > pkg.rosinstall
-  vcs import @vcstool_opt < pkg.rosinstall
+  vcs import @vcstool_opt --input pkg.rosinstall src
 @[  if use_upstream]@
   find src -name package.xml | while read manifest; do
     dir=$(dirname $manifest)
