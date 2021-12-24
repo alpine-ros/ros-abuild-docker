@@ -20,8 +20,8 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
 ARG ROS_PYTHON_VERSION=3
 ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
 
-RUN echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
-  && echo "http://alpine-ros-experimental.dev-sq.work/v${ALPINE_VERSION}/ros/${ROS_DISTRO}" >> /etc/apk/repositories \
+RUN echo "http://alpine-ros.seqsense.org/v${ALPINE_VERSION}/backports" >> /etc/apk/repositories \
+  && echo "http://alpine-ros.seqsense.org/v${ALPINE_VERSION}/ros/${ROS_DISTRO}" >> /etc/apk/repositories \
   && echo $'-----BEGIN PUBLIC KEY-----\n\
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSO+a+rIaTorOowj3c8e\n\
 5St89puiGJ54QmOW9faDsTcIWhycl4bM5lftp8IdcpKadcnaihwLtMLeaHNJvMIP\n\
