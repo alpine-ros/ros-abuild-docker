@@ -146,6 +146,13 @@ for dep in ${ext_deps}; do
 done
 
 
+# Allow to handle git repositories owned by outer container user
+
+for dir in $(find ${SRCDIR} -name ".git" -type d); do
+  git config --global --add safe.directory $(dirname ${dir})
+done
+
+
 # Generate APKBUILDs
 
 error=false
