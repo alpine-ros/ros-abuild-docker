@@ -5,6 +5,7 @@ set -e
 umask ${UMASK:-0000}
 sudo chmod a+rwx \
   /var/cache/apk \
+  ${CCACHE_DIR} \
   ${HOME}/.ros \
   ${HOME}/.ros/rosdep
 
@@ -46,6 +47,37 @@ case "${VERSION_PER_SUBPACKAGE}" in
     ;;
 esac
 
+case "${ENABLE_CCACHE}" in
+  "")
+    ENABLE_CCACHE=no
+    ;;
+  yes)
+    ;;
+  no)
+    ;;
+  *)
+    echo "ENABLE_CCACHE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    exit 1
+    ;;
+esac
+
+case "${SKIP_ROSDEP_UPDATE}" in
+  "")
+    SKIP_ROSDEP_UPDATE=false
+    ;;
+  yes|true)
+    SKIP_ROSDEP_UPDATE=true
+    ;;
+  no|false)
+    SKIP_ROSDEP_UPDATE=false
+    ;;
+  *)
+    echo "SKIP_ROSDEP_UPDATE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    # Accept true/false as well for backward compatibility.
+    exit 1
+    ;;
+esac
+
 
 # Setup environment variables
 
@@ -67,6 +99,13 @@ if [ ! -z "${CFLAGS}" ]; then
   head -n 4 /etc/abuild.conf
   echo "---"
   echo
+fi
+
+if [ ${ENABLE_CCACHE} = "yes" ]
+then
+  echo "ccache enabled (cache dir: ${CCACHE_DIR})"
+  export CC=/usr/lib/ccache/bin/gcc
+  export CXX=/usr/lib/ccache/bin/g++
 fi
 
 repo=${ROS_DISTRO}
