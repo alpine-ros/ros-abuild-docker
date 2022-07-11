@@ -9,6 +9,7 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
 
 RUN apk add --no-cache python3 py3-pip py3-yaml \
   && pip3 install \
+    ccache \
     requests \
     rosdep \
     rosinstall_generator \
@@ -17,8 +18,8 @@ RUN apk add --no-cache python3 py3-pip py3-yaml \
 
 ENV ROS_PYTHON_VERSION=3
 
-RUN echo "http://alpine-ros-experimental.dev-sq.work/v3.14/backports" >> /etc/apk/repositories \
-  && echo "http://alpine-ros-experimental.dev-sq.work/v3.14/ros/noetic" >> /etc/apk/repositories \
+RUN echo "http://alpine-ros.seqsense.org/v3.14/backports" >> /etc/apk/repositories \
+  && echo "http://alpine-ros.seqsense.org/v3.14/ros/noetic" >> /etc/apk/repositories \
   && echo $'-----BEGIN PUBLIC KEY-----\n\
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnSO+a+rIaTorOowj3c8e\n\
 5St89puiGJ54QmOW9faDsTcIWhycl4bM5lftp8IdcpKadcnaihwLtMLeaHNJvMIP\n\
@@ -69,6 +70,9 @@ RUN mkdir -p /var/cache/apk \
 
 USER builder
 
+ENV CCACHE_DIR=/ccache
+
+VOLUME /ccache
 VOLUME /var/cache/apk
 VOLUME ${HOME}/.ros/rosdep
 
