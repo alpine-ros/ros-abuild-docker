@@ -73,6 +73,7 @@ case "${SKIP_ROSDEP_UPDATE}" in
     ;;
   *)
     echo "SKIP_ROSDEP_UPDATE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    # Accept true/false as well for backward compatibility.
     exit 1
     ;;
 esac
