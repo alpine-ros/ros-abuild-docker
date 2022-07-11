@@ -5,6 +5,7 @@ set -e
 umask ${UMASK:-0000}
 sudo chmod a+rwx \
   /var/cache/apk \
+  ${CCACHE_DIR} \
   ${HOME}/.ros \
   ${HOME}/.ros/rosdep
 
