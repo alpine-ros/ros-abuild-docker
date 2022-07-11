@@ -9,9 +9,12 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
   && adduser -G abuild -D builder \
   && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-RUN apk add --no-cache python3 py3-pip py3-yaml \
-  && pip3 install \
+RUN apk add --no-cache \
     ccache \
+    python3 \
+    py3-pip \
+    py3-yaml \
+  && pip3 install \
     requests \
     rosdep \
     rosinstall_generator \
