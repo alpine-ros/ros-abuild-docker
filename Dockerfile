@@ -11,6 +11,7 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
 
 RUN apk add --no-cache python3 py3-pip py3-yaml \
   && pip3 install \
+    ccache \
     requests \
     rosdep \
     rosinstall_generator \
@@ -72,6 +73,9 @@ RUN mkdir -p /var/cache/apk \
 
 USER builder
 
+ENV CCACHE_DIR=/ccache
+
+VOLUME /ccache
 VOLUME /var/cache/apk
 VOLUME ${HOME}/.ros/rosdep
 
