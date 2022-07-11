@@ -72,7 +72,7 @@ case "${SKIP_ROSDEP_UPDATE}" in
     SKIP_ROSDEP_UPDATE=false
     ;;
   *)
-    echo "ENABLE_CCACHE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    echo "SKIP_ROSDEP_UPDATE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
     exit 1
     ;;
 esac
