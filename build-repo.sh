@@ -207,10 +207,16 @@ for manifest in ${manifests}; do
   git_log_opts="-n1 HEAD ${commit_date_option}"
   git --no-pager -C ${pkgpath} log ${git_log_opts} || true
   echo
-  commit_date=$(git --no-pager -C ${pkgpath} log \
-                    --format=%ad \
-                    --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts} \
-                  || date +'%Y%m%d%H%M%S')
+
+  if [ -d .git ]
+  then
+    commit_date=$(git --no-pager -C ${pkgpath} log \
+                      --format=%ad \
+                      --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
+    ver_suffix="_git${commit_date}"
+  else
+    ver_suffix="_alpha$(date +'%Y%m%d%H%M%S')"
+  fi
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
@@ -223,7 +229,7 @@ for manifest in ${manifests}; do
 
   if ! (set -o pipefail && generate-rospkg-apkbuild \
     ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
-      --ver-suffix=_git${commit_date} \
+      --ver-suffix=${ver_suffix} \
       | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD); then
     echo "## Package dependency failure" >> ${summary_file}
     error=true
