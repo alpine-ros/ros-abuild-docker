@@ -210,7 +210,7 @@ for manifest in ${manifests}; do
 
   commit_date=$(git --no-pager -C ${pkgpath} log \
                     --format=%ad \
-                    --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
+                    --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts} || true)
   if [ -n "${commit_date}" ]
   then
     ver_suffix="_git${commit_date}"
