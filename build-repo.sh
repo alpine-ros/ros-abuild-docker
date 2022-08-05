@@ -208,11 +208,11 @@ for manifest in ${manifests}; do
   git --no-pager -C ${pkgpath} log ${git_log_opts} || true
   echo
 
-  if [ -d .git ]
+  commit_date=$(git --no-pager -C ${pkgpath} log \
+                    --format=%ad \
+                    --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
+  if [ -n "${commit_date}" ]
   then
-    commit_date=$(git --no-pager -C ${pkgpath} log \
-                      --format=%ad \
-                      --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
     ver_suffix="_git${commit_date}"
   else
     ver_suffix="_alpha$(date +'%Y%m%d%H%M%S')"
