@@ -205,10 +205,12 @@ for manifest in ${manifests}; do
 
   echo "latest commit:"
   git_log_opts="-n1 HEAD ${commit_date_option}"
-  git --no-pager -C ${pkgpath} log ${git_log_opts}
+  git --no-pager -C ${pkgpath} log ${git_log_opts} || true
   echo
   commit_date=$(git --no-pager -C ${pkgpath} log \
-                --format=%ad --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts})
+                    --format=%ad \
+                    --date=format-local:'%Y%m%d%H%M%S' ${git_log_opts} \
+                  || date +'%Y%m%d%H%M%S')
 
   # Copy files with filter
   mkdir -p ${APORTSDIR}/${repo}/${pkgname}
