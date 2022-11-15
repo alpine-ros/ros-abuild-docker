@@ -155,7 +155,7 @@ esac
 # Update repositories
 
 if [ "${DISABLE_DEFAULT_ALPINE_ROS_REPOS}" = yes ]; then
-  sed '/^http:\/\/alpine-ros\.seqsense\.org\/d' -i /etc/apk/repositories
+  sudo sed '/^http:\/\/alpine-ros\.seqsense\.org/d' -i /etc/apk/repositories
   echo "NOTE: Default Alpine ROS repositories are disabled. You need to set them by CUSTOM_APK_REPO."
 fi
 
