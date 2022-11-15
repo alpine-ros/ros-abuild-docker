@@ -154,6 +154,11 @@ esac
 
 # Update repositories
 
+if [ "${DISABLE_DEFAULT_ALPINE_ROS_REPOS}" = yes ]; then
+  sudo sed '/^http:\/\/alpine-ros\.seqsense\.org/d' -i /etc/apk/repositories
+  echo "NOTE: Default Alpine ROS repositories are disabled. You need to set them by CUSTOM_APK_REPO."
+fi
+
 if [ ! -z "${CUSTOM_APK_REPOS}" ]; then
   for r in ${CUSTOM_APK_REPOS}; do
     echo "CUSTOM_APK_REPO: ${r}"
@@ -161,6 +166,12 @@ if [ ! -z "${CUSTOM_APK_REPOS}" ]; then
   done
 fi
 echo "${REPODIR}/${repo}" | sudo tee -a /etc/apk/repositories
+
+echo "/etc/apk/repositories"
+echo "---"
+cat /etc/apk/repositories
+echo "---"
+
 sudo apk update
 
 if [ ! -f ${HOME}/.ros/rosdep/sources.cache/index ] || ! ${SKIP_ROSDEP_UPDATE:-false}; then
