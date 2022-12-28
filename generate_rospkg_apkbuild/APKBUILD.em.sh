@@ -110,6 +110,13 @@ check() {
   echo "checking" >> $statuslog
   cd "$builddir"
 @[  if use_catkin]@
+
+  if [ -z "$ROS_LOG_DIR" ]; then
+    logdir="$builddir/log"
+    mkdir -p "$logdir"
+    export ROS_LOG_DIR="$logdir"
+  fi
+
   source /usr/ros/@(ros_distro)/setup.sh
   source devel_isolated/setup.sh
   catkin_make_isolated \
