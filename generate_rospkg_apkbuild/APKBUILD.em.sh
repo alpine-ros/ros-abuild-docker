@@ -27,6 +27,7 @@ if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then
   statuslog="/dev/null"
 fi
 
+export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 export ROS_PYTHON_VERSION=@ros_python_version
 @[if rosinstall is not None]@
 rosinstall="@rosinstall"
