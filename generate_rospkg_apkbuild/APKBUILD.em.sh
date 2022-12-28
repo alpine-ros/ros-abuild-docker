@@ -72,10 +72,10 @@ build() {
   find src -type f | while read file; do
     h=$(head -n1 "$file")
     rewrite_shebang=false
-    if echo $h | grep -q -s "^#\!\s*/usr/bin/env\s*python$"; then
+    if echo $h | grep -q -s "^#!\s*/usr/bin/env\s*python$"; then
       rewrite_shebang=true
     fi
-    if echo $h | grep -q -s "^#\!\s*/usr/bin/python$"; then
+    if echo $h | grep -q -s "^#!\s*/usr/bin/python$"; then
       rewrite_shebang=true
     fi
     if [ $rewrite_shebang == "true" ]; then
