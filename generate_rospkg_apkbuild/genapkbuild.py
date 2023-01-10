@@ -228,9 +228,19 @@ def package_to_apkbuild(ros_distro, package_name,
 
     pkg.evaluate_conditions(os.environ)
 
+    ros2_distros = [
+        name for name, value in get_index(get_index_url()).distributions.items()
+        if value.get("distribution_type") == "ros2"]
+    is_ros2 = ros_distro in ros2_distros
+
     depends = []
     for dep in pkg.exec_depends:
         depends.append(ros_dependency_to_name_ver(dep))
+    if is_ros2:
+        # https://github.com/ros-infrastructure/bloom/blob/1086547b02af00e1f19a244c7fdd6b0e0ec60d20/bloom/generators/rosdebian.py#L99
+        ros2_ros_workspaces_dependencies = ["ament_cmake_core", "ament_package", "ros_workspace"]
+        if pkg.name not in ros2_ros_workspaces_dependencies:
+            depends.append(NameAndVersion("ros_workspace", ""))
     depends_keys = resolve(ros_distro, depends)
 
     depends_export = []
@@ -240,19 +250,36 @@ def package_to_apkbuild(ros_distro, package_name,
         depends_export.append(ros_dependency_to_name_ver(dep))
     depends_export_keys = resolve(ros_distro, depends_export)
 
-    makedepends = []
     catkin = False
     cmake = False
-    for dep in pkg.buildtool_depends:
-        makedepends.append(ros_dependency_to_name_ver(dep))
-        if dep.name == 'catkin':
-            catkin = True
-        elif dep.name == 'cmake':
-            cmake = True
-    if (catkin and cmake) or ((not catkin) and (not cmake)):
-        print('Un-supported buildtool ' + ' '.join(makedepends), file=sys.stderr)
+    ament_cmake = False
+    ament_python = False
+
+    build_type = pkg.get_build_type()
+    if build_type == 'catkin':
+        catkin = True
+    elif build_type == 'cmake':
+        cmake = True
+    elif build_type == 'ament_cmake':
+        ament_cmake = True
+    elif build_type == 'ament_python':
+        ament_python = True
+    else:
+        print('build type is not specified')
         sys.exit(1)
 
+    if not is_ros2:
+        if ament_cmake or ament_python:
+            print('Un-supported build type for ROS1 package', file=sys.stderr)
+            sys.exit(1)
+    else:
+        if catkin:
+            print('Un-supported build type for ROS2 package', file=sys.stderr)
+            sys.exit(1)
+
+    makedepends = []
+    for dep in pkg.buildtool_depends:
+        makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.build_depends:
         makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
@@ -281,23 +308,37 @@ def package_to_apkbuild(ros_distro, package_name,
     if ver_suffix is None:
         ver_suffix = ''
 
+    url = ""
+    if len(pkg.urls) > 0:
+        url = pkg.urls[0].url
+    else:
+        if not is_ros2:
+            url = 'http://wiki.ros.org/$_pkgname'
+        else:
+            url = 'https://index.ros.org/p/$_pkgname'
+
     g = {
         'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
         '_pkgname': pkg.name,
         'pkgver': pkg.version + ver_suffix,
         'pkgrel': revfn(pkg.version + ver_suffix),
         'ros_distro': ros_distro,
-        'url': pkg.urls[0].url if len(pkg.urls) > 0 else 'http://wiki.ros.org/$_pkgname',
+        'url': url,
         'license': pkg.licenses[0],
         'check': check,
-        'depends': depends_keys + depends_export_keys,
-        'makedepends': makedepends_implicit + makedepends_keys,
+        'depends': sorted(list(set(depends_keys + depends_export_keys))),
+        'makedepends': sorted(list(set(makedepends_implicit + makedepends_keys))),
         'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
         'rosinstall': None if src else yaml.dump(rosinstall),
         'vcstool_opt': '' if upstream and commit_hash is not None else '--shallow',
         'use_upstream': upstream,
         'use_catkin': catkin,
         'use_cmake': cmake,
+        'use_ament_cmake': ament_cmake,
+        'use_ament_python': ament_python,
+        'use_pytest':
+            not {"py-pytest", "py3-pytest", "python-pytest", "python3-pytest"}.isdisjoint(set(makedepends_keys)),
+        'ros2_workspace_available': is_ros2 and pkg.name not in ros2_ros_workspaces_dependencies,
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
