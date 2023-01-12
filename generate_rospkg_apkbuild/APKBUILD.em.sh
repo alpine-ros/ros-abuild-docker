@@ -106,8 +106,11 @@ build() {
   make 2>&1 | tee -a $buildlog
 @[end if]@
 @[if use_ament_python]@
+  # Directory to place intermediate files
+  mkdir "$builddir"/tmp
   cd src/$_pkgname
-  python setup.py build 2>&1 | tee $buildlog
+  python setup.py egg_info --egg-base="$builddir"/tmp 2>&1 | tee $buildlog
+  python setup.py build --build-base="$builddir"/tmp/build 2>&1 | tee $buildlog
 @[end if]@
 }
 
@@ -193,9 +196,12 @@ package() {
 @[end if]@
 @[if use_ament_python]@
   cd src/$_pkgname
-  python setup.py install \
+  python setup.py \
+    build \
+    --build-base="$builddir"/tmp/build \
+    install \
     --root="$pkgdir" \
-    --prefix=/usr/ros/@(ros_distro) 2>&1 | tee $buildlog
+    --prefix=/usr/ros/@(ros_distro)
 @[end if]@
 
   # Tweak invalid RPATH
