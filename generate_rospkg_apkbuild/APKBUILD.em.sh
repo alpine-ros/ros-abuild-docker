@@ -147,9 +147,9 @@ check() {
 @[if use_ament_python]@
   cd src/$_pkgname
 @[if use_pytest]@
-  python -m pytest 2>&1 | tee $buildlog
+  python -m pytest 2>&1 | tee $checklog
 @[else]@
-  python setup.py test 2>&1 | tee $buildlog
+  python setup.py test 2>&1 | tee $checklog
 @[end if]@
 @[end if]@
 }
