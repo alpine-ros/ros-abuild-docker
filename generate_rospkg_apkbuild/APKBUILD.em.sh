@@ -107,7 +107,7 @@ build() {
 @[end if]@
 @[if use_ament_python]@
   # Directory to place intermediate files
-  mkdir "$builddir"/tmp
+  mkdir -p "$builddir"/tmp
   cd src/$_pkgname
   python setup.py egg_info --egg-base="$builddir"/tmp 2>&1 | tee $buildlog
   python setup.py build --build-base="$builddir"/tmp/build 2>&1 | tee $buildlog
@@ -148,6 +148,7 @@ check() {
   fi
 @[  end if]@
 @[if use_ament_python]@
+  export PYTHONPATH="$builddir"/tmp:${PYTHONPATH}
   cd src/$_pkgname
 @[if use_pytest]@
   python -m pytest 2>&1 | tee $checklog
