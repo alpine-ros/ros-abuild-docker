@@ -150,6 +150,11 @@ check() {
 @[if use_ament_python]@
   export PYTHONPATH="$builddir"/tmp:${PYTHONPATH}
   cd src/$_pkgname
+  TEST_TARGET=$(ls -d */ | grep -m1 "\(test\|tests\)") || true
+  if [ -z "$TEST_TARGET" ]; then
+    echo "No \"test\" or \"tests\" directory. Check skipped" | tee $checklog
+    return 0
+  fi
 @[if use_pytest]@
   python -m pytest 2>&1 | tee $checklog
 @[else]@
