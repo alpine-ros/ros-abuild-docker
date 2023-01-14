@@ -29,7 +29,7 @@ fi
 
 export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 export ROS_PYTHON_VERSION=@ros_python_version
-@[if (use_ament_cmake or use_ament_python) and not ros2_workspace_available]@
+@[if (not use_catkin) and not ros2_workspace_available]@
 export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:$PYTHONPATH
 export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
 @[end if]@
@@ -97,9 +97,9 @@ build() {
   source /usr/ros/@(ros_distro)/setup.sh
 @[end if]@
 @[if use_cmake or use_ament_cmake]@
-  mkdir src/$_pkgname/build
-  cd src/$_pkgname/build
-  cmake .. \
+  mkdir build
+  cd build
+  cmake ../src/$_pkgname \
     -DCMAKE_INSTALL_PREFIX=/usr/ros/@(ros_distro) \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog
@@ -142,7 +142,7 @@ check() {
   source /usr/ros/@(ros_distro)/setup.sh
 @[end if]@
 @[  if use_cmake or use_ament_cmake]@
-  cd src/$_pkgname/build
+  cd build
   if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
     make test 2>&1 | tee $checklog
   fi
@@ -193,11 +193,11 @@ package() {
     "$pkgdir"/usr/ros/@(ros_distro)/env.sh \
     "$pkgdir"/usr/ros/@(ros_distro)/.catkin
 @[end if]@
-@[if (use_ament_cmake or use_ament_python) and ros2_workspace_available]@
+@[if (not use_catkin) and ros2_workspace_available]@
   source /usr/ros/@(ros_distro)/setup.sh
 @[end if]@
 @[if use_cmake or use_ament_cmake]@
-  cd src/$_pkgname/build
+  cd build
   make install
 @[end if]@
 @[if use_ament_python]@
