@@ -155,11 +155,12 @@ check() {
     echo "No \"test\" or \"tests\" directory. Check skipped" | tee $checklog
     return 0
   fi
-@[if use_pytest]@
-  python -m pytest 2>&1 | tee $checklog
-@[else]@
-  python setup.py test 2>&1 | tee $checklog
-@[end if]@
+  USE_PYTEST=$(grep pytest setup.py)
+  if [ -n "$USE_PYTEST" ]; then
+    python -m pytest 2>&1 | tee $checklog
+  else
+    python setup.py test 2>&1 | tee $checklog
+  fi
 @[end if]@
 }
 @[end if]@
