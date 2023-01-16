@@ -110,7 +110,14 @@ build() {
   mkdir -p "$builddir"/tmp
   cd src/$_pkgname
   python setup.py egg_info --egg-base="$builddir"/tmp 2>&1 | tee $buildlog
-  python setup.py build --build-base="$builddir"/tmp/build 2>&1 | tee $buildlog
+  # Need to install before test
+  mkdir -p "$pkgdir"
+  python setup.py \
+    build \
+    --build-base="$builddir"/tmp/build \
+    install \
+    --root="$pkgdir" \
+    --prefix=/usr/ros/@(ros_distro) 2>&1 | tee $buildlog
 @[end if]@
 }
 
@@ -149,6 +156,7 @@ check() {
 @[  end if]@
 @[if use_ament_python]@
   export PYTHONPATH="$builddir"/tmp:${PYTHONPATH}
+  export AMENT_PREFIX_PATH="$pkgdir"/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
   cd src/$_pkgname
   TEST_TARGET=$(ls -d */ | grep -m1 "\(test\|tests\)") || true
   if [ -z "$TEST_TARGET" ]; then
