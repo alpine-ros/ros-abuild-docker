@@ -155,8 +155,9 @@ check() {
   fi
 @[  end if]@
 @[if use_ament_python]@
-  export PYTHONPATH="$builddir"/tmp:${PYTHONPATH}
+  export PYTHONPATH="$pkgdir"/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:${PYTHONPATH}
   export AMENT_PREFIX_PATH="$pkgdir"/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
+  export PATH="$pkgdir"/usr/ros/@(ros_distro)/bin:${PATH}
   cd src/$_pkgname
   TEST_TARGET=$(ls -d */ | grep -m1 "\(test\|tests\)") || true
   if [ -z "$TEST_TARGET" ]; then
