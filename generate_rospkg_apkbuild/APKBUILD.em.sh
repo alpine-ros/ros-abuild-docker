@@ -27,7 +27,9 @@ if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then
   statuslog="/dev/null"
 fi
 
+@[if use_catkin or use_cmake]@
 export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
+@[end if]@
 export ROS_PYTHON_VERSION=@ros_python_version
 @[if (not use_catkin) and not ros2_workspace_available]@
 export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:$PYTHONPATH
