@@ -361,7 +361,7 @@ for manifest in ${manifests}; do
 done
 
 # Extract dependency error logs
-dep_errors=$(sed -n '/^ERROR: unable to select packages/{p; :loop; n; /^\s/{p; b loop}; /^>>>/{b loop}/}')
+dep_errors=$(sed -n '/^ERROR: unable to select packages/{p; :loop; n; /^\s/{p; b loop}; /^>>>/{b loop}/}' ${full_log_file})
 if [ -n "${dep_errors}" ]; then
   lines=$(echo -n "${dep_errors}" | wc -l)
   echo "## Dependency logs" >> ${summary_file}
