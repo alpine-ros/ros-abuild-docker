@@ -373,7 +373,7 @@ if [ ${dep_error_lines} -gt 0 ]; then
     echo "error log exceeded 50 lines (total ${lines} lines)" >> ${summary_file}
   fi
   echo '```' >> ${summary_file}
-  echo "${dep_errors}" | head -n100 >> ${summary_file}
+  echo "${dep_errors}" | head -n50 >> ${summary_file}
   echo '```' >> ${summary_file}
 fi
 
