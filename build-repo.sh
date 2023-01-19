@@ -360,6 +360,19 @@ for manifest in ${manifests}; do
   fi
 done
 
+# Extract dependency error logs
+dep_errors=$(sed -n '/^ERROR: unable to select packages/{p; :loop; n; /^\s/{p; b loop}; /^>>>/{b loop}/}')
+if [ -n "${dep_errors}" ]; then
+  lines=$(echo -n "${dep_errors}" | wc -l)
+  echo "## Dependency logs" >> ${summary_file}
+  if [ ${lines} -gt 50 ]; then
+    echo "error log exceeded 50 lines (total ${lines} lines)"
+  fi
+  echo '```' >> ${summary_file}
+  echo "${dep_errors}" | head -n100 >> ${summary_file}
+  echo '```' >> ${summary_file}
+fi
+
 echo
 echo "---"
 cat ${summary_file}
