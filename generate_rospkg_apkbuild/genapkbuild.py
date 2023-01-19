@@ -338,8 +338,6 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_cmake': cmake,
         'use_ament_cmake': ament_cmake,
         'use_ament_python': ament_python,
-        'use_pytest':
-            not {"py-pytest", "py3-pytest", "python-pytest", "python3-pytest"}.isdisjoint(set(makedepends_keys)),
         'ros2_workspace_available': is_ros2 and pkg.name not in ros2_ros_workspaces_dependencies,
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
