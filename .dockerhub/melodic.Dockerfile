@@ -12,6 +12,7 @@ RUN apk add --no-cache \
     python3 \
     py3-pip \
     py3-yaml \
+    sed \
   && pip3 install \
     requests \
     rosdep \
