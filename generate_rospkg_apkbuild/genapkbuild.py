@@ -71,8 +71,9 @@ def ros_dependency_to_name_ver(dep):
     if dep.version_eq is not None:
         if version_spec != '':
             raise ValueError("dependency has more than one version spec")
-        # =~: fuzzy matching (e.g. "=~1.6" matches with 1.6.* )
-        version_spec = "=~" + dep.version_eq
+        # ~: specify version ignoring revisions
+        # https://wiki.alpinelinux.org/wiki/APKBUILD_Reference#$pkgname~$pkgver
+        version_spec = "~" + dep.version_eq
 
     if not dep.evaluated_condition:
         return None
