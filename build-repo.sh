@@ -280,7 +280,7 @@ fi
 
 # Build everything
 
-GENERATE_BUILD_LOGS=yes buildrepo -k -d ${REPODIR} -a ${APORTSDIR} ${repo} | tee ${full_log_file}
+GENERATE_BUILD_LOGS=yes buildrepo -k -d ${REPODIR} -a ${APORTSDIR} ${repo} 2>&1 | tee ${full_log_file}
 
 
 # Summarize build result
@@ -361,12 +361,16 @@ for manifest in ${manifests}; do
 done
 
 # Extract dependency error logs
-dep_errors=$(sed -n '/^ERROR: unable to select packages/{p; :loop; n; /^\s/{p; b loop}; /^>>>/{b loop}/}' ${full_log_file})
-if [ -n "${dep_errors}" ]; then
-  lines=$(echo -n "${dep_errors}" | wc -l)
+dep_errors=$(sed -n '/^ERROR: unable to select packages/{p; :loop; n; /^\s/{p; b loop}; /^>>>/{b loop}}' ${full_log_file})
+dep_error_lines=$(echo -n "${dep_errors}" | wc -l)
+echo "${dep_error_lines}"
+if [ ${dep_error_lines} -gt 0 ]; then
+  echo >> ${summary_file}
+  echo '---' >> ${summary_file}
+  echo >> ${summary_file}
   echo "## Dependency logs" >> ${summary_file}
-  if [ ${lines} -gt 50 ]; then
-    echo "error log exceeded 50 lines (total ${lines} lines)"
+  if [ ${dep_error_lines} -gt 50 ]; then
+    echo "error log exceeded 50 lines (total ${lines} lines)" >> ${summary_file}
   fi
   echo '```' >> ${summary_file}
   echo "${dep_errors}" | head -n100 >> ${summary_file}
