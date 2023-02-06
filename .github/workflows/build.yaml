@@ -32,7 +32,7 @@ jobs:
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
             --build-arg ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION} .
       - name: Test catkin
-        if: env.ROS_DISTRO == "melodic" || env.ROS_DISTRO == "noetic"
+        if: ${{ env.ROS_DISTRO == 'melodic' || env.ROS_DISTRO == 'noetic' }}
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
@@ -53,7 +53,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-[0-9\._git]\+-r0.apk"
       - name: Test ament_cmake
-        if: env.ROS_DISTRO == "humble"
+        if: ${{ env.ROS_DISTRO == 'humble' }}
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
@@ -76,7 +76,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${apk_package_name}-[0-9\._git]\+-r0.apk"
       - name: Test ament_python
-        if: env.ROS_DISTRO == "humble"
+        if: ${{ env.ROS_DISTRO == "humble' }}
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
