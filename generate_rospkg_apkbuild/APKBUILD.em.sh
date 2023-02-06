@@ -31,7 +31,7 @@ fi
 export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 @[end if]@
 export ROS_PYTHON_VERSION=@ros_python_version
-@[if use_ament_cmake or use_ament_python]@
+@[if not use_catkin]@
 export PYTHON_VERSION=$(python3 -c 'import sys; print("%i.%i" % (sys.version_info.major, sys.version_info.minor))')
 @[end if]@
 @[if (not use_catkin) and not ros2_workspace_available]@
