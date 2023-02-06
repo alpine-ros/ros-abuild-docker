@@ -1,4 +1,4 @@
-name: build
+name: build ros2
 on:
   pull_request:
     branches:
