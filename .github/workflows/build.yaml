@@ -32,10 +32,11 @@ jobs:
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
             --build-arg ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION} .
       - name: Test catkin
-        if: env.ROS_DISTRO == 'melodic' or env.ROS_DISTRO == 'noetic'
+        if: env.ROS_DISTRO == 'melodic' || env.ROS_DISTRO == 'noetic'
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
           git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
@@ -56,6 +57,7 @@ jobs:
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
           package="ament_cmake_gtest"
           git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ament/ament_cmake /tmp/repo
           mkdir -p /tmp/apks
@@ -78,6 +80,7 @@ jobs:
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
+
           package="ament_copyright"
           git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ament/ament_lint /tmp/repo
           mkdir -p /tmp/apks
