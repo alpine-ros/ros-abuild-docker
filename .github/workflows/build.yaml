@@ -32,12 +32,12 @@ jobs:
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
             --build-arg ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION} .
       - name: Test catkin
-        if: env.ROS_DISTRO == 'melodic' || env.ROS_DISTRO == 'noetic'
+        if: env.ROS_DISTRO == "melodic" || env.ROS_DISTRO == "noetic"
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
-          git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/rospack /tmp/rospack
+          git clone --depth=1 -b ${ROS_DISTRO} https://github.com/ros/rospack /tmp/rospack
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
@@ -53,13 +53,13 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-rospack-[0-9\._git]\+-r0.apk"
       - name: Test ament_cmake
-        if: env.ROS_DISTRO == 'humble'
+        if: env.ROS_DISTRO == "humble"
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
           package="ament_cmake_gtest"
-          git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ament/ament_cmake /tmp/repo
+          git clone --depth=1 -b ${ROS_DISTRO} https://github.com/ament/ament_cmake /tmp/repo
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
@@ -76,7 +76,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${apk_package_name}-[0-9\._git]\+-r0.apk"
       - name: Test ament_python
-        if: env.ROS_DISTRO == 'humble'
+        if: env.ROS_DISTRO == "humble"
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
