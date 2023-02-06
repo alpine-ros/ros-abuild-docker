@@ -106,11 +106,11 @@ build() {
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog
   make 2>&1 | tee -a $buildlog
-@[if use_ament_cmake]@
+@[  if use_ament_cmake]@
   # Need to install before test
   mkdir -p "$pkgdir"
   make install DESTDIR="$pkgdir"
-@[end if]@
+@[  end if]@
 @[end if]@
 @[if use_ament_python]@
   # Directory to place intermediate files
@@ -152,21 +152,21 @@ check() {
     --catkin-make-args run_tests 2>&1 | tee $checklog
   catkin_test_results 2>&1 | tee $checklog
 @[  end if]@
-@[if (use_ament_cmake or use_ament_python) and ros2_workspace_available]@
+@[  if (use_ament_cmake or use_ament_python) and ros2_workspace_available]@
   source /usr/ros/@(ros_distro)/setup.sh
-@[end if]@
-@[if use_ament_cmake or use_ament_python]@
+@[  end if]@
+@[  if use_ament_cmake or use_ament_python]@
   export PYTHONPATH="$pkgdir"/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:${PYTHONPATH}
   export AMENT_PREFIX_PATH="$pkgdir"/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
   export PATH="$pkgdir"/usr/ros/@(ros_distro)/bin:${PATH}
-@[end if]@
+@[  end if]@
 @[  if use_cmake or use_ament_cmake]@
   cd build
   if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
     make test 2>&1 | tee $checklog
   fi
 @[  end if]@
-@[if use_ament_python]@
+@[  if use_ament_python]@
   cd src/$_pkgname
   TEST_TARGET=$(ls -d */ | grep -m1 "\(test\|tests\)") || true
   if [ -z "$TEST_TARGET" ]; then
@@ -179,7 +179,7 @@ check() {
   else
     python setup.py test 2>&1 | tee $checklog
   fi
-@[end if]@
+@[  end if]@
 }
 @[end if]@
 
