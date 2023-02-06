@@ -89,7 +89,7 @@ def load_lookup():
     return lookup
 
 
-def resolve(ros_distro, deps):
+def resolve(ros_distro, package_name, deps):
     lookup = load_lookup()
     installer_context = rosdep2.create_default_installer_context()
     os_name, os_version = installer_context.get_os_name_and_version()
@@ -123,7 +123,8 @@ def resolve(ros_distro, deps):
         for r in resolved:
             keys.append(r + dep.version)
     if len(not_provided) > 0:
-        print('Some package is not provided by native installer: ' + ' '.join(not_provided), file=sys.stderr)
+        print('Some packages are not provided by the native installer for ' + package_name +
+              ': ' + ' '.join(not_provided), file=sys.stderr)
         return None
     return keys
 
@@ -242,14 +243,14 @@ def package_to_apkbuild(ros_distro, package_name,
         ros2_ros_workspaces_dependencies = ["ament_cmake_core", "ament_package", "ros_workspace"]
         if pkg.name not in ros2_ros_workspaces_dependencies:
             depends.append(NameAndVersion("ros_workspace", ""))
-    depends_keys = resolve(ros_distro, depends)
+    depends_keys = resolve(ros_distro, package_name, depends)
 
     depends_export = []
     for dep in pkg.buildtool_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.build_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
-    depends_export_keys = resolve(ros_distro, depends_export)
+    depends_export_keys = resolve(ros_distro, package_name, depends_export)
 
     catkin = False
     cmake = False
@@ -285,7 +286,7 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
         makedepends.append(ros_dependency_to_name_ver(dep))
-    makedepends_keys = resolve(ros_distro, makedepends)
+    makedepends_keys = resolve(ros_distro, package_name, makedepends)
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
