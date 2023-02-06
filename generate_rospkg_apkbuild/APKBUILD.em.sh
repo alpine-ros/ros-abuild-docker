@@ -109,25 +109,15 @@ build() {
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog
   make 2>&1 | tee -a $buildlog
-@[  if use_ament_cmake]@
-  # Need to install before test
-  mkdir -p "$pkgdir"
-  make install DESTDIR="$pkgdir"
-@[  end if]@
 @[end if]@
 @[if use_ament_python]@
   # Directory to place intermediate files
   mkdir -p "$builddir"/tmp
   cd src/$_pkgname
   python setup.py egg_info --egg-base="$builddir"/tmp 2>&1 | tee $buildlog
-  # Need to install before test
-  mkdir -p "$pkgdir"
   python setup.py \
     build \
-    --build-base="$builddir"/tmp/build \
-    install \
-    --root="$pkgdir" \
-    --prefix=/usr/ros/@(ros_distro) 2>&1 | tee $buildlog
+    --build-base="$builddir"/tmp/build
 @[end if]@
 }
 
@@ -159,18 +149,28 @@ check() {
   source /usr/ros/@(ros_distro)/setup.sh
 @[  end if]@
 @[  if use_ament_cmake or use_ament_python]@
-  export PYTHONPATH="$pkgdir"/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
-  export AMENT_PREFIX_PATH="$pkgdir"/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
-  export PATH="$pkgdir"/usr/ros/@(ros_distro)/bin:${PATH}
+  export PYTHONPATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
+  export AMENT_PREFIX_PATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
+  export PATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/bin:${PATH}
+  mkdir -p "$builddir"/tmp/pkg
 @[  end if]@
 @[  if use_cmake or use_ament_cmake]@
   cd build
+@[  if use_ament_cmake]@
+  make install DESTDIR="$builddir"/tmp/pkg
+@[  end if]@
   if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
     make test 2>&1 | tee $checklog
   fi
 @[  end if]@
 @[  if use_ament_python]@
   cd src/$_pkgname
+  python setup.py \
+    build \
+    --build-base="$builddir"/tmp/build \
+    install \
+    --root="$builddir"/tmp/pkg \
+    --prefix=/usr/ros/@(ros_distro) 2>&1 | tee $buildlog
   TEST_TARGET=$(ls -d */ | grep -m1 "\(test\|tests\)") || true
   if [ -z "$TEST_TARGET" ]; then
     echo "No \"test\" or \"tests\" directory. Check skipped" | tee $checklog
