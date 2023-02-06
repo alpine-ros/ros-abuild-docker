@@ -76,7 +76,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${apk_package_name}-[0-9\._git]\+-r0.apk"
       - name: Test ament_python
-        if: ${{ env.ROS_DISTRO == "humble' }}
+        if: ${{ env.ROS_DISTRO == 'humble' }}
         run: |
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
