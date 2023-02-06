@@ -32,7 +32,8 @@ export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 @[end if]@
 export ROS_PYTHON_VERSION=@ros_python_version
 @[if (not use_catkin) and not ros2_workspace_available]@
-export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:$PYTHONPATH
+export PYTHON_VERSION=$(python3 -c 'import sys; print("%i.%i" % (sys.version_info.major, sys.version_info.minor))')
+export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:$PYTHONPATH
 export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
 @[end if]@
 @[if rosinstall is not None]@
@@ -156,7 +157,7 @@ check() {
   source /usr/ros/@(ros_distro)/setup.sh
 @[  end if]@
 @[  if use_ament_cmake or use_ament_python]@
-  export PYTHONPATH="$pkgdir"/usr/ros/@(ros_distro)/lib/python$(python3 -V | sed -e "s/\(Python\s\)\(\d\.\d*\)\(\..*\)/\2/")/site-packages:${PYTHONPATH}
+  export PYTHONPATH="$pkgdir"/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
   export AMENT_PREFIX_PATH="$pkgdir"/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
   export PATH="$pkgdir"/usr/ros/@(ros_distro)/bin:${PATH}
 @[  end if]@
