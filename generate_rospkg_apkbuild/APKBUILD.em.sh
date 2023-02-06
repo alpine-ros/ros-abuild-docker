@@ -173,7 +173,7 @@ check() {
     echo "No \"test\" or \"tests\" directory. Check skipped" | tee $checklog
     return 0
   fi
-  USE_PYTEST=$(grep pytest setup.py) || true
+  USE_PYTEST=$(grep '\<pytest\>' setup.py) || true
   if [ -n "$USE_PYTEST" ]; then
     python -m pytest 2>&1 | tee $checklog
   else
