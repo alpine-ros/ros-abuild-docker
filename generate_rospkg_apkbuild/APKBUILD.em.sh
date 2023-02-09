@@ -377,3 +377,10 @@ doc() {
 
   default_doc
 }
+@[if not use_catkin]@
+
+if [ -f ./apkbuild_hook.sh ]; then
+  . ./apkbuild_hook.sh
+  apkbuild_hook
+fi
+@[end if]@
