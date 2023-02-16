@@ -34,9 +34,11 @@ export ROS_PYTHON_VERSION=@ros_python_version
 @[if not use_catkin]@
 export PYTHON_VERSION=$(python3 -c 'import sys; print("%i.%i" % (sys.version_info.major, sys.version_info.minor))')
 @[end if]@
-@[if (not use_catkin) and not ros2_workspace_available]@
-export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:$PYTHONPATH
-export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
+@[if not use_catkin]@
+if [ ! -f /usr/ros/@(ros_distro)/setup.sh ]; then
+  export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:$PYTHONPATH
+  export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
+fi
 @[end if]@
 @[if rosinstall is not None]@
 rosinstall="@rosinstall"
@@ -98,8 +100,10 @@ build() {
   catkin_make_isolated \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog
 @[end if]@
-@[if (use_ament_cmake or use_ament_python) and ros2_workspace_available]@
-  source /usr/ros/@(ros_distro)/setup.sh
+@[if not use_catkin]@
+  if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
+    source /usr/ros/@(ros_distro)/setup.sh
+  fi
 @[end if]@
 @[if use_cmake or use_ament_cmake]@
   mkdir build
@@ -145,8 +149,10 @@ check() {
     --catkin-make-args run_tests 2>&1 | tee $checklog
   catkin_test_results 2>&1 | tee $checklog
 @[  end if]@
-@[  if (use_ament_cmake or use_ament_python) and ros2_workspace_available]@
-  source /usr/ros/@(ros_distro)/setup.sh
+@[  if not use_catkin]@
+  if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
+    source /usr/ros/@(ros_distro)/setup.sh
+  fi
 @[  end if]@
 @[  if use_ament_cmake or use_ament_python]@
   export PYTHONPATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
@@ -215,8 +221,10 @@ package() {
     "$pkgdir"/usr/ros/@(ros_distro)/env.sh \
     "$pkgdir"/usr/ros/@(ros_distro)/.catkin
 @[end if]@
-@[if (not use_catkin) and ros2_workspace_available]@
-  source /usr/ros/@(ros_distro)/setup.sh
+@[if not use_catkin]@
+  if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
+    source /usr/ros/@(ros_distro)/setup.sh
+  fi
 @[end if]@
 @[if use_cmake or use_ament_cmake]@
   cd build
