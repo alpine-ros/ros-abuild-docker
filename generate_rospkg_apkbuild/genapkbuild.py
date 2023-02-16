@@ -316,10 +316,10 @@ def package_to_apkbuild(ros_distro, package_name,
     if len(pkg.urls) > 0:
         url = pkg.urls[0].url
     else:
-        if not is_ros2:
-            url = 'http://wiki.ros.org/$_pkgname'
-        else:
+        if is_ros2:
             url = 'https://index.ros.org/p/$_pkgname'
+        else:
+            url = 'http://wiki.ros.org/$_pkgname'
 
     g = {
         'pkgname': ros_pkgname_to_pkgname(ros_distro, pkg.name),
