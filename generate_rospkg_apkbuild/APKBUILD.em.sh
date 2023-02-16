@@ -27,14 +27,14 @@ if [ x${GENERATE_BUILD_LOGS} != "xyes" ]; then
   statuslog="/dev/null"
 fi
 
-@[if use_catkin or use_cmake]@
+@[if not is_ros2]@
 export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 @[end if]@
 export ROS_PYTHON_VERSION=@ros_python_version
-@[if not use_catkin]@
+@[if is_ros2]@
 export PYTHON_VERSION=$(python3 -c 'import sys; print("%i.%i" % (sys.version_info.major, sys.version_info.minor))')
 @[end if]@
-@[if not use_catkin]@
+@[if is_ros2]@
 if [ ! -f /usr/ros/@(ros_distro)/setup.sh ]; then
   export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:$PYTHONPATH
   export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
@@ -100,7 +100,7 @@ build() {
   catkin_make_isolated \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog
 @[end if]@
-@[if not use_catkin]@
+@[if is_ros2]@
   if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
     source /usr/ros/@(ros_distro)/setup.sh
   fi
@@ -149,7 +149,7 @@ check() {
     --catkin-make-args run_tests 2>&1 | tee $checklog
   catkin_test_results 2>&1 | tee $checklog
 @[  end if]@
-@[  if not use_catkin]@
+@[  if is_ros2]@
   if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
     source /usr/ros/@(ros_distro)/setup.sh
   fi
@@ -221,7 +221,7 @@ package() {
     "$pkgdir"/usr/ros/@(ros_distro)/env.sh \
     "$pkgdir"/usr/ros/@(ros_distro)/.catkin
 @[end if]@
-@[if not use_catkin]@
+@[if is_ros2]@
   if [ -f /usr/ros/@(ros_distro)/setup.sh ]; then
     source /usr/ros/@(ros_distro)/setup.sh
   fi
