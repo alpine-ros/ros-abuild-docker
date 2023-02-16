@@ -239,7 +239,9 @@ def package_to_apkbuild(ros_distro, package_name,
     for dep in pkg.exec_depends:
         depends.append(ros_dependency_to_name_ver(dep))
     if is_ros2:
-        # https://github.com/ros-infrastructure/bloom/blob/1086547b02af00e1f19a244c7fdd6b0e0ec60d20/bloom/generators/rosdebian.py#L99
+        # ros_workspace is required to build most of ROS2 packages, but packages don't explicitly
+        # depends on ros_workspace. So it is added to the dependencies here.
+        # See https://github.com/ros-infrastructure/bloom/blob/1086547b02af00e1f19a244c7fdd6b0e0ec60d20/bloom/generators/rosdebian.py#L99
         ros2_ros_workspaces_dependencies = ["ament_cmake_core", "ament_package", "ros_workspace"]
         if pkg.name not in ros2_ros_workspaces_dependencies:
             depends.append(NameAndVersion("ros_workspace", ""))
