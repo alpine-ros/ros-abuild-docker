@@ -270,13 +270,13 @@ def package_to_apkbuild(ros_distro, package_name,
         print('build type is not specified')
         sys.exit(1)
 
-    if not is_ros2:
-        if ament_cmake or ament_python:
-            print('Un-supported build type for ROS1 package', file=sys.stderr)
-            sys.exit(1)
-    else:
+    if is_ros2:
         if catkin:
             print('Un-supported build type for ROS2 package', file=sys.stderr)
+            sys.exit(1)
+    else:
+        if ament_cmake or ament_python:
+            print('Un-supported build type for ROS1 package', file=sys.stderr)
             sys.exit(1)
 
     makedepends = []
