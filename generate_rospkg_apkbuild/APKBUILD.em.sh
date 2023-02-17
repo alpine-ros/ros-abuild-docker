@@ -33,8 +33,6 @@ export ROS_PACKAGE_PATH="$builddir/src/$_pkgname"
 export ROS_PYTHON_VERSION=@ros_python_version
 @[if is_ros2]@
 export PYTHON_VERSION=$(python3 -c 'import sys; print("%i.%i" % (sys.version_info.major, sys.version_info.minor))')
-@[end if]@
-@[if is_ros2]@
 if [ ! -f /usr/ros/@(ros_distro)/setup.sh ]; then
   export PYTHONPATH=/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:$PYTHONPATH
   export AMENT_PREFIX_PATH=/usr/ros/@(ros_distro)
