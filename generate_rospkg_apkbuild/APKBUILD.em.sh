@@ -156,6 +156,7 @@ check() {
   export PYTHONPATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/lib/python${PYTHON_VERSION}/site-packages:${PYTHONPATH}
   export AMENT_PREFIX_PATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro):${AMENT_PREFIX_PATH}
   export PATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/bin:${PATH}
+  export LD_LIBRARY_PATH="$builddir"/tmp/pkg/usr/ros/@(ros_distro)/lib:${LD_LIBRARY_PATH}
   mkdir -p "$builddir"/tmp/pkg
 @[  end if]@
 @[  if use_cmake or use_ament_cmake]@
