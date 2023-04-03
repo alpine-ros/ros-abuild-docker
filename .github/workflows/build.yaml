@@ -27,6 +27,7 @@ jobs:
           docker build -t ${image} \
             --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
+            .
       - name: Test
         run: |
           eval ${{ matrix.env }}
