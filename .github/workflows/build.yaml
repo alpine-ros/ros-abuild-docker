@@ -13,10 +13,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - ALPINE_VERSION=3.8 ROS_DISTRO=melodic ROS_PYTHON_VERSION=2
-          - ALPINE_VERSION=3.11 ROS_DISTRO=noetic ROS_PYTHON_VERSION=3
-          - ALPINE_VERSION=3.14 ROS_DISTRO=noetic ROS_PYTHON_VERSION=3
-          - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_PYTHON_VERSION=3
+          - ALPINE_VERSION=3.14 ROS_DISTRO=noetic
+          - ALPINE_VERSION=3.17 ROS_DISTRO=noetic
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -29,7 +27,7 @@ jobs:
           docker build -t ${image} \
             --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
-            --build-arg ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION} .
+            .
       - name: Test
         run: |
           eval ${{ matrix.env }}
