@@ -34,7 +34,7 @@ jobs:
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
-          if [[ ${${ROS_DISTRO}} == "noetic" ]];
+          if [[ ${ROS_DISTRO} == "noetic" ]]; then
             pkg_name="rospack"
             git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/${pkg_name} /tmp/${pkg_name}
           else
