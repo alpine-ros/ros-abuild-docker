@@ -231,6 +231,7 @@ def package_to_apkbuild(ros_distro, package_name,
 
     pkg.evaluate_conditions(os.environ)
 
+    print(f"DEBUG: ros_distros: {[name for name, _ in get_index(get_index_url()).distributions.items()]}")
     ros2_distros = [
         name for name, value in get_index(get_index_url()).distributions.items()
         if value.get("distribution_type") == "ros2"]
