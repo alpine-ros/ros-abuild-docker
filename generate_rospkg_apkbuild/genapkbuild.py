@@ -165,6 +165,7 @@ def package_to_apkbuild(ros_distro, package_name,
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
+    print(f"DEBUG: ros_distro: {ros_distro}")
 
     if package_name.startswith('http://') or package_name.startswith('https://'):
         import requests
@@ -234,6 +235,7 @@ def package_to_apkbuild(ros_distro, package_name,
         name for name, value in get_index(get_index_url()).distributions.items()
         if value.get("distribution_type") == "ros2"]
     is_ros2 = ros_distro in ros2_distros
+    print(f"DEBUG: is_ros2: {is_ros2}")
 
     depends = []
     for dep in pkg.exec_depends:
