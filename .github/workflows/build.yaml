@@ -55,11 +55,11 @@ jobs:
           pkg_name=${pkg_name//_/-}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking -doc subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[0-9\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
