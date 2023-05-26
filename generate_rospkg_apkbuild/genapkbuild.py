@@ -231,6 +231,8 @@ def package_to_apkbuild(ros_distro, package_name,
 
     pkg.evaluate_conditions(os.environ)
 
+    print(f"DEBUG: index_url: {get_index_url()}")
+    print(f"DEBUG: index: {get_index(get_index_url()).distributions.items()}")
     print(f"DEBUG: ros_distros: {[name for name, _ in get_index(get_index_url()).distributions.items()]}")
     ros2_distros = [
         name for name, value in get_index(get_index_url()).distributions.items()
