@@ -235,6 +235,7 @@ def package_to_apkbuild(ros_distro, package_name,
         name for name, value in get_index(get_index_url()).distributions.items()
         if value.get("distribution_type") == "ros2"]
     is_ros2 = ros_distro in ros2_distros
+    print(f"DEBUG: ros2_distros: {ros2_distros}")
     print(f"DEBUG: is_ros2: {is_ros2}")
 
     depends = []
