@@ -52,6 +52,7 @@ jobs:
             -v /tmp/apks:/packages \
             ${image}
 
+          pkg_name=${pkg_name//_/-}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[0-9\._git]\+-r0.apk"
