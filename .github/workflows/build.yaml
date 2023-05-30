@@ -38,11 +38,11 @@ jobs:
             pkg_name="rospack"
             git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/${pkg_name} /tmp/${pkg_name}
           else
-            git clone --depth=1 -b ${ROS_DISTRO} https://github.com/ros2/geometry2 /tmp/geometry2
-            pkg_name="tf2_eigen_kdl"
+            git clone --depth=1 -b ${ROS_DISTRO}  https://github.com/ament/ament_index/ /tmp/ament_index
+            pkg_name="ament_index_cpp"
             # keep only one package for testing
-            mv /tmp/geometry2/${pkg_name} /tmp/${pkg_name}
-            rm -rf /tmp/geometry2
+            mv /tmp/ament_index/${pkg_name} /tmp/${pkg_name}
+            rm -rf /tmp/ament_index
           fi
 
           mkdir -p /tmp/apks
