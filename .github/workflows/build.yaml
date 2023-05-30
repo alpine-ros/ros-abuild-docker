@@ -13,9 +13,9 @@ jobs:
     strategy:
       matrix:
         env:
-          - ALPINE_VERSION=3.14 ROS_DISTRO=noetic
-          - ALPINE_VERSION=3.17 ROS_DISTRO=noetic
-          - ALPINE_VERSION=3.17 ROS_DISTRO=humble
+          - ALPINE_VERSION=3.14 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
+          - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
+          - ALPINE_VERSION=3.17 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
           eval ${{ matrix.env }}
           image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
-          if [[ ${ROS_DISTRO} == "noetic" ]]; then
+          if [[ ${ROS_DISTRIBUTION_TYPE} == "ros1" ]]; then
             pkg_name="rospack"
             git clone --depth=1 -b ${ROS_DISTRO}-devel https://github.com/ros/${pkg_name} /tmp/${pkg_name}
           else
