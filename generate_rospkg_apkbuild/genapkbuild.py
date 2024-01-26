@@ -228,12 +228,24 @@ def package_to_apkbuild(ros_distro, package_name,
                 if date is not None:
                     ver_suffix = '_git' + date
 
-    pkg.evaluate_conditions(os.environ)
-
     ros2_distros = [
         name for name, value in get_index(get_index_url()).distributions.items()
         if value.get("distribution_type") == "ros2"]
     is_ros2 = ros_distro in ros2_distros
+
+    # Make ROS_VERSION available in package.xml
+    orig_ros_version_env = os.environ.get("ROS_VERSION")
+    if is_ros2:
+        os.environ["ROS_VERSION"] = "2"
+    else:
+        os.environ["ROS_VERSION"] = "1"
+
+    pkg.evaluate_conditions(os.environ)
+
+    if orig_ros_version_env:
+        os.environ["ROS_VERSION"] = orig_ros_version_env
+    else:
+        del os.environ["ROS_VERSION"]
 
     depends = []
     for dep in pkg.exec_depends:
