@@ -266,7 +266,9 @@ def package_to_apkbuild(ros_distro, package_name,
     ament_python = False
 
     build_type = pkg.get_build_type()
-    if build_type == 'catkin':
+    if not is_ros2 and not pkg.has_buildtool_depend_on_catkin():
+        cmake = True
+    elif build_type == 'catkin':
         catkin = True
     elif build_type == 'cmake':
         cmake = True
