@@ -307,7 +307,7 @@ def package_to_apkbuild(ros_distro, package_name,
     makedepends_keys = sorted(list(set(makedepends_keys)))
 
     makedepends_implicit = [
-        'py-setuptools', 'py-rosdep', 'py-rosinstall',
+        'py-setuptools', 'py-rosdep',
         'py-rosinstall-generator', 'py-vcstool', 'chrpath']
     if ament_python:
         makedepends_implicit.append('py-pytest')
