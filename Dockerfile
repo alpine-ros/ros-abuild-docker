@@ -9,18 +9,6 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
   && adduser -G abuild -D builder \
   && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-RUN apk add --no-cache \
-    ccache \
-    py3-pip \
-    py3-requests \
-    py3-rosdep \
-    py3-rosinstall-generator \
-    py3-rospkg \
-    py3-vcstool \
-    py3-yaml \
-    python3 \
-    sed
-
 ARG ROS_PYTHON_VERSION=3
 ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
 
@@ -35,6 +23,18 @@ iS3Sdjz10eB26TYiM9pbMQnm7zPnDSYSLm9aCy+gumcoyCt1K1OY3A9E3EayYdk1\n\
 a17OJ4wWWaPvOq8PshcTZ2P3Me8kTCWr/fczjzq+8hB0MNEqfuENoSyZhmCypEuy\n\
 ewIDAQAB\n\
 -----END PUBLIC KEY-----' > /etc/apk/keys/builder@alpine-ros-experimental.rsa.pub
+
+RUN apk add --no-cache \
+    ccache \
+    py3-pip \
+    py3-requests \
+    py3-rosdep \
+    py3-rosinstall-generator \
+    py3-rospkg \
+    py3-vcstool \
+    py3-yaml \
+    python3 \
+    sed
 
 RUN rosdep init \
   && sed -i -e 's|ros/rosdistro/master|alpine-ros/rosdistro/alpine-custom-apk|' /etc/ros/rosdep/sources.list.d/20-default.list
