@@ -11,16 +11,15 @@ RUN apk add --no-cache alpine-sdk lua-aports sudo \
 
 RUN apk add --no-cache \
     ccache \
-    python3 \
     py3-pip \
+    py3-requests \
+    py3-rosdep \
+    py3-rosinstall-generator \
+    py3-rospkg \
+    py3-vcstool \
     py3-yaml \
-    sed \
-  && pip3 install \
-    requests \
-    rosdep \
-    rosinstall_generator \
-    rospkg \
-    vcstool
+    python3 \
+    sed
 
 ARG ROS_PYTHON_VERSION=3
 ENV ROS_PYTHON_VERSION=${ROS_PYTHON_VERSION}
