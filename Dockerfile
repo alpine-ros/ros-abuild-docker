@@ -49,7 +49,7 @@ RUN mkdir -p /root/.ros \
 
 COPY setup.py /tmp/genapkbuild/
 COPY generate_rospkg_apkbuild /tmp/genapkbuild/generate_rospkg_apkbuild
-RUN pip3 install --break-system-packages /tmp/genapkbuild
+RUN pip3 install $([ "${ALPINE_VERSION}" != '3.17' ] && echo -n '--break-system-packages') /tmp/genapkbuild
 
 COPY build-repo.sh /
 COPY sign-repo-index.sh /
