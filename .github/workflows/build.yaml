@@ -11,6 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         env:
           - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
