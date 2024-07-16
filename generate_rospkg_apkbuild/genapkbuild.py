@@ -108,7 +108,7 @@ def resolve(ros_distro, package_name, deps, add_ros_dev=False):
         except KeyError as e:
             keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
             if add_ros_dev:
-                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version) + '-dev'
+                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + '-dev' + dep.version)
             continue
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
