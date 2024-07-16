@@ -169,6 +169,14 @@ def static_revfn(rev):
     return revfn
 
 
+def is_dev(key):
+    return re.match(r'-dev([<>=]\S+)?$', key)
+
+
+def is_not_dev(key):
+    return not is_dev(key)
+
+
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
                         ver_suffix=None, commit_hash=None, split_dev=False):
@@ -330,9 +338,9 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends_implicit = force_py3_keys(makedepends_implicit)
 
     if split_dev:
-        apk_depends = list(filter(lambda x: not x.endswith('-dev'), depends_keys))
+        apk_depends = list(filter(is_not_dev, depends_keys))
         apk_makedepends = makedepends_implicit + makedepends_keys
-        apk_depends_dev = depends_export_keys + list(filter(lambda x: x.endswith('-dev'), depends_keys))
+        apk_depends_dev = depends_export_keys + list(filter(is_dev, depends_keys))
         # Remove duplicated dependency keys
         apk_depends = sorted(list(set(apk_depends)))
         apk_makedepends = sorted(list(set(apk_makedepends)))
