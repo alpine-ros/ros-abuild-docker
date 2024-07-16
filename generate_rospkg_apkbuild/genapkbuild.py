@@ -125,9 +125,12 @@ def resolve(ros_distro, package_name, deps, add_ros_dev=False):
             continue
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
-        print("d", json.dumps(d.data))
         for r in resolved:
             keys.append(r + dep.version)
+        if '_is_ros' in d.data:
+            if d.data['_is_ros']:
+                for r in resolved:
+                    keys.append(r + '-dev' + dep.version)
 
     if len(not_provided) > 0:
         print('Some packages are not provided by the native installer for ' + package_name +
