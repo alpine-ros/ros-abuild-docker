@@ -170,7 +170,7 @@ def static_revfn(rev):
 
 
 def is_dev(key):
-    return re.match(r'-dev([<>=]\S+)?$', key)
+    return re.match(r'^\S*-dev([<>=]\S+)?$', key) is not None
 
 
 def is_not_dev(key):
