@@ -16,6 +16,7 @@ jobs:
           - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
           - ALPINE_VERSION=3.17 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2
           - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
+          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true OPTS=--split-dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,7 +51,8 @@ jobs:
           docker run --rm \
             -v /tmp/${pkg_name}:/src/${pkg_name}:ro \
             -v /tmp/apks:/packages \
-            ${image}
+            ${image} \
+            ${OPTS}
 
           pkg_name=${pkg_name//_/-}
           ls -l /tmp/apks/*/*
@@ -60,6 +62,10 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
+          if [ "${SPLIT_DEV}" = 'true' ]; then
+            echo "Checking dev package"
+            ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dev-[[:alnum:]\._git]\+-r0.apk"
+          fi
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
