@@ -34,6 +34,7 @@ import subprocess
 import sys
 import yaml
 import re
+import json
 
 from catkin_pkg.package import Dependency, parse_package_string
 from rosdistro import get_cached_distribution, get_index, get_index_url
@@ -124,9 +125,7 @@ def resolve(ros_distro, package_name, deps, add_ros_dev=False):
             continue
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
-        print("d", type(d))
-        print("rule", type(rule))
-        print("resolved", type(resolved))
+        print("d", json.dumps(d.data))
         for r in resolved:
             keys.append(r + dep.version)
 
