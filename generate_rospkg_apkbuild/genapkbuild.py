@@ -89,7 +89,7 @@ def load_lookup():
     return lookup
 
 
-def resolve(ros_distro, package_name, deps):
+def resolve(ros_distro, package_name, deps, add_ros_dev=False):
     lookup = load_lookup()
     installer_context = rosdep2.create_default_installer_context()
     os_name, os_version = installer_context.get_os_name_and_version()
@@ -107,6 +107,8 @@ def resolve(ros_distro, package_name, deps):
             d = view.lookup(dep.name)
         except KeyError as e:
             keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
+            if add_ros_dev:
+                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version) + '-dev'
             continue
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
@@ -296,7 +298,7 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
         makedepends.append(ros_dependency_to_name_ver(dep))
-    makedepends_keys = resolve(ros_distro, package_name, makedepends)
+    makedepends_keys = resolve(ros_distro, package_name, makedepends, add_ros_dev=split_dev)
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
