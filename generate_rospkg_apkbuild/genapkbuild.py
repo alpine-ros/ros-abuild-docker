@@ -322,13 +322,13 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends_implicit = force_py3_keys(makedepends_implicit)
 
     if split_dev:
-        apk_depends = depends_keys + depends_export_keys
-        apk_makedepends = makedepends_implicit + makedepends_keys
-        apk_depends_dev = []
-    else:
         apk_depends = list(filter(lambda x: not x.endswith('-dev'), depends_keys))
         apk_makedepends = makedepends_implicit + makedepends_keys
         apk_depends_dev = depends_export_keys + list(filter(lambda x: x.endswith('-dev'), depends_keys))
+    else:
+        apk_depends = depends_keys + depends_export_keys
+        apk_makedepends = makedepends_implicit + makedepends_keys
+        apk_depends_dev = []
 
     if ver_suffix is None:
         ver_suffix = ''
