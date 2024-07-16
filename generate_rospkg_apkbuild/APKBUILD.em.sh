@@ -12,8 +12,14 @@ options="!check"
 
 depends="@(' '.join(depends))"
 makedepends="@(' '.join(makedepends))"
+@[if split_dev]@
+depends_dev="@(' '.joins(depends_dev))"
+
+subpackages="$pkgname-dbg $pkgname-doc $pkgname-dev"
+@[else]@
 
 subpackages="$pkgname-dbg $pkgname-doc"
+@[end if]@
 
 source=""
 builddir="$startdir/abuild"

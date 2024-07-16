@@ -161,7 +161,7 @@ def static_revfn(rev):
 
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
-                        ver_suffix=None, commit_hash=None):
+                        ver_suffix=None, commit_hash=None, split_dev=False):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -319,6 +319,10 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends_keys = force_py3_keys(makedepends_keys)
         makedepends_implicit = force_py3_keys(makedepends_implicit)
 
+    apk_depends = depends_keys + depends_export_keys
+    apk_makedepends = makedepends_implicit + makedepends_keys
+    apk_depends_dev = []
+
     if ver_suffix is None:
         ver_suffix = ''
 
@@ -340,8 +344,9 @@ def package_to_apkbuild(ros_distro, package_name,
         'url': url,
         'license': pkg.licenses[0],
         'check': check,
-        'depends': depends_keys + depends_export_keys,
-        'makedepends': makedepends_implicit + makedepends_keys,
+        'depends': apk_depends,
+        'makedepends': apk_makedepends,
+        'depends_dev': apk_depends_dev,
         'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
         'rosinstall': None if src else yaml.dump(rosinstall),
         'vcstool_opt': '' if upstream and commit_hash is not None else '--shallow',
@@ -351,6 +356,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_ament_cmake': ament_cmake,
         'use_ament_python': ament_python,
         'is_ros2': is_ros2,
+        'split_dev': split_dev,
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
@@ -394,13 +400,17 @@ def main():
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
+    parser.add_argument('--split-dev', action='store_const',
+                        const=True, default=False,
+                        help='split -dev packages (default: False)')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
                               src=args.src, revfn=static_revfn(args.rev),
                               ver_suffix=args.vsuffix,
-                              commit_hash=args.commit))
+                              commit_hash=args.commit,
+                              split_dev=args.split_dev))
 
 
 def main_multi():
@@ -425,6 +435,9 @@ example:
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
+    parser.add_argument('--split-dev', action='store_const',
+                        const=True, default=False,
+                        help='split -dev packages (default: False)')
     args = parser.parse_args()
 
     pkglist = None
@@ -483,7 +496,8 @@ example:
             args.ros_distro[0], pkgname,
             upstream=(args.upstream or pkg_force_upstream),
             revfn=revfn,
-            commit_hash=pkg_upstream_ref)
+            commit_hash=pkg_upstream_ref,
+            split_dev=args.split_dev)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
