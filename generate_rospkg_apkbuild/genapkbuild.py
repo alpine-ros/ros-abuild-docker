@@ -117,6 +117,8 @@ def resolve(ros_distro, package_name, deps, add_ros_dev=False):
             if '_is_ros' in e.rosdep_data:
                 if e.rosdep_data['_is_ros']:
                     keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
+                    if add_ros_dev:
+                        keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + "-dev" + dep.version)
                     continue
             not_provided.append(dep.name)
             continue
