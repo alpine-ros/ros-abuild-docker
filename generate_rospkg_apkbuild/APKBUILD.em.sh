@@ -391,6 +391,14 @@ doc() {
   default_doc
 }
 
+@[if split_dev]@
+dev() {
+  mkdir -p $subpkgdir
+
+  default_dev
+}
+
+@[end if]
 if [ -f ./apkbuild_hook.sh ]; then
   . ./apkbuild_hook.sh
   apkbuild_hook
