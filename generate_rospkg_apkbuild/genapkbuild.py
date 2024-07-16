@@ -253,14 +253,14 @@ def package_to_apkbuild(ros_distro, package_name,
         ros2_ros_workspaces_dependencies = ["ament_cmake_core", "ament_package", "ros_workspace"]
         if pkg.name not in ros2_ros_workspaces_dependencies:
             depends.append(NameAndVersion("ros_workspace", ""))
-    depends_keys = resolve(ros_distro, package_name, depends)
+    depends_keys = resolve(ros_distro, package_name, depends, add_ros_dev=split_dev)
 
     depends_export = []
     for dep in pkg.buildtool_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.build_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
-    depends_export_keys = resolve(ros_distro, package_name, depends_export)
+    depends_export_keys = resolve(ros_distro, package_name, depends_export, add_ros_dev=split_dev)
 
     catkin = False
     cmake = False
