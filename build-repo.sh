@@ -78,6 +78,20 @@ case "${SKIP_ROSDEP_UPDATE}" in
     ;;
 esac
 
+generate_opts=
+case "${SPLIT_DEV}" in
+  "")
+    ;;
+  yes)
+    generate_opts="${generate_opts} --split-dev"
+    ;;
+  no)
+    ;;
+  *)
+    echo "SPLIT_DEV must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
+    exit 1
+    ;;
+esac
 
 # Setup environment variables
 
@@ -240,7 +254,8 @@ for manifest in ${manifests}; do
 
   if ! (set -o pipefail && generate-rospkg-apkbuild \
     ${repo} ${APORTSDIR}/${repo}/${pkgname}/package.xml --src \
-      --ver-suffix=${ver_suffix} \
+        --ver-suffix=${ver_suffix} \
+        ${generate_opts} \
       | tee ${APORTSDIR}/${repo}/${pkgname}/APKBUILD); then
     echo "## Package dependency failure" >> ${summary_file}
     error=true
