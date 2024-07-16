@@ -115,20 +115,19 @@ def resolve(ros_distro, package_name, deps, add_ros_dev=False):
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
         except rosdep2.lookup.ResolutionError as e:
             # ignoring ROS packages since Alpine ROS packages are not solvable at now
-            if '_is_ros' in e.rosdep_data:
-                if e.rosdep_data['_is_ros']:
-                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
-                    if add_ros_dev:
-                        keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + "-dev" + dep.version)
-                    continue
+            if '_is_ros' in e.rosdep_data and e.rosdep_data['_is_ros']:
+                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
+                if add_ros_dev:
+                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + "-dev" + dep.version)
+                continue
             not_provided.append(dep.name)
             continue
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
         for r in resolved:
             keys.append(r + dep.version)
-        if '_is_ros' in d.data:
-            if d.data['_is_ros']:
+        if add_ros_dev:
+            if '_is_ros' in d.data and d.data['_is_ros']:
                 for r in resolved:
                     keys.append(r + '-dev' + dep.version)
 
