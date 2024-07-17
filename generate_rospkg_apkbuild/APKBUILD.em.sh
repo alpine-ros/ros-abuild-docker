@@ -394,6 +394,7 @@ doc() {
 @[if split_dev]@
 dev() {
   mkdir -p $subpkgdir
+  install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
 
   default_dev
 }
