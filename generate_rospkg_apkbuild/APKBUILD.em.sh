@@ -396,15 +396,7 @@ dev() {
   mkdir -p $subpkgdir
   install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
 
-  for src in \
-      usr/ros/noetic/lib/pkgconfig/ \
-      usr/ros/noetic/share/*/cmake/; do
-    if [ -e "$pkgdir/$src" ]; then
-      mkdir -p "$subpkgdir/$src"
-      mv "$pkgdir/$src" "$subpkgdir/$src"
-      rmdir "$pkgdir/$src" 2>/dev/null || true
-    fi
-  done
+  amove usr/ros/*/lib/pkgconfig 'usr/ros/*/share/*/cmake/'
 
   default_dev
 }
