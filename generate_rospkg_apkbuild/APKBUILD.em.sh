@@ -396,10 +396,10 @@ dev() {
   mkdir -p $subpkgdir
   install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
 
-  if ls usr/ros/*/lib/pkgconfig >/dev/null 2>/dev/null; then
+  if ls $pkgdir/usr/ros/*/lib/pkgconfig >/dev/null 2>/dev/null; then
     amove 'usr/ros/*/lib/pkgconfig'
   fi
-  if ls usr/ros/*/share/*/cmake >/dev/null 2>/dev/null; then
+  if ls $pkgdir/usr/ros/*/share/*/cmake >/dev/null 2>/dev/null; then
     amove 'usr/ros/*/share/*/cmake'
   fi
 
