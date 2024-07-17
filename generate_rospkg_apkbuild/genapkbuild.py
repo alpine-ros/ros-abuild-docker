@@ -338,7 +338,7 @@ def package_to_apkbuild(ros_distro, package_name,
 
     if split_dev:
         apk_depends = list(filter(is_not_dev, depends_keys))
-        apk_makedepends = makedepends_implicit + makedepends_keys
+        apk_makedepends = makedepends_implicit + makedepends_keys + list(filter(is_dev, depends_keys))
         apk_depends_dev = depends_export_keys + list(filter(is_dev, depends_keys))
         # Remove duplicated dependency keys
         apk_depends = sorted(list(set(apk_depends)))
