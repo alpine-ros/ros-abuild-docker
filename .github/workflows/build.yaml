@@ -45,10 +45,10 @@ jobs:
             mv /tmp/ament_index/${pkg_name} /tmp/${pkg_name}
             rm -rf /tmp/ament_index
           fi
-          echo "image=ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}" | tee ${GITHUB_OUTPUT}
-          echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
-          echo "pkg-name=${pkg_name}" | tee ${GITHUB_OUTPUT}
-          echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee ${GITHUB_OUTPUT}
+          echo "image=ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}" | tee -a ${GITHUB_OUTPUT}
+          echo "split-dev=${TEST_SPLIT_DEV}" | tee -a ${GITHUB_OUTPUT}
+          echo "pkg-name=${pkg_name}" | tee -a ${GITHUB_OUTPUT}
+          echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee -a ${GITHUB_OUTPUT}
       - name: Test
         run: |
           mkdir -p /tmp/apks
