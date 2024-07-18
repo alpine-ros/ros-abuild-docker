@@ -5,7 +5,8 @@ FROM alpine:${ALPINE_VERSION}
 ARG ALPINE_VERSION=3.17
 ARG ROS_DISTRO=noetic
 
-ENV ROS_DISTRO=${ROS_DISTRO}
+ENV ROS_DISTRO=${ROS_DISTRO} \
+  ALPINE_VERSION=${ALPINE_VERSION}
 
 RUN apk add --no-cache alpine-sdk lua-aports sudo \
   && adduser -G abuild -D builder \
