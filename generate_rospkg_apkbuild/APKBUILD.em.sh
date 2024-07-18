@@ -12,8 +12,14 @@ options="!check"
 
 depends="@(' '.join(depends))"
 makedepends="@(' '.join(makedepends))"
+@[if split_dev]@
+depends_dev="@(' '.join(depends_dev))"
+
+subpackages="$pkgname-dbg $pkgname-doc $pkgname-dev"
+@[else]@
 
 subpackages="$pkgname-dbg $pkgname-doc"
+@[end if]@
 
 source=""
 builddir="$startdir/abuild"
@@ -385,6 +391,22 @@ doc() {
   default_doc
 }
 
+@[if split_dev]@
+dev() {
+  mkdir -p $subpkgdir
+  install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
+
+  if ls $pkgdir/usr/ros/*/lib/pkgconfig >/dev/null 2>/dev/null; then
+    amove 'usr/ros/*/lib/pkgconfig'
+  fi
+  if ls $pkgdir/usr/ros/*/share/*/cmake >/dev/null 2>/dev/null; then
+    amove 'usr/ros/*/share/*/cmake'
+  fi
+
+  default_dev
+}
+
+@[end if]
 if [ -f ./apkbuild_hook.sh ]; then
   . ./apkbuild_hook.sh
   apkbuild_hook

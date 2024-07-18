@@ -34,6 +34,7 @@ import subprocess
 import sys
 import yaml
 import re
+import json
 
 from catkin_pkg.package import Dependency, parse_package_string
 from rosdistro import get_cached_distribution, get_index, get_index_url
@@ -89,7 +90,7 @@ def load_lookup():
     return lookup
 
 
-def resolve(ros_distro, package_name, deps):
+def resolve(ros_distro, package_name, deps, add_ros_dev=False):
     lookup = load_lookup()
     installer_context = rosdep2.create_default_installer_context()
     os_name, os_version = installer_context.get_os_name_and_version()
@@ -107,21 +108,29 @@ def resolve(ros_distro, package_name, deps):
             d = view.lookup(dep.name)
         except KeyError as e:
             keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
+            if add_ros_dev:
+                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + '-dev' + dep.version)
             continue
         try:
             rule_installer, rule = d.get_rule_for_platform(os_name, os_version, installer_keys, default_key)
         except rosdep2.lookup.ResolutionError as e:
             # ignoring ROS packages since Alpine ROS packages are not solvable at now
-            if '_is_ros' in e.rosdep_data:
-                if e.rosdep_data['_is_ros']:
-                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
-                    continue
+            if '_is_ros' in e.rosdep_data and e.rosdep_data['_is_ros']:
+                keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + dep.version)
+                if add_ros_dev:
+                    keys.append(ros_pkgname_to_pkgname(ros_distro, dep.name) + "-dev" + dep.version)
+                continue
             not_provided.append(dep.name)
             continue
         installer = installer_context.get_installer(rule_installer)
         resolved = installer.resolve(rule)
         for r in resolved:
             keys.append(r + dep.version)
+        if add_ros_dev:
+            if '_is_ros' in d.data and d.data['_is_ros']:
+                for r in resolved:
+                    keys.append(r + '-dev' + dep.version)
+
     if len(not_provided) > 0:
         print('Some packages are not provided by the native installer for ' + package_name +
               ': ' + ' '.join(not_provided), file=sys.stderr)
@@ -159,9 +168,17 @@ def static_revfn(rev):
     return revfn
 
 
+def is_dev(key):
+    return re.match(r'^\S*-dev([<>=]\S+)?$', key) is not None
+
+
+def is_not_dev(key):
+    return not is_dev(key)
+
+
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
-                        ver_suffix=None, commit_hash=None):
+                        ver_suffix=None, commit_hash=None, split_dev=False):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -251,14 +268,14 @@ def package_to_apkbuild(ros_distro, package_name,
         ros2_ros_workspaces_dependencies = ["ament_cmake_core", "ament_package", "ros_workspace"]
         if pkg.name not in ros2_ros_workspaces_dependencies:
             depends.append(NameAndVersion("ros_workspace", ""))
-    depends_keys = resolve(ros_distro, package_name, depends)
+    depends_keys = resolve(ros_distro, package_name, depends, add_ros_dev=split_dev)
 
     depends_export = []
     for dep in pkg.buildtool_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.build_export_depends:
         depends_export.append(ros_dependency_to_name_ver(dep))
-    depends_export_keys = resolve(ros_distro, package_name, depends_export)
+    depends_export_keys = resolve(ros_distro, package_name, depends_export, add_ros_dev=split_dev)
 
     catkin = False
     cmake = False
@@ -296,7 +313,7 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
         makedepends.append(ros_dependency_to_name_ver(dep))
-    makedepends_keys = resolve(ros_distro, package_name, makedepends)
+    makedepends_keys = resolve(ros_distro, package_name, makedepends, add_ros_dev=split_dev)
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
         sys.exit(1)
@@ -319,6 +336,19 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends_keys = force_py3_keys(makedepends_keys)
         makedepends_implicit = force_py3_keys(makedepends_implicit)
 
+    if split_dev:
+        apk_depends = list(filter(is_not_dev, depends_keys))
+        apk_makedepends = makedepends_implicit + makedepends_keys + list(filter(is_dev, depends_keys))
+        apk_depends_dev = depends_export_keys + list(filter(is_dev, depends_keys))
+        # Remove duplicated dependency keys
+        apk_depends = sorted(list(set(apk_depends)))
+        apk_makedepends = sorted(list(set(apk_makedepends)))
+        apk_depends_dev = sorted(list(set(apk_depends_dev)))
+    else:
+        apk_depends = depends_keys + depends_export_keys
+        apk_makedepends = makedepends_implicit + makedepends_keys
+        apk_depends_dev = []
+
     if ver_suffix is None:
         ver_suffix = ''
 
@@ -340,8 +370,9 @@ def package_to_apkbuild(ros_distro, package_name,
         'url': url,
         'license': pkg.licenses[0],
         'check': check,
-        'depends': depends_keys + depends_export_keys,
-        'makedepends': makedepends_implicit + makedepends_keys,
+        'depends': apk_depends,
+        'makedepends': apk_makedepends,
+        'depends_dev': apk_depends_dev,
         'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
         'rosinstall': None if src else yaml.dump(rosinstall),
         'vcstool_opt': '' if upstream and commit_hash is not None else '--shallow',
@@ -351,6 +382,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_ament_cmake': ament_cmake,
         'use_ament_python': ament_python,
         'is_ros2': is_ros2,
+        'split_dev': split_dev,
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
@@ -394,13 +426,17 @@ def main():
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
+    parser.add_argument('--split-dev', action='store_const',
+                        const=True, default=False,
+                        help='split -dev packages (default: False)')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
                               check=args.check, upstream=args.upstream,
                               src=args.src, revfn=static_revfn(args.rev),
                               ver_suffix=args.vsuffix,
-                              commit_hash=args.commit))
+                              commit_hash=args.commit,
+                              split_dev=args.split_dev))
 
 
 def main_multi():
@@ -425,6 +461,9 @@ example:
     parser.add_argument('--upstream', action='store_const',
                         const=True, default=False,
                         help='use upstream repository (default: False)')
+    parser.add_argument('--split-dev', action='store_const',
+                        const=True, default=False,
+                        help='split -dev packages (default: False)')
     args = parser.parse_args()
 
     pkglist = None
@@ -483,7 +522,8 @@ example:
             args.ros_distro[0], pkgname,
             upstream=(args.upstream or pkg_force_upstream),
             revfn=revfn,
-            commit_hash=pkg_upstream_ref)
+            commit_hash=pkg_upstream_ref,
+            split_dev=args.split_dev)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
