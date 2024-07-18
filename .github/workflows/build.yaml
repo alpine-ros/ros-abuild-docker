@@ -16,11 +16,15 @@ jobs:
         env:
           - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
           - ALPINE_VERSION=3.17 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2
-          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
-          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=yes
+          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 TEST_SPLIT_DEV=true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Extract test mode
+        id: test-mode
+        run: |
+          eval ${{ matrix.env }}
+          echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
 
       - name: Build image
         run: |
@@ -31,10 +35,10 @@ jobs:
             --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
             .
-      - name: Test
+
+      - name: Clone sample ROS package
         run: |
           eval ${{ matrix.env }}
-          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
           if [[ ${ROS_DISTRIBUTION_TYPE} == "ros1" ]]; then
             pkg_name="rospack"
@@ -46,6 +50,10 @@ jobs:
             mv /tmp/ament_index/${pkg_name} /tmp/${pkg_name}
             rm -rf /tmp/ament_index
           fi
+      - name: Test
+        run: |
+          eval ${{ matrix.env }}
+          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
 
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
@@ -63,10 +71,31 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
-          if [ "${SPLIT_DEV:-}" = 'yes' ]; then
-            echo "Checking dev package"
-            ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dev-[[:alnum:]\._git]\+-r0.apk"
-          fi
+
+          rm -rf /tmp/apks
+      - name: Test with split-dev
+        if: steps.test-mode.outputs.split-dev
+        run: |
+          mkdir -p /tmp/apks
+          chmod a+w /tmp/apks
+          docker run --rm \
+            -v /tmp/${pkg_name}:/src/${pkg_name}:ro \
+            -v /tmp/apks:/packages \
+            -e SPLIT_DEV=yes \
+            ${image}
+
+          pkg_name=${pkg_name//_/-}
+          ls -l /tmp/apks/*/*
+          echo "Checking -dbg subpackage"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[[:alnum:]\._git]\+-r0.apk"
+          echo "Checking -doc subpackage"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
+          echo "Checking main package"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
+          echo "Checking dev package"
+          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dev-[[:alnum:]\._git]\+-r0.apk"
+
+          rm -rf /tmp/apks
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
