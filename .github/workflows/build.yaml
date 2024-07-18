@@ -70,7 +70,7 @@ jobs:
 
           sudo rm -rf /tmp/apks
       - name: Test with split-dev
-        if: steps.test-mode.outputs.split-dev
+        if: steps.test-data.outputs.split-dev
         run: |
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
