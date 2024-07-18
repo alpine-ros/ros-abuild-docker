@@ -87,6 +87,8 @@ case "${ALPINE_VERSION}" in
     ;;
 esac
 
+echo "generate_opts: ${generate_opts}"
+
 # Setup environment variables
 
 if [ ! -z "${JOBS}" ]; then
