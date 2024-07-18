@@ -68,7 +68,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
 
-          rm -rf /tmp/apks
+          sudo rm -rf /tmp/apks
       - name: Test with split-dev
         if: steps.test-mode.outputs.split-dev
         run: |
@@ -90,7 +90,7 @@ jobs:
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
 
-          rm -rf /tmp/apks
+          sudo rm -rf /tmp/apks
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
