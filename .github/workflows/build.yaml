@@ -20,12 +20,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Extract test mode
-        id: test-mode
-        run: |
-          eval ${{ matrix.env }}
-          echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
-
       - name: Build image
         run: |
           eval ${{ matrix.env }}
@@ -36,7 +30,8 @@ jobs:
             --build-arg ROS_DISTRO=${ROS_DISTRO} \
             .
 
-      - name: Clone sample ROS package
+      - name: Prepare test data
+        id: test-data
         run: |
           eval ${{ matrix.env }}
 
@@ -50,6 +45,9 @@ jobs:
             mv /tmp/ament_index/${pkg_name} /tmp/${pkg_name}
             rm -rf /tmp/ament_index
           fi
+          echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
+          echo "pkg-name=${pkg_name}" | tee ${GITHUB_OUTPUT}
+          echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name}" | tee ${GITHUB_OUTPUT}
       - name: Test
         run: |
           eval ${{ matrix.env }}
@@ -58,19 +56,17 @@ jobs:
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
-            -v /tmp/${pkg_name}:/src/${pkg_name}:ro \
+            -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e SPLIT_DEV=${SPLIT_DEV} \
             ${image}
 
-          pkg_name=${pkg_name//_/-}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dbg-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking -doc subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
 
           rm -rf /tmp/apks
       - name: Test with split-dev
@@ -79,21 +75,20 @@ jobs:
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
-            -v /tmp/${pkg_name}:/src/${pkg_name}:ro \
+            -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
             -e SPLIT_DEV=yes \
             ${image}
 
-          pkg_name=${pkg_name//_/-}
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dbg-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dbg-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking -doc subpackage"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-doc-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking dev package"
-          ls -l /tmp/apks/*/* | grep -e "ros-${ROS_DISTRO}-${pkg_name}-dev-[[:alnum:]\._git]\+-r0.apk"
+          ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
 
           rm -rf /tmp/apks
 
