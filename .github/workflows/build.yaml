@@ -16,7 +16,7 @@ jobs:
         env:
           - ALPINE_VERSION=3.17 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
           - ALPINE_VERSION=3.17 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2
-          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 TEST_SPLIT_DEV=true
+          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,10 +46,11 @@ jobs:
             rm -rf /tmp/ament_index
           fi
           echo "image=ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}" | tee -a ${GITHUB_OUTPUT}
-          echo "split-dev=${TEST_SPLIT_DEV}" | tee -a ${GITHUB_OUTPUT}
+          echo "split-dev=${SPLIT_DEV}" | tee -a ${GITHUB_OUTPUT}
           echo "pkg-name=${pkg_name}" | tee -a ${GITHUB_OUTPUT}
           echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee -a ${GITHUB_OUTPUT}
       - name: Test
+        if: steps.test-data.outputs.split-dev != 'true'
         run: |
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
