@@ -58,7 +58,7 @@ jobs:
             -v /tmp/apks:/packages \
             ${{ steps.test-data.outputs.image }}
       - name: Test
-        run:
+        run: |
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dbg-[[:alnum:]\._git]\+-r0.apk"
