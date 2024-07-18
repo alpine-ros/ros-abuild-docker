@@ -47,7 +47,7 @@ jobs:
           fi
           echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
           echo "pkg-name=${pkg_name}" | tee ${GITHUB_OUTPUT}
-          echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name}" | tee ${GITHUB_OUTPUT}
+          echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee ${GITHUB_OUTPUT}
       - name: Test
         run: |
           eval ${{ matrix.env }}
