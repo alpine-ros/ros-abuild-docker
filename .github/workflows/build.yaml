@@ -45,20 +45,18 @@ jobs:
             mv /tmp/ament_index/${pkg_name} /tmp/${pkg_name}
             rm -rf /tmp/ament_index
           fi
+          echo "image=ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}" | tee ${GITHUB_OUTPUT}
           echo "split-dev=${TEST_SPLIT_DEV}" | tee ${GITHUB_OUTPUT}
           echo "pkg-name=${pkg_name}" | tee ${GITHUB_OUTPUT}
           echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee ${GITHUB_OUTPUT}
       - name: Test
         run: |
-          eval ${{ matrix.env }}
-          image="ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}"
-
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            ${image}
+            ${{ steps.test-data.outputs.image }}
 
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
@@ -78,7 +76,7 @@ jobs:
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
             -e SPLIT_DEV=yes \
-            ${image}
+            ${{ steps.test-data.outputs.image }}
 
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
