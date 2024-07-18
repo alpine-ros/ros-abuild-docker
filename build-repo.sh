@@ -79,17 +79,11 @@ case "${SKIP_ROSDEP_UPDATE}" in
 esac
 
 generate_opts=
-case "${SPLIT_DEV}" in
-  "")
-    ;;
-  yes)
+case "${ALPINE_VERSION}" in
+  3.20)
     generate_opts="${generate_opts} --split-dev"
     ;;
-  no)
-    ;;
   *)
-    echo "SPLIT_DEV must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
-    exit 1
     ;;
 esac
 
