@@ -390,8 +390,8 @@ doc() {
 
   default_doc
 }
-
 @[if split_dev]@
+
 dev() {
   mkdir -p $subpkgdir
   install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
@@ -405,7 +405,6 @@ dev() {
 
   default_dev
 }
-
 @[end if]
 if [ -f ./apkbuild_hook.sh ]; then
   . ./apkbuild_hook.sh
