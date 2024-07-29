@@ -66,11 +66,23 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
+
+          mkdir -p /tmp/pkg-main
+          cd /tmp/pkg-main
       - name: Test split-dev
         if: steps.test-data.outputs.split-dev
         run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
+      - name: Show package contents
+        run: |
+          for apk in /tmp/apks/*/*.apk; do
+            echo "-----"
+            echo ${apk}
+            echo "-----"
+            tar -tvf ${apk}
+            echo
+          done
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
