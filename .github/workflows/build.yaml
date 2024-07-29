@@ -80,7 +80,7 @@ jobs:
             echo "-----"
             echo ${apk}
             echo "-----"
-            tar -tvf ${apk}
+            tar -tvf ${apk} 2>/dev/null
             echo
           done
 
