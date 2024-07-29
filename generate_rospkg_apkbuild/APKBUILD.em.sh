@@ -393,8 +393,12 @@ doc() {
 @[if split_dev]@
 
 dev() {
+  local i=
   mkdir -p $subpkgdir
+
   install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
+	depends="$depends_dev"
+	pkgdesc="$pkgdesc (development files)"
 
   cd $pkgdir || return 0
 
