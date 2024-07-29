@@ -396,14 +396,17 @@ dev() {
   mkdir -p $subpkgdir
   install_if="${subpkgname%-dev}=$pkgver-r$pkgrel ros-dev"
 
-  if ls $pkgdir/usr/ros/*/lib/pkgconfig >/dev/null 2>/dev/null; then
-    amove 'usr/ros/*/lib/pkgconfig'
-  fi
-  if ls $pkgdir/usr/ros/*/share/*/cmake >/dev/null 2>/dev/null; then
-    amove 'usr/ros/*/share/*/cmake'
-  fi
+  cd $pkgdir || return 0
 
-  default_dev
+  for i in \
+    usr/ros/*/lib/pkgconfig \
+    usr/ros/*/share/*/cmake \
+    usr/ros/*/include \
+    $(find usr/ros/*/lib -name -name '*.[choa]' -o -name '*.prl' 2>/dev/null); do
+    if [ -e "$i" ] || [ -L "$i" ]; then
+      amove "$i"
+    fi
+  done
 }
 @[end if]
 if [ -f ./apkbuild_hook.sh ]; then
