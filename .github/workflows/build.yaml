@@ -66,9 +66,6 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
-
-          mkdir -p /tmp/pkg-main
-          cd /tmp/pkg-main
       - name: Test split-dev
         if: steps.test-data.outputs.split-dev
         run: |
