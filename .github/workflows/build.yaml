@@ -76,7 +76,10 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
       - name: Show package contents
         run: |
-          for apk in /tmp/apks/*/*.apk; do
+          ls /tmp/apks/
+          ls /tmp/apks/*/
+          ls /tmp/apks/*/*/
+          for apk in /tmp/apks/*/*/.apk; do
             echo "-----"
             echo ${apk}
             echo "-----"
