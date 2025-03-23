@@ -80,7 +80,7 @@ esac
 
 generate_opts=
 case "${ALPINE_VERSION}" in
-  3.20)
+  3.[2-9]*)
     generate_opts="${generate_opts} --split-dev"
     ;;
   *)
