@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG ALPINE_VERSION=3.20
-FROM alpine:${ALPINE_VERSION}
+FROM docker.io/alpine:${ALPINE_VERSION}
 ARG ALPINE_VERSION=3.20
 ARG ROS_DISTRO=noetic
 
