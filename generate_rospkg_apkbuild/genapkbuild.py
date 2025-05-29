@@ -313,6 +313,10 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends.append(ros_dependency_to_name_ver(dep))
     for dep in pkg.test_depends:
         makedepends.append(ros_dependency_to_name_ver(dep))
+    for dep in pkg.buildtool_export_depends:
+        makedepends.append(ros_dependency_to_name_ver(dep))
+    for dep in pkg.build_export_depends:
+        makedepends.append(ros_dependency_to_name_ver(dep))
     makedepends_keys = resolve(ros_distro, package_name, makedepends, add_ros_dev=split_dev)
 
     if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
