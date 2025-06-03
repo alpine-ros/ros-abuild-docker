@@ -87,6 +87,10 @@ case "${ALPINE_VERSION}" in
     ;;
 esac
 
+for opt in ${CATKIN_OPTIONS}; do
+  generate_opts="${generate_opts} --catkin-option=${opt}"
+done
+
 echo "generate_opts: ${generate_opts}"
 
 # Setup environment variables

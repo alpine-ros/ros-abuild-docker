@@ -178,7 +178,7 @@ def is_not_dev(key):
 
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
-                        ver_suffix=None, commit_hash=None, split_dev=False):
+                        ver_suffix=None, commit_hash=None, split_dev=False, catkin_options=[]):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -387,6 +387,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_ament_python': ament_python,
         'is_ros2': is_ros2,
         'split_dev': split_dev,
+        'catkin_options': None if not catkin_options else ' '.join(catkin_options),
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
@@ -433,6 +434,9 @@ def main():
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
+    parser.add_argument('--catkin-option', dest='catkin_options',
+                        type=str, action='append', default=[],
+                        help='catkin optional arguments (default: [])')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
@@ -440,7 +444,8 @@ def main():
                               src=args.src, revfn=static_revfn(args.rev),
                               ver_suffix=args.vsuffix,
                               commit_hash=args.commit,
-                              split_dev=args.split_dev))
+                              split_dev=args.split_dev,
+                              catkin_options=args.catkin_options))
 
 
 def main_multi():
@@ -468,6 +473,9 @@ example:
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
+    parser.add_argument('--catkin-option', dest='catkin_options',
+                        type=str, action='append', default=[],
+                        help='catkin optional arguments (default: [])')
     args = parser.parse_args()
 
     pkglist = None
@@ -527,7 +535,8 @@ example:
             upstream=(args.upstream or pkg_force_upstream),
             revfn=revfn,
             commit_hash=pkg_upstream_ref,
-            split_dev=args.split_dev)
+            split_dev=args.split_dev,
+            catkin_options=args.catkin_options)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):

@@ -102,6 +102,9 @@ build() {
 @[  end if]@
   source /usr/ros/@(ros_distro)/setup.sh
   catkin_make_isolated \
+@[  if catkin_options]@
+    @(catkin_options) \
+@[  end if]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog
 @[end if]@
 @[if is_ros2]@
@@ -149,6 +152,9 @@ check() {
   source /usr/ros/@(ros_distro)/setup.sh
   source devel_isolated/setup.sh
   catkin_make_isolated \
+@[    if catkin_options]@
+    @(catkin_options) \
+@[    end if]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     --catkin-make-args run_tests 2>&1 | tee $checklog
   catkin_test_results 2>&1 | tee $checklog
@@ -213,9 +219,15 @@ package() {
 @[if use_catkin]@
   source /usr/ros/@(ros_distro)/setup.sh
   catkin_make_isolated \
+@[  if catkin_options]@
+    @(catkin_options) \
+@[  end if]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     --install-space /usr/ros/@(ros_distro)
   catkin_make_isolated \
+@[  if catkin_options]@
+    @(catkin_options) \
+@[  end if]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     --install --install-space /usr/ros/@(ros_distro)
   rm -f \
