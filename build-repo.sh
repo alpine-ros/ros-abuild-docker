@@ -95,7 +95,7 @@ if [ ! -z "${JOBS}" ]; then
   echo "export JOBS=${JOBS}" | sudo tee -a /etc/abuild.conf
 fi
 
-echo 'export MAKEFLAGS="-j${JOBS} -l${JOBS}"/' | sudo tee -a /etc/abuild.conf
+echo 'export MAKEFLAGS="${MAKEFLAGS} -j${JOBS} -l${JOBS}"/' | sudo tee -a /etc/abuild.conf
 
 if [ ! -z "${CFLAGS}" ]; then
   echo "export CFLAGS=\"\${CFLAGS} ${CFLAGS}\"/" | sudo tee -a /etc/abuild.conf
