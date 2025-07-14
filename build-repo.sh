@@ -95,13 +95,13 @@ if [ ! -z "${JOBS}" ]; then
   echo "export JOBS=${JOBS}" | sudo tee -a /etc/abuild.conf
 fi
 
-echo 'export MAKEFLAGS="${MAKEFLAGS} -j${JOBS} -l${JOBS}"/' | sudo tee -a /etc/abuild.conf
+echo 'export MAKEFLAGS="${MAKEFLAGS} -j${JOBS} -l${JOBS}"' | sudo tee -a /etc/abuild.conf
 
 if [ ! -z "${CFLAGS}" ]; then
-  echo "export CFLAGS=\"\${CFLAGS} ${CFLAGS}\"/" | sudo tee -a /etc/abuild.conf
+  echo "export CFLAGS=\"\${CFLAGS} ${CFLAGS}\"" | sudo tee -a /etc/abuild.conf
 fi
 if [ ! -z "${CXXFLAGS}" ]; then
-  echo "export CXXFLAGS=\"\${CXXFLAGS} ${CXXFLAGS}\"/" | sudo tee -a /etc/abuild.conf
+  echo "export CXXFLAGS=\"\${CXXFLAGS} ${CXXFLAGS}\"" | sudo tee -a /etc/abuild.conf
 fi
 
 if [ ${ENABLE_CCACHE} = "yes" ]
