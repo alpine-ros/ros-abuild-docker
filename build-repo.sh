@@ -92,23 +92,13 @@ echo "generate_opts: ${generate_opts}"
 # Setup environment variables
 
 if [ ! -z "${JOBS}" ]; then
-  sudo sed -i "s/export JOBS=.*/export JOBS=${JOBS}/" /etc/abuild.conf
+  echo "export JOBS=${JOBS}" | sudo tee -a /etc/abuild.conf
 fi
 
-sudo sed -i 's/export MAKEFLAGS=.*/export MAKEFLAGS="-j$JOBS -l$JOBS"/' /etc/abuild.conf
+echo 'export MAKEFLAGS="-j${JOBS} -l${JOBS}"/' | sudo tee -a /etc/abuild.conf
 
 if [ ! -z "${CFLAGS}" ]; then
-  echo "Overwriting CFLAGS"
-  echo "original:"
-  echo "---"
-  head -n 4 /etc/abuild.conf
-  sudo sed -i "s/export CFLAGS=\"-Os -fomit-frame-pointer\"/export CFLAGS=\"${CFLAGS}\"/" /etc/abuild.conf
-  echo "---"
-  echo "updated:"
-  echo "---"
-  head -n 4 /etc/abuild.conf
-  echo "---"
-  echo
+  echo "export CFLAGS=\"\${CFLAGS} ${CFLAGS}\"/" | sudo tee -a /etc/abuild.conf
 fi
 
 if [ ${ENABLE_CCACHE} = "yes" ]
