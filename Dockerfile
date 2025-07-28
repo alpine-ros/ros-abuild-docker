@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-ARG ALPINE_VERSION=3.17
+ARG ALPINE_VERSION=3.20
 FROM alpine:${ALPINE_VERSION}
-ARG ALPINE_VERSION=3.17
+ARG ALPINE_VERSION=3.20
 ARG ROS_DISTRO=noetic
 
 ENV ROS_DISTRO=${ROS_DISTRO} \
@@ -54,7 +54,7 @@ RUN mkdir -p /root/.ros \
 
 COPY setup.py /tmp/genapkbuild/
 COPY generate_rospkg_apkbuild /tmp/genapkbuild/generate_rospkg_apkbuild
-RUN pip3 install $([ "${ALPINE_VERSION}" != '3.17' ] && echo -n '--break-system-packages') /tmp/genapkbuild
+RUN pip3 install --break-system-packages /tmp/genapkbuild
 
 COPY build-repo.sh /
 COPY sign-repo-index.sh /
