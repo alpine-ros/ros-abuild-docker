@@ -17,6 +17,7 @@ jobs:
           - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true
           - ALPINE_VERSION=3.20 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
           - ALPINE_VERSION=3.20 ROS_DISTRO=jazzy ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
+          - ALPINE_VERSION=3.23 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
