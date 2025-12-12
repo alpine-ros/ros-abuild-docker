@@ -178,7 +178,7 @@ def is_not_dev(key):
 
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
-                        ver_suffix=None, commit_hash=None, split_dev=False):
+                        ver_suffix=None, commit_hash=None, split_dev=False, cmake_args=None):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -387,6 +387,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'use_ament_python': ament_python,
         'is_ros2': is_ros2,
         'split_dev': split_dev,
+        'cmake_args': cmake_args,
     }
     template_path = os.path.join(os.path.dirname(__file__), 'APKBUILD.em.sh')
     apkbuild = StringIO()
@@ -433,6 +434,8 @@ def main():
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
+    parser.add_argument('--cmake-args', dest='cmake_args', type=str, default=None,
+                        help='add CMake arguments  (default: None)')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
@@ -440,7 +443,8 @@ def main():
                               src=args.src, revfn=static_revfn(args.rev),
                               ver_suffix=args.vsuffix,
                               commit_hash=args.commit,
-                              split_dev=args.split_dev))
+                              split_dev=args.split_dev,
+                              cmake_args=args.cmake_args))
 
 
 def main_multi():
@@ -468,6 +472,8 @@ example:
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
+    parser.add_argument('--cmake-args', dest='cmake_args', type=str, default=None,
+                        help='add CMake arguments  (default: None)')
     args = parser.parse_args()
 
     pkglist = None
@@ -527,7 +533,8 @@ example:
             upstream=(args.upstream or pkg_force_upstream),
             revfn=revfn,
             commit_hash=pkg_upstream_ref,
-            split_dev=args.split_dev)
+            split_dev=args.split_dev,
+            cmake_args=args.cmake_args)
 
         directory = os.path.dirname(filepath)
         if not os.path.exists(directory):
