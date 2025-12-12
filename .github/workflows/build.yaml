@@ -82,7 +82,7 @@ jobs:
             echo
           done
 
-      - name: Build sample package (with CMAKE_ARGS)
+      - name: Build sample package (with CMAKE_VARS)
         run: |
           sudo rm -rf /tmp/apks
           mkdir -p /tmp/apks
@@ -90,9 +90,9 @@ jobs:
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e CMAKE_ARGS='-DCMAKE_POLICY_VERSION_MINIMUM=3.10 -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE' \
+            -e CMAKE_VARS='CMAKE_POLICY_VERSION_MINIMUM=3.10 CMAKE_MESSAGE_LOG_LEVEL=VERBOSE' \
             ${{ steps.test-data.outputs.image }}
-      - name: Test (with CMAKE_ARGS)
+      - name: Test (with CMAKE_VARS)
         run: |
           ls -l /tmp/apks/*/*
           echo "Checking -dbg subpackage"
@@ -101,11 +101,11 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
-      - name: Test split-dev (with CMAKE_ARGS)
+      - name: Test split-dev (with CMAKE_VARS)
         run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
-      - name: Show package contents (with CMAKE_ARGS)
+      - name: Show package contents (with CMAKE_VARS)
         run: |
           for apk in /tmp/apks/*/*/*.apk; do
             echo "-----"

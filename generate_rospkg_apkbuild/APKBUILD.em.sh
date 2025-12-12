@@ -116,8 +116,8 @@ build() {
   mkdir build
   cd build
   cmake ../src/$_pkgname \
-@[for cmake_arg in cmake_args]@
-    @(cmake_arg) \
+@[for cmake_var in cmake_vars]@
+    -D@(cmake_var) \
 @[end for]@
     -DCMAKE_INSTALL_PREFIX=/usr/ros/@(ros_distro) \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
