@@ -102,8 +102,8 @@ build() {
 @[  end if]@
   source /usr/ros/@(ros_distro)/setup.sh
   catkin_make_isolated \
-@[for cmake_arg in cmake_args]@
-    @(cmake_arg) \
+@[for cmake_var in cmake_vars]@
+    -D@(cmake_var) \
 @[end for]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog
 @[end if]@
