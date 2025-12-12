@@ -90,7 +90,7 @@ jobs:
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e CMAKE_ARGS='-DCMAKE_POLICY_VERSION_MINIMUM=3.10' \
+            -e CMAKE_ARGS='-DCMAKE_POLICY_VERSION_MINIMUM=3.10 -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE' \
             ${{ steps.test-data.outputs.image }}
       - name: Test (with CMAKE_ARGS)
         run: |
