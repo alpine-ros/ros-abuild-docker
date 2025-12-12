@@ -78,17 +78,11 @@ case "${SKIP_ROSDEP_UPDATE}" in
     ;;
 esac
 
-generate_opts=
-case "${ALPINE_VERSION}" in
-  3.20)
-    generate_opts="${generate_opts} --split-dev"
-    ;;
-  3.23)
-    generate_opts="${generate_opts} --split-dev --cmake-args -DCMAKE_POLICY_VERSION_MINIMUM=3.10"
-    ;;
-  *)
-    ;;
-esac
+generate_opts="${GENERATE_OPTIONS} --split-dev"
+
+if [ -n "${CMAKE_ARGS}" ]; then
+  generate_opts="${generate_opts} --cmake-args \"${CMAKE_ARGS}\""
+fi
 
 echo "generate_opts: ${generate_opts}"
 
