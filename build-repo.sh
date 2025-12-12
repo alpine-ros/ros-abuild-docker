@@ -80,9 +80,9 @@ esac
 
 generate_opts="${GENERATE_OPTIONS} --split-dev"
 
-if [ -n "${CMAKE_ARGS}" ]; then
-  generate_opts="${generate_opts} --cmake-args \"${CMAKE_ARGS}\""
-fi
+for arg in ${CMAKE_ARGS}; do
+  generate_opts="${generate_opts} --cmake-arg ${arg}"
+done
 
 echo "generate_opts: ${generate_opts}"
 

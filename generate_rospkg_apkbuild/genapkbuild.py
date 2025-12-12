@@ -178,7 +178,7 @@ def is_not_dev(key):
 
 def package_to_apkbuild(ros_distro, package_name,
                         check=True, upstream=False, src=False, revfn=static_revfn(0),
-                        ver_suffix=None, commit_hash=None, split_dev=False, cmake_args=None):
+                        ver_suffix=None, commit_hash=None, split_dev=False, cmake_args=[]):
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
@@ -434,8 +434,8 @@ def main():
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
-    parser.add_argument('--cmake-args', dest='cmake_args', type=str, default=None,
-                        help='add CMake arguments  (default: None)')
+    parser.add_argument('--cmake-arg', dest='cmake_args', action='append', default=[],
+                        help='add CMake argument')
     args = parser.parse_args()
 
     print(package_to_apkbuild(args.ros_distro[0], args.package[0],
@@ -472,8 +472,8 @@ example:
     parser.add_argument('--split-dev', action='store_const',
                         const=True, default=False,
                         help='split -dev packages (default: False)')
-    parser.add_argument('--cmake-args', dest='cmake_args', type=str, default=None,
-                        help='add CMake arguments  (default: None)')
+    parser.add_argument('--cmake-arg', dest='cmake_args', action='append', default=[],
+                        help='add CMake argument')
     args = parser.parse_args()
 
     pkglist = None

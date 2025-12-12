@@ -102,9 +102,9 @@ build() {
 @[  end if]@
   source /usr/ros/@(ros_distro)/setup.sh
   catkin_make_isolated \
-@[if cmake_args]@
-    @(cmake_args) \
-@[end if]@
+@[for cmake_arg in cmake_args]@
+    @(cmake_arg) \
+@[end for]@
     -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee $buildlog
 @[end if]@
 @[if is_ros2]@
@@ -116,9 +116,9 @@ build() {
   mkdir build
   cd build
   cmake ../src/$_pkgname \
-@[if cmake_args]@
-    @(cmake_args) \
-@[end if]@
+@[for cmake_arg in cmake_args]@
+    @(cmake_arg) \
+@[end for]@
     -DCMAKE_INSTALL_PREFIX=/usr/ros/@(ros_distro) \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_LIBDIR=lib 2>&1 | tee $buildlog
