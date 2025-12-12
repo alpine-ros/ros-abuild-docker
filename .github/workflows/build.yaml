@@ -66,8 +66,6 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
-      - name: Test split-dev
-        run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
       - name: Show package contents
@@ -99,8 +97,6 @@ jobs:
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-doc-[[:alnum:]\._git]\+-r0.apk"
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
-      - name: Test split-dev (with CMAKE_ARGS)
-        run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
       - name: Show package contents (with CMAKE_ARGS)
