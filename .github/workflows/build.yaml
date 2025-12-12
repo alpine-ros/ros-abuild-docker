@@ -84,7 +84,7 @@ jobs:
 
       - name: Build sample package (with CMAKE_ARGS)
         run: |
-          rm -rf /tmp/apks
+          sudo rm -rf /tmp/apks
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
