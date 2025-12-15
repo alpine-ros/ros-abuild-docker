@@ -78,14 +78,11 @@ case "${SKIP_ROSDEP_UPDATE}" in
     ;;
 esac
 
-generate_opts=
-case "${ALPINE_VERSION}" in
-  3.20)
-    generate_opts="${generate_opts} --split-dev"
-    ;;
-  *)
-    ;;
-esac
+generate_opts="--split-dev"
+
+for arg in ${CMAKE_VARS}; do
+  generate_opts="${generate_opts} --cmake-var ${arg}"
+done
 
 echo "generate_opts: ${generate_opts}"
 
