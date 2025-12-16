@@ -217,7 +217,7 @@ error=false
 
 manifests=
 if [ -n "${MANIFEST_FILES}" ]; then
-  for file in ${ROSINSTALL_FILES}; do
+  for file in ${MANIFEST_FILES}; do
     manifests="${manifests} ${SRCDIR}/${file}"
   done
 else
