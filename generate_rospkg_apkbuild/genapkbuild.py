@@ -182,9 +182,9 @@ def package_to_apkbuild(ros_distro, package_name,
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
-    alpine_version = os.environ["ALPINE_VERSION"]
-    alpine_version_major = int(alpine_version.split('.')[0])
-    alpine_version_minor = int(alpine_version.split('.')[1])
+    alpine_version_array = os.environ["ALPINE_VERSION"].split('.')
+    alpine_version_major = int(alpine_version_array[0])
+    alpine_version_minor = int(alpine_version_array[1])
 
     if alpine_version_major == 3 and alpine_version_minor >= 23:
         # Specify rpath of shared objects to make abuild correctly find library dependencies under /usr/ros
