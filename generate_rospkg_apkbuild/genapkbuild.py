@@ -182,6 +182,14 @@ def package_to_apkbuild(ros_distro, package_name,
     pkg_xml = ''
     todo_upstream_clone = dict()
     ros_python_version = os.environ["ROS_PYTHON_VERSION"]
+    alpine_version = os.environ["ALPINE_VERSION"]
+    alpine_version_major = int(alpine_version.split('.')[0])
+    alpine_version_minor = int(alpine_version.split('.')[1])
+
+    if alpine_version_major == 3 and alpine_version_minor >= 23:
+        # Specify rpath of shared objects to make abuild possible to find library dependencies under /usr/ros
+        # TODO(at-wat): Make this default once Alpine ROS 3.20 is dropped
+        cmake_vars.insert(0, f'-DCMAKE_INSTALL_RPATH=/usr/ros/{ros_distro}/lib')
 
     if package_name.startswith('http://') or package_name.startswith('https://'):
         import requests
