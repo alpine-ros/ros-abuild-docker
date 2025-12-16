@@ -187,7 +187,7 @@ def package_to_apkbuild(ros_distro, package_name,
     alpine_version_minor = int(alpine_version.split('.')[1])
 
     if alpine_version_major == 3 and alpine_version_minor >= 23:
-        # Specify rpath of shared objects to make abuild possible to find library dependencies under /usr/ros
+        # Specify rpath of shared objects to make abuild correctly find library dependencies under /usr/ros
         # TODO(at-wat): Make this default once Alpine ROS 3.20 is dropped
         cmake_vars.insert(0, f'CMAKE_INSTALL_RPATH=/usr/ros/{ros_distro}/lib')
 
