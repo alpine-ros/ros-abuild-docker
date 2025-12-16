@@ -146,6 +146,7 @@ jobs:
             echo "-----"
             tar -tvf ${apk} 2>/dev/null
             echo
+          done
 
       - name: Login to GitHub Container Registry
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
