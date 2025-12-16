@@ -175,7 +175,7 @@ echo "---"
 sudo apk update
 
 if [ ! -f ${HOME}/.ros/rosdep/sources.cache/index ] || ! ${SKIP_ROSDEP_UPDATE:-false}; then
-  rosdep update
+  rosdep update --rosdistro=${ROS_DISTRO}
 fi
 
 
