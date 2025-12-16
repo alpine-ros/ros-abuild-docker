@@ -181,7 +181,15 @@ fi
 
 # Clone packages if .rosinstall is provided
 
-ext_deps="${ROSINSTALL_FILES:-$(find ${SRCDIR} -name "*.rosinstall" || true)}"
+ext_deps=
+if [ -n "${ROSINSTALL_FILES}" ]; then
+  for file in ${ROSINSTALL_FILES}; do
+    ext_deps="${ext_deps} ${SRCDIR}/${file}"
+  done
+else
+  ext_deps="$(find ${SRCDIR} -name "*.rosinstall" || true)"
+fi
+
 for dep in ${ext_deps}; do
   # skip empty and all commented out .rosinstall files
   if [ $(cat ${dep} | sed '/^\s*#/d;/^\s*$/d' | wc -l) -eq 0 ]; then
@@ -207,7 +215,15 @@ done
 
 error=false
 
-manifests="${MANIFEST_FILES:-$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")}"
+manifests=
+if [ -n "${MANIFEST_FILES}" ]; then
+  for file in ${ROSINSTALL_FILES}; do
+    manifests="${manifests} ${SRCDIR}/${file}"
+  done
+else
+  manifests="$(find ${SRCDIR} -name "package.xml") $(find ${extsrc} -name "package.xml")"
+fi
+
 for manifest in ${manifests}; do
   echo +++++++++++++++++++++++++
   echo "manifest: ${manifest}"
