@@ -53,12 +53,14 @@ jobs:
 
       - name: Build sample package
         run: |
+          eval ${{ matrix.env }}
+
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e "CMAKE_VARS=${TEST_CMAKE_VARS}" \
+            -e CMAKE_VARS="${TEST_CMAKE_VARS}" \
             ${{ steps.test-data.outputs.image }}
       - name: Test
         run: |
