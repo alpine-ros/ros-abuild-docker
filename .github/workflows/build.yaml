@@ -87,6 +87,8 @@ jobs:
 
       - name: Build sample package (with CMAKE_VARS)
         run: |
+          eval ${{ matrix.env }}
+
           sudo rm -rf /tmp/apks
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
