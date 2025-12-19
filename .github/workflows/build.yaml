@@ -130,7 +130,7 @@ jobs:
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e CMAKE_VARS="${TEST_CMAKE_VAR}" \
+            -e CMAKE_VARS="${TEST_CMAKE_VARS}" \
             -e MANIFEST_FILES=${{ steps.test-data.outputs.pkg-name }}/package.xml \
             ${{ steps.test-data.outputs.image }}
       - name: Test (with MANIFEST_FILES)
