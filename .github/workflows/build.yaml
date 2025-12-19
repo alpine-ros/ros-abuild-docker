@@ -17,6 +17,7 @@ jobs:
           - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true
           - ALPINE_VERSION=3.20 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
           - ALPINE_VERSION=3.20 ROS_DISTRO=jazzy ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
+          - ALPINE_VERSION=3.23 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true TEST_CMAKE_VARS="CMAKE_POLICY_VERSION_MINIMUM=3.10"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,11 +53,14 @@ jobs:
 
       - name: Build sample package
         run: |
+          eval ${{ matrix.env }}
+
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
+            -e CMAKE_VARS="${TEST_CMAKE_VARS}" \
             ${{ steps.test-data.outputs.image }}
       - name: Test
         run: |
@@ -84,13 +88,15 @@ jobs:
 
       - name: Build sample package (with CMAKE_VARS)
         run: |
+          eval ${{ matrix.env }}
+
           sudo rm -rf /tmp/apks
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
-            -e CMAKE_VARS='CMAKE_POLICY_VERSION_MINIMUM=3.10 CMAKE_MESSAGE_LOG_LEVEL=VERBOSE' \
+            -e CMAKE_VARS="${TEST_CMAKE_VARS} CMAKE_POLICY_VERSION_MINIMUM=3.10 CMAKE_MESSAGE_LOG_LEVEL=VERBOSE" \
             ${{ steps.test-data.outputs.image }}
       - name: Test (with CMAKE_VARS)
         run: |
@@ -117,12 +123,15 @@ jobs:
 
       - name: Build sample package (with MANIFEST_FILES)
         run: |
+          eval ${{ matrix.env }}
+
           sudo rm -rf /tmp/apks
           mkdir -p /tmp/apks
           chmod a+w /tmp/apks
           docker run --rm \
             -v /tmp/${{ steps.test-data.outputs.pkg-name }}:/src/${{ steps.test-data.outputs.pkg-name }}:ro \
             -v /tmp/apks:/packages \
+            -e CMAKE_VARS="${TEST_CMAKE_VARS}" \
             -e MANIFEST_FILES=${{ steps.test-data.outputs.pkg-name }}/package.xml \
             ${{ steps.test-data.outputs.image }}
       - name: Test (with MANIFEST_FILES)
