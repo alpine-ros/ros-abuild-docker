@@ -80,6 +80,14 @@ esac
 
 generate_opts="--split-dev"
 
+case "${ALPINE_VERSION}" in
+  3.20)
+    ;;
+  *)
+    generate_opts="${generate_opts} --cmake-var CMAKE_INSTALL_RPATH=/usr/ros/${ROS_DISTRO}/lib"
+    ;;
+esac
+
 for arg in ${CMAKE_VARS}; do
   generate_opts="${generate_opts} --cmake-var ${arg}"
 done
