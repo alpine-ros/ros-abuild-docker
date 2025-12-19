@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1
-          - ALPINE_VERSION=3.20 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2
-          - ALPINE_VERSION=3.20 ROS_DISTRO=jazzy ROS_DISTRIBUTION_TYPE=ros2
-          - ALPINE_VERSION=3.23 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 TEST_CMAKE_VARS="CMAKE_POLICY_VERSION_MINIMUM=3.10"
+          - ALPINE_VERSION=3.20 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true
+          - ALPINE_VERSION=3.20 ROS_DISTRO=humble ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
+          - ALPINE_VERSION=3.20 ROS_DISTRO=jazzy ROS_DISTRIBUTION_TYPE=ros2 SPLIT_DEV=true
+          - ALPINE_VERSION=3.23 ROS_DISTRO=noetic ROS_DISTRIBUTION_TYPE=ros1 SPLIT_DEV=true TEST_CMAKE_VARS="CMAKE_POLICY_VERSION_MINIMUM=3.10"
 
     steps:
       - name: Checkout
@@ -48,6 +48,7 @@ jobs:
             rm -rf /tmp/ament_index
           fi
           echo "image=ros-abuild:${ALPINE_VERSION}-${ROS_DISTRO}" | tee -a ${GITHUB_OUTPUT}
+          echo "split-dev=${SPLIT_DEV}" | tee -a ${GITHUB_OUTPUT}
           echo "pkg-name=${pkg_name}" | tee -a ${GITHUB_OUTPUT}
           echo "apk-pkg-name=ros-${ROS_DISTRO}-${pkg_name//_/-}" | tee -a ${GITHUB_OUTPUT}
 
@@ -72,6 +73,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
       - name: Test split-dev
+        if: steps.test-data.outputs.split-dev
         run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
@@ -107,6 +109,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
       - name: Test split-dev (with CMAKE_VARS)
+        if: steps.test-data.outputs.split-dev
         run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
@@ -143,6 +146,7 @@ jobs:
           echo "Checking main package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-[[:alnum:]\._git]\+-r0.apk"
       - name: Test split-dev (with MANIFEST_FILES)
+        if: steps.test-data.outputs.split-dev
         run: |
           echo "Checking dev package"
           ls -l /tmp/apks/*/* | grep -e "${{ steps.test-data.outputs.apk-pkg-name }}-dev-[[:alnum:]\._git]\+-r0.apk"
