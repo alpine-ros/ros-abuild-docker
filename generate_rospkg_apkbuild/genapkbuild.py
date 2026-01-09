@@ -330,8 +330,6 @@ def package_to_apkbuild(ros_distro, package_name,
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep',
         'py-rosinstall-generator', 'py-vcstool', 'chrpath']
-    if ament_python:
-        makedepends_implicit.append('py-pytest')
 
     # Force using py3- packages for Python 3 build
     if ros_python_version == '3':
