@@ -108,6 +108,7 @@ fi
 if [ ! -z "${CXXFLAGS}" ]; then
   echo "export CXXFLAGS=\"\${CXXFLAGS} ${CXXFLAGS}\"" | sudo tee -a /etc/abuild.conf
 fi
+echo "export CMAKE_GENERATOR=\"Unix Makefiles\"" | sudo tee -a /etc/abuild.conf
 
 if [ ${ENABLE_CCACHE} = "yes" ]
 then
