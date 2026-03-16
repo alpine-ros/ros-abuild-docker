@@ -39,7 +39,8 @@ RUN apk add --no-cache \
     py3-vcstool \
     py3-yaml \
     python3 \
-    sed
+    sed \
+    ros-${ROS_DISTRO}-ros-environment
 
 RUN rosdep init \
   && sed -i -e 's|ros/rosdistro/master|alpine-ros/rosdistro/alpine-custom-apk|' /etc/ros/rosdep/sources.list.d/20-default.list
