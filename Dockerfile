@@ -39,6 +39,7 @@ RUN apk add --no-cache \
     py3-vcstool \
     py3-yaml \
     python3 \
+    ros-${ROS_DISTRO}-ros-environment \
     sed
 
 RUN rosdep init \
