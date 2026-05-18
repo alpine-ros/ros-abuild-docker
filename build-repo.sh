@@ -10,6 +10,7 @@ sudo chmod a+rwx \
   ${HOME}/.ros/rosdep
 
 build_subdir=abuild
+build_repo_options=
 
 # Validate environment variables
 
@@ -74,6 +75,18 @@ case "${SKIP_ROSDEP_UPDATE}" in
   *)
     echo "SKIP_ROSDEP_UPDATE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
     # Accept true/false as well for backward compatibility.
+    exit 1
+    ;;
+esac
+
+case "${PURGE_OBSOLETE}" in
+  ""|no)
+    ;;
+  yes)
+    build_repo_options="${build_repo_options} -p"
+    ;;
+  *)
+    echo "PURGE_OBSOLETE must be one of: \"yes\", \"no\", \"\" (default: \"no\")"
     exit 1
     ;;
 esac
@@ -306,7 +319,7 @@ fi
 
 # Build everything
 
-GENERATE_BUILD_LOGS=yes buildrepo -k -d ${REPODIR} -a ${APORTSDIR} ${repo} 2>&1 | tee ${full_log_file}
+GENERATE_BUILD_LOGS=yes buildrepo -k -d ${REPODIR} -a ${APORTSDIR} ${build_repo_options} ${repo} 2>&1 | tee ${full_log_file}
 
 
 # Summarize build result
