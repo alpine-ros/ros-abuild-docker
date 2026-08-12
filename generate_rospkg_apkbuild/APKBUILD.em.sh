@@ -12,6 +12,9 @@ options="!check"
 
 depends="@(' '.join(depends))"
 makedepends="@(' '.join(makedepends))"
+@[if checkdepends]@
+checkdepends="@(' '.join(checkdepends))"
+@[end if]@
 @[if split_dev]@
 depends_dev="@(' '.join(depends_dev))"
 
