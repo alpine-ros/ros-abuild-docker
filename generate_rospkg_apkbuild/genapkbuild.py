@@ -319,13 +319,23 @@ def package_to_apkbuild(ros_distro, package_name,
         makedepends.append(ros_dependency_to_name_ver(dep))
     makedepends_keys = resolve(ros_distro, package_name, makedepends, add_ros_dev=split_dev)
 
-    if depends_keys is None or depends_export_keys is None or makedepends_keys is None:
+    # check() may run "python -m pytest" even when package.xml does not
+    # declare pytest, so provide it to every Python package through
+    # checkdepends, which is installed for check() only.
+    checkdepends_keys = []
+    if check and ament_python:
+        checkdepends_keys = resolve(
+            ros_distro, package_name, [NameAndVersion('python3-pytest', '')])
+
+    if (depends_keys is None or depends_export_keys is None
+            or makedepends_keys is None or checkdepends_keys is None):
         sys.exit(1)
 
     # Remove duplicated dependency keys
     depends_keys = sorted(list(set(depends_keys)))
     depends_export_keys = sorted(list(set(depends_export_keys)))
     makedepends_keys = sorted(list(set(makedepends_keys)))
+    checkdepends_keys = sorted(list(set(checkdepends_keys)))
 
     makedepends_implicit = [
         'py-setuptools', 'py-rosdep',
@@ -336,6 +346,7 @@ def package_to_apkbuild(ros_distro, package_name,
         depends_keys = force_py3_keys(depends_keys)
         depends_export_keys = force_py3_keys(depends_export_keys)
         makedepends_keys = force_py3_keys(makedepends_keys)
+        checkdepends_keys = force_py3_keys(checkdepends_keys)
         makedepends_implicit = force_py3_keys(makedepends_implicit)
 
     if split_dev:
@@ -350,20 +361,6 @@ def package_to_apkbuild(ros_distro, package_name,
         apk_depends = depends_keys + depends_export_keys
         apk_makedepends = makedepends_implicit + makedepends_keys
         apk_depends_dev = []
-
-    # check() runs "python -m pytest" for a Python package whose setup.py
-    # mentions pytest. That decision is made from setup.py, while makedepends
-    # comes from package.xml, so a package that uses pytest without declaring
-    # it -- ament_flake8, for one -- fails the check with "No module named
-    # pytest". Put it in checkdepends, which abuild installs for check() only,
-    # so neither depends nor makedepends grows.
-    apk_checkdepends = []
-    if check and ament_python:
-        apk_checkdepends = resolve(
-            ros_distro, package_name, [NameAndVersion('python3-pytest', '')]) or []
-        if ros_python_version == '3':
-            apk_checkdepends = force_py3_keys(apk_checkdepends)
-        apk_checkdepends = sorted(set(apk_checkdepends))
 
     if ver_suffix is None:
         ver_suffix = ''
@@ -388,7 +385,7 @@ def package_to_apkbuild(ros_distro, package_name,
         'check': check,
         'depends': apk_depends,
         'makedepends': apk_makedepends,
-        'checkdepends': apk_checkdepends,
+        'checkdepends': checkdepends_keys,
         'depends_dev': apk_depends_dev,
         'ros_python_version': os.environ["ROS_PYTHON_VERSION"],
         'rosinstall': None if src else yaml.dump(rosinstall),
