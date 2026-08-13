@@ -180,7 +180,10 @@ check() {
   make install DESTDIR="$builddir"/tmp/pkg
 @[  end if]@
   if [ $(make -q test > /dev/null 2> /dev/null; echo $?) -eq 1 ]; then
-    make test 2>&1 | tee $checklog
+    # Run tests one at a time: ROS tests share the default DDS domain, and
+    # upstream only ever runs them sequentially. The -j1 is explicit because
+    # ctest otherwise picks up parallelism from MAKEFLAGS.
+    ctest -j1 2>&1 | tee $checklog
   fi
 @[  end if]@
 @[  if use_ament_python]@
